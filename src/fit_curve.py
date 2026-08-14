@@ -94,8 +94,14 @@ def main() -> dict:
     xg = np.array([r["theta"] for r in sec_g])
     yg_raw = np.array([r["y"] for r in sec_g])
     yg = yg_raw / yg_raw[0]
-    p_gq, _ = curve_fit(g_quadratic, xg, yg, p0=[-1e-3, -1e-5], maxfev=200000)
-    p_ge, _ = curve_fit(g_exponential, xg, yg, p0=[0.005], maxfev=200000)
+    # §4.5 는 g 를 "1 에서 시작하는 단조 감소" 로 못박는다. 제약 없이 맞추면
+    # θ=15 의 실측 융기(0.9592 > 0.9578, +0.0014)를 2차가 5% 로 증폭해 15.4° 에
+    # 꼭짓점이 생기고, 최적화가 15° 내리깐 카메라를 정면보다 선호하게 된다.
+    # a <= 0 · b <= 0 으로 가둬 [0,90] 구간에서 단조 감소를 보장한다.
+    p_gq, _ = curve_fit(g_quadratic, xg, yg, p0=[-1e-3, -1e-5],
+                        bounds=([-np.inf, -np.inf], [0.0, 0.0]), maxfev=200000)
+    p_ge, _ = curve_fit(g_exponential, xg, yg, p0=[0.005],
+                        bounds=([0.0], [np.inf]), maxfev=200000)
     r2_gq, r2_ge = r2(yg, g_quadratic(xg, *p_gq)), r2(yg, g_exponential(xg, *p_ge))
     if r2_gq >= r2_ge:
         g_form, g_params, g_fn, r2_g = "quadratic", {"a": p_gq[0], "b": p_gq[1]}, \
@@ -128,7 +134,10 @@ def main() -> dict:
         "detector_weights": "runs/detect/shwd_yolov8n/weights/best.pt",
         "detector_note": "COCO 사전학습본이 아니라 SHWD train 분할로 파인튜닝한 가중치다",
         "f_rho": {"form": "logistic", "L": float(p_f[0]), "k": float(p_f[1]),
-                  "x0": float(p_f[2]), "r2_section": round(r2_f, 4)},
+                  "x0": float(p_f[2]), "r2_section": round(r2_f, 4),
+                  "measured_range_px": [float(min(xf)), float(max(xf))],
+                  "extrapolation": "measured_range 밖으로 외삽하지 않는다. "
+                                   "하한 미만은 detect_model.py 가 0 으로 본다"},
         "g_theta": {"form": g_form,
                     "params": {k: float(v) for k, v in g_params.items()},
                     "normalized_at": "theta=0", "r2_section": round(r2_g, 4)},

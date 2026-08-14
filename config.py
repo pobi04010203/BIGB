@@ -37,10 +37,17 @@ R2_ACCEPTANCE = 0.80
 
 DETECTOR_WEIGHTS = "yolov8n.pt"          # 사전학습 가중치. 로컬 CUDA 세팅 금지(§0.1-3)
 
-RHO_LEVELS_PX = [48, 32, 24, 16, 12]     # 머리 bbox 짧은 변 유효 픽셀
+# ρ 는 §4.2 원안이 [48,32,24,16,12] 였으나 8·6·4 를 덧붙였다(2026-08-14 승인).
+# 이유: §5.2 의 4K·HFOV 90° 에서 ρ = 480/d 이므로 ρ=12px 가 d=40m 다. 현장이
+# 100×60m 라 복셀-카메라 쌍 대부분이 40m 를 넘는데, 그 구간을 측정 없이 로지스틱
+# 외삽으로 채우면 WDR 이 통째로 부풀려진다. 실측으로 덮는다.
+RHO_LEVELS_PX = [48, 32, 24, 16, 12, 8, 6, 4]   # 머리 bbox 짧은 변 유효 픽셀
 THETA_LEVELS_DEG = [0, 15, 30, 45, 60]   # 부감각
 OCC_LEVELS_PCT = [0, 15, 30, 45, 60]     # 가림률
-N_CONDITIONS = len(RHO_LEVELS_PX) * len(THETA_LEVELS_DEG) * len(OCC_LEVELS_PCT)  # 125
+N_CONDITIONS = len(RHO_LEVELS_PX) * len(THETA_LEVELS_DEG) * len(OCC_LEVELS_PCT)  # 200
+
+# 실측으로 덮은 ρ 하한. 곡선을 이 아래로 외삽하지 않는다.
+RHO_MEASURED_MIN_PX = min(RHO_LEVELS_PX)
 
 # 방위각 φ 는 제외한다 (§4.2, §6). 축을 추가하지 말 것.
 

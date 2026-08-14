@@ -186,9 +186,24 @@ def main(smoke: bool, limit: int | None) -> Path:
                 for t in config.THETA_LEVELS_DEG for o in config.OCC_LEVELS_PCT]
         out_csv = config.GRID_RESULTS_CSV
 
+    # 이미 계산된 조건은 건너뛴다. 격자를 넓힐 때 앞선 결과를 다시 돌리지 않는다.
+    done: dict[tuple, dict] = {}
+    if out_csv.exists() and not limit:
+        with out_csv.open(encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                key = (float(row["rho_px"]), float(row["theta_deg"]),
+                       float(row["occ_pct_target"]))
+                done[key] = row
+        if done:
+            print(f"기존 결과 {len(done)}조건을 재사용한다")
+
     model = YOLO(str(WEIGHTS))
     rows = []
     for i, (r, t, o) in enumerate(grid, 1):
+        cached = done.get((float(r), float(t), float(o)))
+        if cached is not None:
+            rows.append(cached)
+            continue
         row = run_condition(model, records, r, t, o, manifest['min_head_px'])
         rows.append(row)
         print(f"[{i}/{len(grid)}] ρ={r:>2} θ={t:>2} o={o:>2}  "
