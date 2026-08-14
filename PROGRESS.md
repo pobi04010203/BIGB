@@ -6,7 +6,7 @@ Phase 별 실행 결과 로그. **실제로 실행한 것만 적는다.**
 | Phase | 기간 | 상태 |
 |---|---|---|
 | 0 스캐폴딩 | D+0 | **완료** |
-| 1 파이프라인 | D+1 ~ D+3 | **부분 완료** — ① 끝, ②③ 데이터 대기 |
+| 1 파이프라인 | D+1 ~ D+3 | **부분 완료** — ①② 끝, ③ 검출기 판단 대기 |
 | 2 실험 | D+4 ~ D+7 | 대기 |
 | 3 현장 모델 + 최적화 | D+8 ~ D+11 | 대기 |
 | 4 목업 | D+12 ~ D+13 | 대기 |
@@ -77,19 +77,6 @@ python -c "import ultralytics, cv2, numpy, scipy"   → PASS
    27.4 가 나오려면 `f_px ≈ 4187` (HFOV 약 49°) 이어야 한다.
    예시 JSON 은 형식을 보이려는 것으로 보고 **공식을 정본으로 삼았다.**
    검산 기준값으로 27.4 를 쓰지 말 것. 의도가 다르면 알려주면 고친다.
-
-### 남은 사용자 작업 — SHWD 내려받기
-
-`data/raw/` 가 비어 있다. Phase 1 의 데이터 필터링이 여기서 막힌다.
-
-- 데이터셋: **SHWD** (Safety Helmet Wearing Dataset), 라벨 `hat` / `person`
-- 배포처: GitHub `njvisionpower/Safety-Helmet-Wearing-Dataset`
-- 실제 파일은 저장소 README 가 가리키는 Google Drive / Baidu 링크에 있다.
-  직접 링크는 바뀌므로 README 를 열어 확인할 것
-- 받은 뒤 `data/raw/` 아래에 이미지와 어노테이션을 그대로 풀어 둔다
-- `data/raw/` 는 `.gitignore` 되어 있어 커밋되지 않는다
-
-용량이 크면 Colab 으로 옮겨 Phase 2 를 돌리는 편이 낫다.
 
 ---
 
