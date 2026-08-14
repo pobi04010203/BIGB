@@ -35,6 +35,18 @@ WEIGHTS = config.ROOT / "runs" / "detect" / "shwd_yolov8n" / "weights" / "best.p
 
 CLASSES = ("hat", "person")
 
+# 125조건 × 500장이면 같은 파일을 62,500번 디코딩하게 된다. 한 번만 읽는다.
+# 500장 전부 담아도 약 1.14GB 로 측정됐다.
+_IMG_CACHE: dict[str, "object"] = {}
+
+
+def load(rel_path: str):
+    img = _IMG_CACHE.get(rel_path)
+    if img is None:
+        img = T.imread(Path(config.ROOT / rel_path))
+        _IMG_CACHE[rel_path] = img
+    return img
+
 
 def iou(a, b) -> float:
     x1, y1 = max(a[0], b[0]), max(a[1], b[1])
@@ -46,8 +58,14 @@ def iou(a, b) -> float:
     return inter / ua if ua > 0 else 0.0
 
 
-def match(gt: list, det: list) -> tuple[int, int, list]:
-    """GT 하나에 검출 하나를 그리디로 짝짓는다. 반환 (tp, fp, 매칭된 conf 목록)."""
+def match(gt: list, det: list, ignore: list | None = None) -> tuple[int, int, list]:
+    """GT 하나에 검출 하나를 그리디로 짝짓는다. 반환 (tp, fp, 매칭된 conf 목록).
+
+    `ignore` 는 **40px 미만이라 GT 에서 빠진 머리들**이다. 여기 걸리는 검출은
+    FP 로 세지 않는다. 실험셋은 기준 조건을 확보하려고 큰 머리만 GT 로 남겼는데
+    (§4.1), 검출기는 작은 머리도 맞게 찾아낸다. 그것을 오검출로 세면 n_fp 가
+    GT 수를 넘어가 해석이 불가능해진다.
+    """
     used = set()
     tp = 0
     confs = []
@@ -63,10 +81,20 @@ def match(gt: list, det: list) -> tuple[int, int, list]:
             used.add(best_i)
             tp += 1
             confs.append(det[best_i][2])
-    return tp, len(det) - len(used), confs
+
+    fp = 0
+    for i, (d_cls, d_box, _) in enumerate(det):
+        if i in used:
+            continue
+        if ignore and any(iou(d_box, ib) >= config.IOU_THR for ic, ib in ignore
+                          if ic == d_cls):
+            continue
+        fp += 1
+    return tp, fp, confs
 
 
-def run_condition(model, records: list, rho: float, theta: float, occ: float) -> dict:
+def run_condition(model, records: list, rho: float, theta: float, occ: float,
+                  min_head_px: float = config.MIN_HEAD_PX) -> dict:
     per_cls_gt = {c: 0 for c in CLASSES}
     per_cls_tp = {c: 0 for c in CLASSES}
     n_fp = 0
@@ -75,20 +103,27 @@ def run_condition(model, records: list, rho: float, theta: float, occ: float) ->
 
     names = model.names
     for rec in records:
-        img = T.imread(Path(config.ROOT / rec["image"]))
+        img = load(rec["image"])
         h, w = img.shape[:2]
 
         boxes = [i["bbox"] for i in rec["instances"]]
         labels = [i["cls"] for i in rec["instances"]]
 
+        # GT 에서 빠진 작은 머리들 — FP 집계에서 제외할 대상
+        small = [i for i in rec.get("all_instances", [])
+                 if i["short_px"] < min_head_px and i["bbox"] not in boxes]
+        s_boxes = [i["bbox"] for i in small]
+        s_labels = [i["cls"] for i in small]
+
         out = T.apply_rho(img, rec["ref_head_px"], rho)
         if theta > 0:
             m = T.theta_matrix(w, h, theta)
-            kept = T.warp_boxes(boxes, m, w, h)
-            gt = [(labels[i], b) for i, b in kept]
+            gt = [(labels[i], b) for i, b in T.warp_boxes(boxes, m, w, h)]
+            ignore = [(s_labels[i], b) for i, b in T.warp_boxes(s_boxes, m, w, h)]
             out = T.apply_theta(out, theta)
         else:
             gt = list(zip(labels, boxes))
+            ignore = list(zip(s_labels, s_boxes))
         out, occ_actual = T.apply_occlusion(out, occ / 100.0)
         occ_actuals.append(occ_actual)
 
@@ -99,7 +134,7 @@ def run_condition(model, records: list, rho: float, theta: float, occ: float) ->
         det = [(names[int(c)], b.tolist(), float(cf))
                for c, b, cf in zip(r.boxes.cls, r.boxes.xyxy, r.boxes.conf)]
 
-        tp, fp, cf = match(gt, det)
+        tp, fp, cf = match(gt, det, ignore)
         n_fp += fp
         confs.extend(cf)
         for g_cls, _ in gt:
@@ -154,7 +189,7 @@ def main(smoke: bool, limit: int | None) -> Path:
     model = YOLO(str(WEIGHTS))
     rows = []
     for i, (r, t, o) in enumerate(grid, 1):
-        row = run_condition(model, records, r, t, o)
+        row = run_condition(model, records, r, t, o, manifest['min_head_px'])
         rows.append(row)
         print(f"[{i}/{len(grid)}] ρ={r:>2} θ={t:>2} o={o:>2}  "
               f"recall_nohat {row['recall_nohat']}  recall_hat {row['recall_hat']}")

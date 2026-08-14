@@ -50,7 +50,7 @@ def parse_annotation(xml_path: Path, min_head_px: float) -> dict | None:
     """어노테이션 1개를 읽어 기준 통과 인스턴스만 남긴다."""
     root = ET.parse(xml_path).getroot()
     size = root.find("size")
-    kept = []
+    kept, every = [], []
     for obj in root.findall("object"):
         name = (obj.findtext("name") or "").strip()
         if name not in CLASSES:
@@ -58,10 +58,12 @@ def parse_annotation(xml_path: Path, min_head_px: float) -> dict | None:
         b = obj.find("bndbox")
         x1, y1 = float(b.findtext("xmin")), float(b.findtext("ymin"))
         x2, y2 = float(b.findtext("xmax")), float(b.findtext("ymax"))
-        if min(x2 - x1, y2 - y1) < min_head_px:
-            continue
-        kept.append({"cls": name, "bbox": [x1, y1, x2, y2],
-                     "short_px": round(min(x2 - x1, y2 - y1), 1)})
+        inst = {"cls": name, "bbox": [x1, y1, x2, y2],
+                "short_px": round(min(x2 - x1, y2 - y1), 1)}
+        # 크기와 무관하게 전부 담는다. FP 집계에 쓴다 — 아래 참조
+        every.append(inst)
+        if min(x2 - x1, y2 - y1) >= min_head_px:
+            kept.append(inst)
     if not kept:
         return None
     return {
@@ -70,6 +72,9 @@ def parse_annotation(xml_path: Path, min_head_px: float) -> dict | None:
         "width": int(size.findtext("width")),
         "height": int(size.findtext("height")),
         "instances": kept,
+        # 40px 미만까지 포함한 전량. 검출기가 작은 머리를 맞게 찾아낸 것을
+        # FP 로 잘못 세지 않으려고 둔다 (run_grid.py 의 FP 집계용).
+        "all_instances": every,
         "ref_head_px": round(statistics.median(k["short_px"] for k in kept), 1),
         "n_hat": sum(1 for k in kept if k["cls"] == "hat"),
         "n_person": sum(1 for k in kept if k["cls"] == "person"),
