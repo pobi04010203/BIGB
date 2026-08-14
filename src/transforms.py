@@ -42,6 +42,43 @@ def apply_rho(img: np.ndarray, src_head_px: float, target_head_px: float) -> np.
 
 # ── θ 부감각 ──────────────────────────────────────────────────────────────
 
+def theta_matrix(w: int, h: int, theta_deg: float) -> np.ndarray:
+    """apply_theta 가 쓰는 호모그래피 행렬. GT 박스도 같은 행렬로 옮겨야 한다."""
+    c = math.cos(math.radians(theta_deg))
+    w_top, h_new = w * c, h * c
+    src = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
+    dst = np.float32([
+        [(w - w_top) / 2.0, 0],
+        [(w + w_top) / 2.0, 0],
+        [w, h_new],
+        [0, h_new],
+    ])
+    return cv2.getPerspectiveTransform(src, dst)
+
+
+def warp_boxes(boxes: list, m: np.ndarray, w: int, h: int,
+               min_side: float = 2.0) -> list:
+    """박스 네 꼭짓점을 호모그래피로 옮기고 축정렬 박스로 다시 감싼다.
+
+    화면 밖으로 나가거나 뭉개진 박스는 **버린다** — 보이지 않는 것을 GT 에
+    남겨두면 recall 이 실제보다 낮게 나온다.
+
+    반환값은 (원본 인덱스, 새 박스) 목록이라 클래스 라벨을 다시 붙일 수 있다.
+    """
+    out = []
+    for i, (x1, y1, x2, y2) in enumerate(boxes):
+        pts = np.float32([[x1, y1], [x2, y1], [x2, y2], [x1, y2]]).reshape(-1, 1, 2)
+        wp = cv2.perspectiveTransform(pts, m).reshape(-1, 2)
+        nx1, ny1 = wp[:, 0].min(), wp[:, 1].min()
+        nx2, ny2 = wp[:, 0].max(), wp[:, 1].max()
+        nx1, nx2 = max(0.0, nx1), min(float(w), nx2)
+        ny1, ny2 = max(0.0, ny1), min(float(h), ny2)
+        if (nx2 - nx1) < min_side or (ny2 - ny1) < min_side:
+            continue
+        out.append((i, [float(nx1), float(ny1), float(nx2), float(ny2)]))
+    return out
+
+
 def apply_theta(img: np.ndarray, theta_deg: float,
                 fill: int = 128) -> np.ndarray:
     """부감각 theta 를 호모그래피 워핑으로 근사한다.
@@ -64,18 +101,7 @@ def apply_theta(img: np.ndarray, theta_deg: float,
         return img.copy()
 
     h, w = img.shape[:2]
-    c = math.cos(math.radians(theta_deg))
-    w_top = w * c
-    h_new = h * c
-
-    src = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
-    dst = np.float32([
-        [(w - w_top) / 2.0, 0],
-        [(w + w_top) / 2.0, 0],
-        [w, h_new],
-        [0, h_new],
-    ])
-    m = cv2.getPerspectiveTransform(src, dst)
+    m = theta_matrix(w, h, theta_deg)
     return cv2.warpPerspective(
         img, m, (w, h),
         flags=cv2.INTER_LINEAR,

@@ -32,3 +32,5 @@ runs/
 
 # 학습 로그
 runs_train.log
+
+smoke_full.log
