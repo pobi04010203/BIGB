@@ -23,7 +23,7 @@ import optimize
 
 def build_payload() -> dict:
     site = site_model.build()
-    pairs = geometry.all_pairs(site)
+    pairs, yaws = geometry.all_pairs(site)
     curve = detect_model.load()
 
     if config.ENABLE_OPTIMIZATION:
@@ -51,11 +51,12 @@ def build_payload() -> dict:
         "camera_budget": config.CAMERA_BUDGET,
         "threshold": config.P_DETECT_THRESHOLD,
         "mode": mode,
-        "cameras": [{"id": c.cid, "x": c.x, "y": c.y, "z": c.z, "mount": c.mount}
-                    for c in site.cameras],
-        "aim": {"x": geometry.AIM_X, "y": geometry.AIM_Y,
-                "hfov_deg": config.HFOV_DEG,
-                "note": "§5.2 가 지향을 정하지 않아 전 카메라가 현장 중심을 본다고 두었다"},
+        "cameras": [{"id": c.cid, "x": c.x, "y": c.y, "z": c.z, "mount": c.mount,
+                     "yaw_deg": yaws[c.cid]} for c in site.cameras],
+        "aim": {"hfov_deg": config.HFOV_DEG,
+                "yaw_step_deg": geometry.YAW_STEP_DEG,
+                "note": "§5.2 가 지향을 정하지 않아, 카메라마다 자기 위험가중 가시량을 "
+                        "최대로 만드는 방위를 15° 간격 전수 탐색으로 골랐다"},
         "placements": {
             k: {"camera_ids": v["camera_ids"], "WDR": v["WDR"],
                 "fail_voxel_count": v["fail_voxel_count"]}

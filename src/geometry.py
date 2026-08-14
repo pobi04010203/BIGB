@@ -11,11 +11,16 @@
 
 **스펙이 비워둔 것 — 카메라 지향 방향.**
 §5.2 는 HFOV 90° 를 f_px 산출에만 쓰고 카메라가 어디를 보는지 정하지 않았다.
-방향을 안 정하면 전방위 카메라가 되어 커버리지가 과대 산출된다. 여기서는
-**모든 카메라가 현장 중심(50, 30)을 향한다**고 두고 수평 화각 밖의 복셀을
-제외한다. 난수가 없고 §5.4 의 최적화는 위치만 고르므로 방향은 상수다.
-수직 화각은 검사하지 않는다 — 부각(pitch)이 스펙에 없어 작업면을 덮도록
-조준했다고 본다. 둘 다 제안서에 한계로 적는다.
+방향을 안 정하면 전방위 카메라가 되어 커버리지가 과대 산출된다.
+
+처음에는 전 카메라가 현장 중심을 본다고 두었는데, 그러면 **중심 근처의 코어 상부·
+타워크레인 카메라가 서로를 쳐다보게 되어** 쓸모없어진다. 실제로 최적화가 경계 폴만
+8대 고르는 결과가 나왔다. 설치자는 볼 곳을 향해 돌리므로 이는 모델의 결함이다.
+
+지금은 **카메라마다 방위(yaw)를 따로 고른다** — 15° 간격 24방위 중 자기 위험가중
+가시량을 최대로 만드는 쪽. 위치와 무관하게 결정되고 난수가 없으므로 §5.4 의 최적화
+전에 한 번만 계산한다. 부각(pitch)은 스펙에 없어 작업면을 덮도록 조준했다고 보고
+수직 화각은 검사하지 않는다. 둘 다 제안서에 한계로 적는다.
 """
 from pathlib import Path
 import math
@@ -25,8 +30,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config
 
-AIM_X, AIM_Y = config.SITE_WIDTH_M / 2, config.SITE_DEPTH_M / 2
 HALF_HFOV_DEG = config.HFOV_DEG / 2.0
+YAW_STEP_DEG = 15                      # 24방위. 난수 없이 전수 탐색한다
 
 
 def _ray_hits_box(p0, p1, box) -> bool:
@@ -63,18 +68,40 @@ def occlusion_ratio(vx: float, vy: float, cam, solids: list) -> float:
     return total / n
 
 
-def in_fov(vx: float, vy: float, cam) -> bool:
-    """복셀이 카메라 수평 화각 안에 있는가. 조준점은 현장 중심."""
-    ax, ay = AIM_X - cam.x, AIM_Y - cam.y
-    bx, by = vx - cam.x, vy - cam.y
-    na, nb = math.hypot(ax, ay), math.hypot(bx, by)
-    if na < 1e-9 or nb < 1e-9:
-        return True
-    cos = max(-1.0, min(1.0, (ax * bx + ay * by) / (na * nb)))
-    return math.degrees(math.acos(cos)) <= HALF_HFOV_DEG
+def bearing_deg(cam, vx: float, vy: float) -> float:
+    """카메라에서 복셀로 향하는 방위각(도). 0=+x, 반시계."""
+    return math.degrees(math.atan2(vy - cam.y, vx - cam.x)) % 360.0
 
 
-def pair(voxel: dict, cam, solids: list) -> dict:
+def in_fov(bearing: float, yaw: float) -> bool:
+    """방위각이 yaw 를 중심으로 한 수평 화각 안에 드는가."""
+    diff = abs((bearing - yaw + 180.0) % 360.0 - 180.0)
+    return diff <= HALF_HFOV_DEG
+
+
+def choose_yaw(cam, voxels: list, solids: list) -> float:
+    """이 카메라가 볼 수 있는 위험가중량을 최대로 만드는 방위를 고른다.
+
+    가림·거리는 방위와 무관하므로 화각 판정만 방위별로 다시 한다.
+    동점이면 작은 각도로 끊어 재현성을 지킨다.
+    """
+    seen = []
+    for v in voxels:
+        occ = occlusion_ratio(v["x"], v["y"], cam, solids)
+        if occ >= 1.0:
+            continue
+        seen.append((bearing_deg(cam, v["x"], v["y"]), v["w"]))
+
+    best_yaw, best_score = 0.0, -1.0
+    for i in range(int(360 / YAW_STEP_DEG)):
+        yaw = i * YAW_STEP_DEG
+        score = sum(w for b, w in seen if in_fov(b, yaw))
+        if score > best_score:
+            best_yaw, best_score = float(yaw), score
+    return best_yaw
+
+
+def pair(voxel: dict, cam, solids: list, yaw: float) -> dict:
     """복셀-카메라 한 쌍의 기하량."""
     dx, dy, dz = voxel["x"] - cam.x, voxel["y"] - cam.y, voxel["z"] - cam.z
     d = math.sqrt(dx * dx + dy * dy + dz * dz)
@@ -82,7 +109,7 @@ def pair(voxel: dict, cam, solids: list) -> dict:
         return {"voxel_id": voxel["id"], "camera_id": cam.cid, "d_m": 0.0,
                 "rho_px": 0.0, "theta_deg": 0.0, "occ_ratio": 1.0, "visible": False}
 
-    if not in_fov(voxel["x"], voxel["y"], cam):
+    if not in_fov(bearing_deg(cam, voxel["x"], voxel["y"]), yaw):
         return {"voxel_id": voxel["id"], "camera_id": cam.cid, "d_m": round(d, 2),
                 "rho_px": 0.0, "theta_deg": 0.0, "occ_ratio": 1.0,
                 "visible": False, "reason": "화각 밖"}
@@ -101,22 +128,27 @@ def pair(voxel: dict, cam, solids: list) -> dict:
     }
 
 
-def all_pairs(site) -> dict:
-    """(camera_id, voxel_id) → 기하량. 카메라 선택과 무관하게 한 번만 계산한다."""
+def all_pairs(site) -> tuple[dict, dict]:
+    """(camera_id, voxel_id) → 기하량, 그리고 카메라별 방위.
+
+    카메라 선택과 무관하므로 한 번만 계산한다.
+    """
+    yaws = {c.cid: choose_yaw(c, site.voxels, site.solids) for c in site.cameras}
     out = {}
     for cam in site.cameras:
         for v in site.voxels:
-            out[(cam.cid, v["id"])] = pair(v, cam, site.solids)
-    return out
+            out[(cam.cid, v["id"])] = pair(v, cam, site.solids, yaws[cam.cid])
+    return out, yaws
 
 
 if __name__ == "__main__":
     import site_model
     import collections
     s = site_model.build()
-    pairs = all_pairs(s)
+    pairs, yaws = all_pairs(s)
     vis = [p for p in pairs.values() if p["visible"]]
     print(f"쌍 {len(pairs)} (카메라 {len(s.cameras)} × 복셀 {len(s.voxels)})")
+    print("  방위:", {k: int(v) for k, v in list(yaws.items())[:6]}, "...")
     print(f"  가시 {len(vis)} ({len(vis)/len(pairs)*100:.1f}%)")
     reasons = collections.Counter(p.get("reason", "-") for p in pairs.values() if not p["visible"])
     print("  비가시 사유:", dict(reasons))

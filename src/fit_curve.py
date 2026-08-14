@@ -174,6 +174,6 @@ if __name__ == "__main__":
     print(f"h(o) 지수감쇠  λ={params['h_occ']['lambda']:.4f}"
           f"                       단면 R²={params['h_occ']['r2_section']}")
     print()
-    print(f"전체 125점 R² = {params['r2_full_grid']}   "
+    print(f"전체 {params['n_conditions']}점 R² = {params['r2_full_grid']}   "
           f"(기준 {config.R2_ACCEPTANCE} → {'통과' if params['acceptance_passed'] else '미달'})")
     print(f"→ {config.CURVE_PARAMS_JSON}")

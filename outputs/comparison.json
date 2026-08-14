@@ -1,0 +1,36 @@
+{
+ "measured_with": "probabilistic ruler (P_detect)",
+ "note": "두 배치를 같은 자로 쟀다. 기존 기준으로 잘 설계한 배치도 실제 검출률은 낮다는 것이 확인 대상이다",
+ "geometric": {
+  "camera_ids": [
+   "c_b00",
+   "c_b09",
+   "c_b01",
+   "c_t21",
+   "c_b05",
+   "c_b15",
+   "c_b10",
+   "c_t22"
+  ],
+  "WDR": 0.6097,
+  "fail_voxel_count": 414
+ },
+ "probabilistic": {
+  "camera_ids": [
+   "c_b08",
+   "c_b01",
+   "c_b00",
+   "c_b09",
+   "c_b02",
+   "c_b07",
+   "c_b14",
+   "c_b11"
+  ],
+  "WDR": 0.7061,
+  "fail_voxel_count": 162
+ },
+ "delta_WDR": 0.0964,
+ "delta_fail_voxels": -252,
+ "overlap_camera_count": 3,
+ "status": "ok"
+}

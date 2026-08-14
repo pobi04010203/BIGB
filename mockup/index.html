@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI CCTV 배치 적정성 평가</title>
+<!-- 인라인 파비콘. 없으면 브라우저가 /favicon.ico 를 찾다 404 를 콘솔에 남긴다 -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230b4f8a'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --ink:#16191d; --muted:#5c6570; --line:#d8dde3; --bg:#f4f6f8; --panel:#fff;
+    --accent:#0b4f8a; --warn:#a62a2a; --ok:#1e7a46;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:14px/1.55 "Malgun Gothic","맑은 고딕",system-ui,sans-serif}
+  header{background:var(--panel);border-bottom:1px solid var(--line);padding:16px 22px}
+  h1{margin:0;font-size:18px;letter-spacing:-.01em}
+  header .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+  .wrap{max-width:1280px;margin:0 auto;padding:20px 22px 60px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+  .card .k{color:var(--muted);font-size:12px;margin-bottom:6px}
+  .card .v{font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .card .n{color:var(--muted);font-size:11.5px;margin-top:4px}
+  .card.hi .v{color:var(--accent)}
+  .delta.up{color:var(--ok)} .delta.down{color:var(--warn)}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:6px;
+          padding:16px 18px;margin-bottom:18px}
+  h2{margin:0 0 4px;font-size:14.5px}
+  .hint{color:var(--muted);font-size:12px;margin:0 0 12px}
+  .toolbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  label{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center}
+  svg{display:block;width:100%;height:auto;background:#fbfcfd;border:1px solid var(--line);border-radius:4px}
+  .legend{display:flex;gap:6px;align-items:center;font-size:11.5px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+  .sw{width:16px;height:11px;border:1px solid rgba(0,0,0,.15);border-radius:2px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;background:#fafbfc;position:sticky;top:0}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .scroll{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:4px}
+  .pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;
+        background:#eef2f6;color:var(--muted)}
+  .pill.w5{background:#fbe9e9;color:var(--warn)}
+  .pill.w4{background:#fdf1e5;color:#8a5a1a}
+  .err{color:var(--warn);padding:14px;border:1px solid var(--warn);border-radius:6px;background:#fdf3f3}
+  footer{color:var(--muted);font-size:11.5px;margin-top:26px;line-height:1.7}
+</style>
+</head>
+<body>
+<header>
+  <h1>AI CCTV 배치 적정성 평가</h1>
+  <div class="sub">위험가중 안전모 검출률(WDR) 기준 · 기하 커버리지 배치 대비</div>
+</header>
+
+<div class="wrap" id="root">
+  <p class="hint">데이터를 읽는 중…</p>
+</div>
+
+<script>
+const fmtPct = v => (v * 100).toFixed(1) + '%';
+
+function heat(p){                       // 0~1 → 적→황→녹
+  const t = p <= .5 ? p/.5 : (p-.5)/.5;
+  const [a,b] = p <= .5 ? [[166,42,42],[196,145,40]] : [[196,145,40],[30,122,70]];
+  return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(',')})`;
+}
+
+function render(d){
+  const root = document.getElementById('root');
+  const P = d.placements, geo = P.geometric, prob = P.probabilistic;
+  const S = d.site, vox = d.voxels;
+  const key = prob ? 'P_total_probabilistic' : 'P_total_' + Object.keys(P)[0];
+  const dW = prob && geo ? prob.WDR - geo.WDR : null;
+
+  const scale = 1000 / S.width_m;        // 1000px 폭에 맞춘다
+  const H = S.depth_m * scale, W = S.width_m * scale, vs = S.voxel_m * scale;
+  const chosen = new Set((prob || Object.values(P)[0]).camera_ids);
+
+  const camSvg = d.cameras.map(c => {
+    const on = chosen.has(c.id);
+    const cx = c.x*scale, cy = H - c.y*scale;
+    const ang = (c.yaw_deg || 0) * Math.PI / 180;
+    const half = d.aim.hfov_deg * Math.PI/180 / 2, R = 22*scale/2.2;
+    const p1 = [cx + R*Math.cos(ang-half), cy - R*Math.sin(ang-half)];
+    const p2 = [cx + R*Math.cos(ang+half), cy - R*Math.sin(ang+half)];
+    return `${on ? `<path d="M${cx},${cy} L${p1[0].toFixed(1)},${p1[1].toFixed(1)}
+       A${R},${R} 0 0,1 ${p2[0].toFixed(1)},${p2[1].toFixed(1)} Z"
+       fill="rgba(11,79,138,.10)" stroke="rgba(11,79,138,.35)" stroke-width="1"/>` : ''}
+      <circle cx="${cx}" cy="${cy}" r="${on?6:3.5}"
+        fill="${on?'#0b4f8a':'#b4bcc5'}" stroke="#fff" stroke-width="1.5"><title>${c.id} · ${c.mount} · z=${c.z}m${on?' · 선정':''}</title></circle>`;
+  }).join('');
+
+  const voxSvg = vox.map(v => {
+    const p = v[key];
+    return `<rect x="${(v.x - S.voxel_m/2)*scale}" y="${H-(v.y + S.voxel_m/2)*scale}"
+      width="${vs}" height="${vs}" fill="${heat(p)}" fill-opacity="${0.30+0.60*(1-p)}"
+      stroke="none"><title>${v.id} w=${v.w} P=${p.toFixed(3)}${v.zones.length?' · '+v.zones.join(', '):''}</title></rect>`;
+  }).join('');
+
+  const fails = (d.fail_zones||[]).slice().sort((a,b)=> b.w-a.w || a.P_total-b.P_total);
+
+  root.innerHTML = `
+  <div class="cards">
+    <div class="card hi"><div class="k">WDR — 검출확률 기준 배치</div>
+      <div class="v">${prob ? fmtPct(prob.WDR) : '—'}</div>
+      <div class="n">제안 방식</div></div>
+    <div class="card"><div class="k">WDR — 기하 커버리지 배치</div>
+      <div class="v">${geo ? fmtPct(geo.WDR) : '—'}</div>
+      <div class="n">기존 방식 · 같은 자로 측정</div></div>
+    <div class="card"><div class="k">차이</div>
+      <div class="v delta ${dW>=0?'up':'down'}">${dW===null?'—':(dW>=0?'+':'')+fmtPct(dW)}</div>
+      <div class="n">동일 대수(${d.camera_budget}대) 재배치 효과</div></div>
+    <div class="card"><div class="k">미달구역</div>
+      <div class="v">${prob ? prob.fail_voxel_count : '—'}</div>
+      <div class="n">P_total &lt; ${d.threshold} · 전체 ${vox.length}개 중</div></div>
+  </div>
+
+  <section>
+    <h2>현장 검출확률 히트맵</h2>
+    <p class="hint">복셀 ${S.voxel_m}m 격자 · 색이 붉을수록 검출확률이 낮다.
+      파란 점이 선정된 카메라이고 부채꼴은 각 카메라가 고른 방위의 수평 화각(${d.aim.hfov_deg}°)이다.</p>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="검출확률 히트맵">
+      ${voxSvg}${camSvg}
+      <rect x="0" y="0" width="${W}" height="${H}" fill="none" stroke="#c9d0d8"/>
+    </svg>
+    <div class="legend">
+      <span class="sw" style="background:${heat(0)}"></span>0.0
+      <span class="sw" style="background:${heat(.25)}"></span>0.25
+      <span class="sw" style="background:${heat(.5)}"></span>0.5
+      <span class="sw" style="background:${heat(.75)}"></span>0.75
+      <span class="sw" style="background:${heat(1)}"></span>1.0
+      <span style="margin-left:10px">기준 임계 ${d.threshold}</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>미달구역 — ${fails.length}개</h2>
+    <p class="hint">위험가중치가 높은 순. 사유는 세 축 중 가장 크게 깎은 것이다.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>복셀</th><th>위치 (m)</th><th>위험구역</th>
+        <th class="num">가중치</th><th class="num">P_total</th><th>원인</th></tr></thead>
+      <tbody>${fails.map(f=>`<tr>
+        <td>${f.voxel_id}</td>
+        <td class="num">${f.x.toFixed(0)}, ${f.y.toFixed(0)}</td>
+        <td>${f.zones.length ? f.zones.join(', ') : '—'}</td>
+        <td class="num"><span class="pill ${f.w>=5?'w5':f.w>=4?'w4':''}">${f.w}</span></td>
+        <td class="num">${f.P_total.toFixed(3)}</td>
+        <td>${f.reason}</td></tr>`).join('')}</tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>배치 비교</h2>
+    <p class="hint">두 배치를 <b>같은 자(검출확률)</b>로 쟀다. 기하 기준으로 고른 배치도
+      실제 검출률은 낮다는 것이 확인 대상이다.</p>
+    <table>
+      <thead><tr><th>기준</th><th class="num">WDR</th><th class="num">미달구역</th><th>선정 카메라</th></tr></thead>
+      <tbody>
+        ${geo?`<tr><td>기하 커버리지 (기존)</td><td class="num">${fmtPct(geo.WDR)}</td>
+          <td class="num">${geo.fail_voxel_count}</td><td>${geo.camera_ids.join(', ')}</td></tr>`:''}
+        ${prob?`<tr><td><b>검출확률 (제안)</b></td><td class="num"><b>${fmtPct(prob.WDR)}</b></td>
+          <td class="num">${prob.fail_voxel_count}</td><td>${prob.camera_ids.join(', ')}</td></tr>`:''}
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    ρ 곡선 실측 범위 ${d.curve.rho_measured_px[0]}–${d.curve.rho_measured_px[1]}px ·
+    전체 격자 R² ${d.curve.r2_full_grid} · 임계 ${d.threshold} (잠정값)<br>
+    ${d.aim.note}<br>
+    검출기는 SHWD 파인튜닝본이며 실제 운용 모델이 아니다. 절대 수치가 아니라
+    설치 조건에 따라 검출률이 변한다는 관계를 보이는 자료다.
+  </footer>`;
+}
+
+fetch('data.json')
+  .then(r => { if(!r.ok) throw new Error('data.json 을 읽지 못했다 (HTTP '+r.status+')'); return r.json(); })
+  .then(d => {
+    if (d.status !== 'ok') throw new Error('status 가 ok 가 아니다: ' + d.status);
+    render(d);
+  })
+  .catch(e => {
+    document.getElementById('root').innerHTML =
+      '<div class="err"><b>표시할 수 없습니다.</b><br>' + e.message +
+      '<br><br>로컬 파일로 직접 열면 브라우저가 fetch 를 막습니다. ' +
+      '<code>python -m http.server</code> 로 띄운 뒤 접속하십시오.</div>';
+  });
+</script>
+</body>
+</html>
