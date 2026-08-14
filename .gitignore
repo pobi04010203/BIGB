@@ -23,3 +23,12 @@ venv/
 
 # 노트북 실행 결과
 .ipynb_checkpoints/
+
+# 파인튜닝용 YOLO 변환본 (src/voc_to_yolo.py 가 재생성)
+data/yolo/
+
+# 학습 산출물
+runs/
+
+# 학습 로그
+runs_train.log

@@ -5,7 +5,13 @@ VOC2028 어노테이션을 읽어 아래를 만족하는 이미지 목록을 만
 
   1. 머리 bbox 짧은 변 >= MIN_HEAD_PX (40px)  ... §4.1 명시
   2. 이미지 대표 머리크기 >= 48px             ... 아래 참조
-  3. 목표 500장, 두 클래스가 고루 섞이도록
+  3. **test 분할에 속할 것**                  ... 아래 참조
+  4. 목표 500장, 두 클래스가 고루 섞이도록
+
+조건 3 도 §4.1 에 없다. 넣은 이유:
+  검출기를 SHWD 로 파인튜닝하기로 했으므로(§4.3 변경), 학습에 쓴 이미지로 곡선을
+  재면 ρ·θ·o 의 효과가 아니라 **암기 여부**를 재게 된다. 실험셋을 공식 test 분할
+  (1,517장)로 가두어 누수를 끊는다. 제한해도 후보가 1,009장이라 500장에 여유가 있다.
 
 조건 2 는 §4.1 에 없다. 넣은 이유:
   ρ 축의 기준 조건이 48px 인데(§4.2) `apply_rho` 는 **다운샘플만** 한다.
@@ -31,7 +37,10 @@ import config
 VOC_ROOT = config.DATA_RAW / "VOC2028"
 ANNOTATIONS = VOC_ROOT / "Annotations"
 IMAGES = VOC_ROOT / "JPEGImages"
+SPLITS = VOC_ROOT / "ImageSets" / "Main"
 MANIFEST = config.DATA_FILTERED / "manifest.json"
+
+EVAL_SPLIT = "test"              # 학습 누수를 끊는다. 위 조건 3 참조
 
 CLASSES = ("hat", "person")      # hat=착용, person=미착용(§4.1)
 REF_HEAD_PX = 48.0               # ρ 기준 조건. config.RHO_LEVELS_PX[0] 과 같아야 한다
@@ -92,25 +101,35 @@ def main(min_head_px: float = config.MIN_HEAD_PX,
             "SHWD 를 data/raw/VOC2028/ 아래에 풀어야 한다."
         )
 
-    records = []
-    for xml_path in sorted(ANNOTATIONS.glob("*.xml")):
-        rec = parse_annotation(xml_path, min_head_px)
-        if rec and rec["ref_head_px"] >= REF_HEAD_PX:
-            records.append(rec)
+    split_file = SPLITS / f"{EVAL_SPLIT}.txt"
+    if not split_file.exists():
+        raise FileNotFoundError(f"분할 파일이 없다: {split_file}")
+    stems = sorted(split_file.read_text().split())
+
+    def collect(min_px: float) -> list[dict]:
+        out = []
+        for stem in stems:
+            xml_path = ANNOTATIONS / f"{stem}.xml"
+            if not xml_path.exists():
+                continue
+            rec = parse_annotation(xml_path, min_px)
+            if rec and rec["ref_head_px"] >= REF_HEAD_PX:
+                out.append(rec)
+        return out
+
+    records = collect(min_head_px)
 
     relaxed = False
     if len(records) < target:
         # §4.1: 부족하면 30px 로 완화하되 PROGRESS.md 에 기록한다
         relaxed = True
-        records = []
-        for xml_path in sorted(ANNOTATIONS.glob("*.xml")):
-            rec = parse_annotation(xml_path, config.MIN_HEAD_PX_RELAXED)
-            if rec and rec["ref_head_px"] >= REF_HEAD_PX:
-                records.append(rec)
+        records = collect(config.MIN_HEAD_PX_RELAXED)
 
     chosen = select(records, target)
     manifest = {
         "source": "SHWD / VOC2028",
+        "split": EVAL_SPLIT,
+        "split_reason": "파인튜닝 학습셋과 겹치지 않게 test 분할로 제한했다",
         "min_head_px": config.MIN_HEAD_PX_RELAXED if relaxed else min_head_px,
         "relaxed_to_30px": relaxed,
         "ref_head_px_min": REF_HEAD_PX,
