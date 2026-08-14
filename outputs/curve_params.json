@@ -1,0 +1,40 @@
+{
+  "model": "separable_multiplicative",
+  "target": "recall_nohat",
+  "detector": "yolov8n",
+  "detector_weights": "runs/detect/shwd_yolov8n/weights/best.pt",
+  "detector_note": "COCO 사전학습본이 아니라 SHWD train 분할로 파인튜닝한 가중치다",
+  "f_rho": {
+    "form": "logistic",
+    "L": 0.9574367806171526,
+    "k": 0.25782704580547317,
+    "x0": 2.2484300368470467,
+    "r2_section": 0.9999
+  },
+  "g_theta": {
+    "form": "quadratic",
+    "params": {
+      "a": 0.006609321927511633,
+      "b": -0.0002146346418238446
+    },
+    "normalized_at": "theta=0",
+    "r2_section": 0.9128
+  },
+  "h_occ": {
+    "form": "exp_decay",
+    "lambda": 4.1149788797858555,
+    "normalized_at": "occ=0",
+    "input": "occ_pct_actual/100",
+    "r2_section": 0.938
+  },
+  "baseline_P": 0.9574,
+  "r2_full_grid": 0.9185,
+  "r2_acceptance": 0.8,
+  "acceptance_passed": true,
+  "n_conditions": 125,
+  "n_images": 500,
+  "iou_thr": 0.5,
+  "conf_thr": 0.25,
+  "status": "ok",
+  "generated_at": "2026-08-14T16:23:19"
+}
