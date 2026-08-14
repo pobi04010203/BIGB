@@ -1,0 +1,25 @@
+# SHWD 원본 (CLAUDE.md §3)
+data/raw/*
+!data/raw/.gitkeep
+
+# 필터 통과분도 이미지라 무겁다 — 목록만 커밋한다
+data/filtered/*
+!data/filtered/.gitkeep
+
+# 모델 가중치
+*.pt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Claude Code — 사용자별 산출물 (훅이 생성)
+.claude/logs/
+.claude/analytics/
+.claude/session.log
+.claude/settings.local.json
+
+# 노트북 실행 결과
+.ipynb_checkpoints/
