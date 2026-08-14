@@ -6,8 +6,9 @@ data/raw/*
 data/filtered/*
 !data/filtered/.gitkeep
 
-# 모델 가중치
-*.pt
+# 모델 가중치 — 루트에 떨어지는 사전학습본은 전부 제외한다.
+# ultralytics 가 필요할 때 다시 내려받는다
+/*.pt
 
 # Python
 __pycache__/
@@ -27,8 +28,18 @@ venv/
 # 파인튜닝용 YOLO 변환본 (src/voc_to_yolo.py 가 재생성)
 data/yolo/
 
-# 학습 산출물
-runs/
+# 학습 산출물 — 로그·플롯은 크고 재생성되므로 제외하되,
+# 파인튜닝 가중치는 넣는다. 이게 없으면 clone 해도 수치가 재현되지 않는다
+runs/*
+!runs/detect/
+runs/detect/*
+!runs/detect/shwd_yolov8n/
+runs/detect/shwd_yolov8n/*
+!runs/detect/shwd_yolov8n/weights/
+runs/detect/shwd_yolov8n/weights/*
+!runs/detect/shwd_yolov8n/weights/best.pt
+!runs/detect/shwd_yolov8n/results.csv
+!runs/detect/shwd_yolov8n/args.yaml
 
 # 학습 로그
 runs_train.log
