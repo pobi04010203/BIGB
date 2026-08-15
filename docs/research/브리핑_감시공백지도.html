@@ -1,0 +1,753 @@
+<title>감시 공백 지도</title>
+
+<style>
+  :root {
+    --ground:      #F1F2EF;
+    --surface:     #FBFBF9;
+    --ink:         #16211F;
+    --muted:       #5C6866;
+    --faint:       #8A9491;
+    --rule:        #D7DBD6;
+    --rule-soft:   #E5E8E3;
+    --seen:        #0E6B60;
+    --seen-wash:   #0E6B6014;
+    --gap:         #C1521C;
+    --gap-wash:    #C1521C14;
+    --shadow:      0 1px 2px #16211F0A, 0 8px 24px #16211F0A;
+
+    --f-text: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI",
+              "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    --f-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas,
+              "D2Coding", "Malgun Gothic", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #111817;
+      --surface:   #171F1E;
+      --ink:       #E3E8E5;
+      --muted:     #97A29F;
+      --faint:     #6C7674;
+      --rule:      #2A3432;
+      --rule-soft: #212A29;
+      --seen:      #4FC9B7;
+      --seen-wash: #4FC9B71A;
+      --gap:       #F0904E;
+      --gap-wash:  #F0904E1A;
+      --shadow:    0 1px 2px #0006, 0 8px 24px #0004;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #111817;
+    --surface:   #171F1E;
+    --ink:       #E3E8E5;
+    --muted:     #97A29F;
+    --faint:     #6C7674;
+    --rule:      #2A3432;
+    --rule-soft: #212A29;
+    --seen:      #4FC9B7;
+    --seen-wash: #4FC9B71A;
+    --gap:       #F0904E;
+    --gap-wash:  #F0904E1A;
+    --shadow:    0 1px 2px #0006, 0 8px 24px #0004;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-text);
+    font-size: 16px;
+    line-height: 1.72;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+
+  .wrap {
+    max-width: 47rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 5rem) clamp(1.15rem, 4vw, 2rem) 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3rem, 6vw, 4.5rem);
+  }
+
+  /* ---------- type ---------- */
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: .7rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(2.1rem, 6.5vw, 3.2rem);
+    line-height: 1.08;
+    letter-spacing: -.035em;
+    font-weight: 800;
+    text-wrap: balance;
+    margin: .5rem 0 0;
+  }
+
+  .deck {
+    font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+    line-height: 1.55;
+    color: var(--muted);
+    text-wrap: balance;
+    margin: 1.1rem 0 0;
+    max-width: 34ch;
+  }
+
+  h2 {
+    font-size: clamp(1.3rem, 3.2vw, 1.6rem);
+    line-height: 1.25;
+    letter-spacing: -.022em;
+    font-weight: 700;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    margin: 0;
+  }
+
+  p { margin: 0; }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .sec-head {
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  strong { font-weight: 700; }
+
+  .lead-in {
+    font-size: 1.06rem;
+    color: var(--ink);
+  }
+
+  .quiet { color: var(--muted); }
+
+  .num {
+    font-family: var(--f-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .mark-seen { color: var(--seen); font-weight: 700; }
+  .mark-gap  { color: var(--gap);  font-weight: 700; }
+
+  /* ---------- pull statement ---------- */
+
+  .pull {
+    border-left: 3px solid var(--gap);
+    background: var(--gap-wash);
+    padding: 1.15rem 1.3rem;
+    border-radius: 0 4px 4px 0;
+    font-size: 1.1rem;
+    line-height: 1.55;
+    font-weight: 600;
+    letter-spacing: -.012em;
+    text-wrap: balance;
+  }
+
+  /* ---------- cards ---------- */
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.25rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+    box-shadow: var(--shadow);
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: .85rem;
+  }
+
+  .card .tag {
+    font-family: var(--f-mono);
+    font-size: .68rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .card p { font-size: .94rem; line-height: 1.6; color: var(--muted); }
+  .card p strong { color: var(--ink); }
+
+  /* ---------- evidence list ---------- */
+
+  .ev {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  .ev-row {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: .5rem 1.25rem;
+    padding: .85rem .2rem;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+
+  .ev-row dt {
+    font-family: var(--f-mono);
+    font-size: .74rem;
+    line-height: 1.5;
+    letter-spacing: .02em;
+    color: var(--faint);
+    text-transform: uppercase;
+  }
+
+  .ev-row dd {
+    margin: 0;
+    font-size: .95rem;
+    line-height: 1.62;
+  }
+
+  @media (max-width: 34rem) {
+    .ev-row { grid-template-columns: 1fr; gap: .15rem; }
+  }
+
+  /* ---------- figure ---------- */
+
+  figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+  }
+
+  .fig-frame {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.4rem 1.2rem;
+    overflow-x: auto;
+    box-shadow: var(--shadow);
+  }
+
+  .fig-frame svg {
+    display: block;
+    width: 100%;
+    min-width: 30rem;
+    max-width: 100%;
+    height: auto;
+    color: var(--ink);
+  }
+
+  figcaption {
+    font-size: .86rem;
+    line-height: 1.6;
+    color: var(--muted);
+    padding-left: .1rem;
+  }
+
+  .svg-label {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: .04em;
+    fill: var(--faint);
+  }
+  .svg-title {
+    font-family: var(--f-text);
+    font-size: 13px;
+    font-weight: 700;
+    fill: currentColor;
+  }
+  .svg-body {
+    font-family: var(--f-text);
+    font-size: 12px;
+    fill: var(--muted);
+  }
+  .svg-fig {
+    font-family: var(--f-mono);
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .svg-box {
+    fill: none;
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+  .svg-flow {
+    stroke: var(--faint);
+    stroke-width: 1.25;
+    fill: none;
+  }
+
+  /* ---------- comparison table ---------- */
+
+  .table-scroll { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+    font-size: .92rem;
+  }
+
+  thead th {
+    text-align: left;
+    font-family: var(--f-mono);
+    font-size: .68rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 500;
+    padding: 0 .9rem .6rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  tbody td {
+    padding: .8rem .9rem .8rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  tbody td:first-child {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  tbody td:last-child { padding-right: 0; }
+
+  .diff { color: var(--ink); }
+
+  /* ---------- open items ---------- */
+
+  .open {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+  }
+
+  .open-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: .9rem;
+    align-items: start;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--gap);
+    border-radius: 0 5px 5px 0;
+    padding: .9rem 1.1rem;
+  }
+
+  .open-row .box {
+    width: .85rem;
+    height: .85rem;
+    margin-top: .42rem;
+    border: 1.5px solid var(--gap);
+    border-radius: 2px;
+  }
+
+  .open-row h3 { margin-bottom: .2rem; }
+  .open-row p { font-size: .9rem; color: var(--muted); line-height: 1.58; }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.3rem;
+    font-family: var(--f-mono);
+    font-size: .72rem;
+    line-height: 1.9;
+    letter-spacing: .02em;
+    color: var(--faint);
+  }
+
+  a { color: var(--seen); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible {
+    outline: 2px solid var(--seen);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">제17회 LH 국토기술대전 · 후보 B안</p>
+    <h1>감시 공백 지도</h1>
+    <p class="deck">카메라는 법으로 깔았다. 그런데 그 카메라가 현장의 몇 퍼센트를 보고 있는지는 아무도 세지 않는다.</p>
+  </header>
+
+  <!-- ============ 1. 문제 ============ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">문제</p>
+      <h2>깔았는지는 확인하고, 보고 있는지는 확인하지 않는다</h2>
+    </div>
+
+    <p class="lead-in">건설현장의 AI CCTV는 선택이 아니라 의무입니다. 그런데 그 장비가 실제로 현장을 덮고 있는지를 재는 지표가 제도 어디에도 없습니다.</p>
+
+    <dl class="ev">
+      <div class="ev-row">
+        <dt>2020 / 법령</dt>
+        <dd>건설기술진흥법 시행규칙 개정 — 공사비 <strong>300억원 이상 공공공사에 스마트 안전장비 의무화</strong>. AI CCTV·드론·스마트 안전모.</dd>
+      </div>
+      <div class="ev-row">
+        <dt>2017 / 평가</dt>
+        <dd>건설공사 참여자 안전관리 수준평가는 <strong>2017년 도입된 틀 그대로</strong>. 총 153개 세부지표, 국토안전관리원 주관.</dd>
+      </div>
+      <div class="ev-row">
+        <dt>발주청 항목</dt>
+        <dd>'안전한 공사 조건 확보·지원' 중 <strong>적정 안전비용 지급 유무</strong> — 돈을 줬는지만 본다.</dd>
+      </div>
+      <div class="ev-row">
+        <dt>2026.01 / 지적</dt>
+        <dd>박희대 한국건설산업연구원 연구위원: "스마트 안전관리 의무화 이후 현장 환경은 바뀌었지만 평가 체계는 이러한 노력을 반영하지 못하고 있다"</dd>
+      </div>
+      <div class="ev-row">
+        <dt>사망자 추이</dt>
+        <dd><span class="num">402</span>명(2022) → <span class="num">356</span>(2023) → <span class="num">328</span>(2024) → <span class="num mark-gap">361</span>(2025). <strong>스마트 장비 확대 시기에 반등.</strong></dd>
+      </div>
+    </dl>
+
+    <p class="pull">법은 깔라고 했고, 예산은 집행됐고, 작동 여부를 측정하는 지표는 없다.</p>
+  </section>
+
+  <!-- ============ 2. 아이디어 ============ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">아이디어</p>
+      <h2>잡힌 것 말고, 잡혔어야 하는데 안 잡힌 것을 센다</h2>
+    </div>
+
+    <p class="lead-in">보통은 "카메라가 무엇을 잡았나"를 봅니다. 이 제안은 반대로 봅니다. 그리고 그 계산에 필요한 두 데이터가 <strong>이미 법으로 전 현장에 강제되어 있습니다.</strong></p>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 720 260" role="img" aria-label="출입 기록으로 센 재실 인원 80명과 CCTV가 인식한 55명의 차이 25명을 미관측 인원으로 잡고, 이를 시간대별로 누적해 감시 공백 지도를 만드는 흐름">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5"
+                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <polygon points="0,1 9,5 0,9" fill="currentColor" opacity="0.55" />
+            </marker>
+          </defs>
+
+          <!-- source A : 출입 기록 -->
+          <rect class="svg-box" x="8" y="22" width="176" height="92" rx="5" />
+          <text class="svg-label" x="24" y="46">전자카드 단말기</text>
+          <text class="svg-fig" x="24" y="80" fill="var(--seen)">80</text>
+          <text class="svg-body" x="62" y="80">명 재실</text>
+          <text class="svg-body" x="24" y="100">14:00 기준 출입 기록</text>
+
+          <!-- source B : 영상 검지 -->
+          <rect class="svg-box" x="8" y="140" width="176" height="92" rx="5" />
+          <text class="svg-label" x="24" y="164">AI CCTV 검지</text>
+          <text class="svg-fig" x="24" y="198" fill="var(--seen)">55</text>
+          <text class="svg-body" x="62" y="198">명 인식</text>
+          <text class="svg-body" x="24" y="218">같은 시각, 고유 인원</text>
+
+          <!-- arrows into diff -->
+          <path class="svg-flow" d="M184 68 H 232 V 116" marker-end="url(#ar)" />
+          <path class="svg-flow" d="M184 186 H 232 V 138" marker-end="url(#ar)" />
+
+          <!-- diff -->
+          <rect x="248" y="86" width="152" height="82" rx="5"
+                fill="var(--gap-wash)" stroke="var(--gap)" stroke-width="1.25" />
+          <text class="svg-label" x="266" y="110" fill="var(--gap)">차이</text>
+          <text class="svg-fig" x="266" y="144" fill="var(--gap)">25</text>
+          <text class="svg-body" x="304" y="144">명 미관측</text>
+
+          <!-- to accumulation -->
+          <path class="svg-flow" d="M400 127 H 452" marker-end="url(#ar)" />
+          <text class="svg-label" x="404" y="116">누적</text>
+
+          <!-- accumulation -->
+          <rect class="svg-box" x="466" y="86" width="118" height="82" rx="5" />
+          <text class="svg-body" x="482" y="112">며칠·몇 주</text>
+          <text class="svg-body" x="482" y="132">같은 구역에서</text>
+          <text class="svg-body" x="482" y="152">반복되는가</text>
+
+          <!-- to map -->
+          <path class="svg-flow" d="M584 127 H 622" marker-end="url(#ar)" />
+
+          <!-- map -->
+          <rect class="svg-box" x="636" y="70" width="76" height="114" rx="5" />
+          <rect x="646" y="82" width="26" height="26" rx="2" fill="var(--seen-wash)" stroke="var(--seen)" stroke-width="1" />
+          <rect x="676" y="82" width="26" height="26" rx="2" fill="var(--seen-wash)" stroke="var(--seen)" stroke-width="1" />
+          <rect x="646" y="112" width="26" height="26" rx="2" fill="var(--gap)" opacity="0.75" />
+          <rect x="676" y="112" width="26" height="26" rx="2" fill="var(--seen-wash)" stroke="var(--seen)" stroke-width="1" />
+          <rect x="646" y="142" width="26" height="26" rx="2" fill="var(--gap)" opacity="0.45" />
+          <rect x="676" y="142" width="26" height="26" rx="2" fill="var(--seen-wash)" stroke="var(--seen)" stroke-width="1" />
+          <text class="svg-label" x="636" y="200">공백 지도</text>
+        </svg>
+      </div>
+      <figcaption><strong>계산은 뺄셈 하나입니다.</strong> 출입 기록은 현장에 몇 명이 있는지 정확히 알려주고, AI CCTV는 그중 몇 명을 인식했는지 알려줍니다. 한 번의 차이는 우연이지만, 같은 구역·같은 시간대에서 반복되면 그건 구조적인 감시 공백입니다.</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">데이터 1 · 법으로 강제됨</span>
+        <h3>건설근로자 전자카드제</h3>
+        <p>2024년 1월부터 <strong>공공 1억원 이상 전 현장 의무</strong>. 단말기 설치·운영이 의무이고, 근로자는 출퇴근 시 카드를 태그합니다. 그래서 <strong>몇 시에 몇 명이 현장에 있었는지가 전 현장에 기록으로 남습니다.</strong></p>
+      </div>
+      <div class="card">
+        <span class="tag">데이터 2 · 이미 수집 중</span>
+        <h3>늘봄 A-Eye 검지 이력</h3>
+        <p>LH가 2026년 4월부터 운영 중인 AI 통합 모니터링. <strong>전국 LH 건설현장의 CCTV 검지 데이터가 이미 본사 통합관제로 모입니다.</strong> 새 파이프라인을 깔 필요가 없습니다.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">산출물</span>
+        <h3>공백 히트맵</h3>
+        <p>현장 평면도 위에 <span class="mark-gap">보이지 않는 구역</span>이 표시됩니다.</p>
+      </div>
+      <div class="card">
+        <span class="tag">산출물</span>
+        <h3>커버리지 점수</h3>
+        <p>전체 재실 시간 중 몇 %가 관측되고 있는가. 현장 간 비교가 됩니다.</p>
+      </div>
+      <div class="card">
+        <span class="tag">산출물</span>
+        <h3>개선 권고</h3>
+        <p>"여기에 카메라 2대를 더 놓으면 커버리지가 <span class="num">12</span>%p 오릅니다."</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. 왜 LH ============ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">반려 사유 1에 대한 답</p>
+      <h2>왜 이것이 LH의 것인가</h2>
+    </div>
+
+    <p class="lead-in">이전 안이 반려된 이유는 <strong>LH가 시공을 하지 않기 때문</strong>이었습니다. LH는 땅을 사서 도시를 만들어 파는 사업자이고 공사는 전부 외주입니다. 그래서 현장 작업을 개선하는 아이디어는 시공사의 것이지 LH의 것이 아닙니다.</p>
+
+    <p class="lead-in">이 제안은 <strong>감독하고 평가하는 도구</strong>입니다. 그게 정확히 발주처의 일입니다. 여기에 세 가지가 맞물립니다.</p>
+
+    <dl class="ev">
+      <div class="ev-row">
+        <dt>LH가 요구</dt>
+        <dd>LH 스마트 안전기술 6대 항목 ①번(통합 안전관제시스템) 기능 목록에 <strong>"출역관리·위치 관제"가 이미 명시</strong>되어 있습니다. 이 제안이 쓰겠다는 바로 그 데이터입니다.</dd>
+      </div>
+      <div class="ev-row">
+        <dt>이미 존재</dt>
+        <dd>늘봄 A-Eye가 전국 현장 검지 데이터를 본사로 모으고 있습니다. <strong>대체하지 않고 그 위에 얹는 진단 층</strong>이라 기존 투자를 부정하지 않습니다.</dd>
+      </div>
+      <div class="ev-row">
+        <dt>로드맵 일치</dt>
+        <dd>늘봄 A-Eye의 다음 고도화 계획이 <strong>"인력·장비관리 기능 확대"</strong>입니다. 출역 데이터를 붙이겠다는 뜻이고, 방향이 같습니다.</dd>
+      </div>
+      <div class="ev-row">
+        <dt>양방향 활용</dt>
+        <dd>LH는 안전관리 수준평가의 <strong>피평가자(발주청)이면서 동시에 시공평가의 평가자</strong>입니다. 한 도구가 양쪽에 쓰입니다.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ============ 4. 왜 새로운가 ============ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">반려 사유 2에 대한 답</p>
+      <h2>기술은 한 문장으로 지목된다</h2>
+    </div>
+
+    <p class="pull">이종 검지 이력의 시공간 정합 + 불일치 누적에 의한 커버리지 역추정</p>
+
+    <p class="lead-in">짧게는 <strong>교차검증 기반 감시 공백 추정</strong>입니다. 비슷해 보이는 선행 연구들과의 차이는 한 축으로 정리됩니다 — <strong>설치 전에 계산하느냐, 운영 중에 관찰하느냐.</strong></p>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 700 210" role="img" aria-label="기존 연구는 카메라 사양과 3D 기하학으로 설치 전에 커버리지를 계산하고, B안은 운영 중 쌓인 검지 이력을 대조해 사후에 공백을 발견한다는 비교">
+          <defs>
+            <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5"
+                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <polygon points="0,1 9,5 0,9" fill="currentColor" opacity="0.55" />
+            </marker>
+          </defs>
+
+          <!-- timeline -->
+          <line x1="20" y1="105" x2="680" y2="105" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4" />
+          <text class="svg-label" x="340" y="98">설치</text>
+          <line x1="350" y1="24" x2="350" y2="186" stroke="var(--rule)" stroke-width="1" />
+
+          <!-- existing -->
+          <text class="svg-label" x="20" y="34">기존 연구 · 사전</text>
+          <rect class="svg-box" x="20" y="44" width="120" height="46" rx="4" />
+          <text class="svg-body" x="34" y="64">카메라 사양</text>
+          <text class="svg-body" x="34" y="82">3D 기하학</text>
+          <path class="svg-flow" d="M140 67 H 186" marker-end="url(#ar2)" />
+          <rect class="svg-box" x="196" y="44" width="126" height="46" rx="4" />
+          <text class="svg-body" x="210" y="64">이론상 커버리지</text>
+          <text class="svg-body" x="210" y="82">시뮬레이션 계산</text>
+          <text class="svg-label" x="20" y="122">→ 어디에 놓을지 설계한다</text>
+
+          <!-- proposed -->
+          <text class="svg-label" x="378" y="34" fill="var(--gap)">B안 · 사후</text>
+          <rect x="378" y="44" width="126" height="46" rx="4"
+                fill="var(--gap-wash)" stroke="var(--gap)" stroke-width="1.25" />
+          <text class="svg-body" x="392" y="64">실제 출입 기록</text>
+          <text class="svg-body" x="392" y="82">실제 검지 이력</text>
+          <path class="svg-flow" d="M504 67 H 550" marker-end="url(#ar2)" />
+          <rect x="560" y="44" width="120" height="46" rx="4"
+                fill="var(--gap-wash)" stroke="var(--gap)" stroke-width="1.25" />
+          <text class="svg-body" x="574" y="64">관측된 공백</text>
+          <text class="svg-body" x="574" y="82">누적 히트맵</text>
+          <text class="svg-label" x="378" y="122" fill="var(--gap)">→ 실제로 안 보이는 곳을 발견한다</text>
+
+          <!-- bottom note -->
+          <text class="svg-body" x="20" y="168">설계도가 맞다고 가정한다</text>
+          <text class="svg-body" x="378" y="168">설계도가 틀렸을 때 그것을 잡아낸다</text>
+        </svg>
+      </div>
+      <figcaption>기존 계열은 모두 <strong>설치 전 이론 계산</strong>입니다. 가림, 화각 틀어짐, 장비 고장, 도면과 다르게 지어진 구조물 — 실제 현장에서 커버리지를 깎는 요인들은 계산에 안 들어갑니다. B안은 그 결과를 사후에 관찰합니다.</figcaption>
+    </figure>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">비슷해 보이는 것</th>
+            <th scope="col">실제로 무엇을 하는가</th>
+            <th scope="col">우리와 무엇이 다른가</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CCTV 커버리지 지수<br><span class="quiet" style="font-weight:400">Choi &amp; Lee, Sensors 2015</span></td>
+            <td>카메라 사양과 3D 기하학으로 감시 해상도를 계산</td>
+            <td class="diff">이론 계산·시뮬레이션. 실제 검지 이력을 쓰지 않음</td>
+          </tr>
+          <tr>
+            <td>CCTV 배치 최적화 연구<br><span class="quiet" style="font-weight:400">Art Gallery / Maximum Coverage</span></td>
+            <td>사각지대가 최소가 되는 설치 위치를 찾음</td>
+            <td class="diff">사전 설계 vs 사후 진단</td>
+          </tr>
+          <tr>
+            <td>KT 특허<br><span class="quiet" style="font-weight:400">KR102333803B1, 등록</span></td>
+            <td>영상으로 인접 카메라 관계를 학습해 객체를 인계</td>
+            <td class="diff">운영 데이터를 쓰지만 목적이 추적 연속성. 가장 가까운 선행기술이라 <strong>제안서에 명시 인용 필요</strong></td>
+          </tr>
+          <tr>
+            <td>카메라 가림 감지<br><span class="quiet" style="font-weight:400">상용 VMS 표준 기능</span></td>
+            <td>렌즈 가림·초점 흐림·방향 전환을 검출</td>
+            <td class="diff"><strong>카메라 안쪽 문제 vs 바깥쪽 문제.</strong> 영상은 멀쩡한데 사건이 화각 밖에서 일어나면 못 잡음</td>
+          </tr>
+          <tr>
+            <td>국가 R&amp;D 스마트 안전 통합관제<br><span class="quiet" style="font-weight:400">국토부, 2020–2025, 1,970억</span></td>
+            <td>안전 데이터를 통합·분석해 위험도를 평가하고 알람</td>
+            <td class="diff"><strong>위험을 얼마나 잘 찾는가 vs 그 탐지 체계가 현장을 얼마나 덮는가.</strong> 대상이 근로자가 아니라 안전관리 체계 자체</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <span class="tag">방향 전환의 이유</span>
+      <h3>원래 후보였던 ①번은 마지막 줄에 통째로 들어가 있었다</h3>
+      <p>"알림이 너무 많아 우선순위를 못 잡는다"를 푸는 안(알림 융합·우선순위)은 국가 R&amp;D의 사업 범위 안에 있었습니다. 발주기관용 통합관제라는 포지셔닝까지 같았습니다. <strong>그래서 무게중심을 옮겼습니다.</strong></p>
+    </div>
+  </section>
+
+  <!-- ============ 5. 검증 ============ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">심사 방어</p>
+      <h2>"실제 데이터가 아니지 않냐"에 답할 수 있다</h2>
+    </div>
+
+    <p class="lead-in">원래 안의 최대 약점은 <strong>시뮬레이션 결과가 맞는지 확인할 방법이 없다</strong>는 것이었습니다. 알림 스트림을 지어내도 정답이 없으니까요.</p>
+
+    <p class="lead-in">이 안은 다릅니다. 시뮬레이터에 카메라 배치와 근로자 동선을 우리가 넣으므로, <strong>진짜 공백이 어디인지를 이미 알고 있습니다.</strong> 그래서 알고리즘이 그것을 얼마나 찾아냈는지 숫자로 잴 수 있습니다.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">측정 지표 1</span>
+        <h3>공백 검출 재현율</h3>
+        <p>실제 공백 중 몇 %를 찾아냈는가</p>
+      </div>
+      <div class="card">
+        <span class="tag">측정 지표 2</span>
+        <h3>오검출률</h3>
+        <p>공백이 아닌데 공백이라고 한 비율</p>
+      </div>
+      <div class="card">
+        <span class="tag">측정 지표 3</span>
+        <h3>필요 관측 기간</h3>
+        <p>며칠 치 이력이 쌓여야 공백이 유의하게 드러나는가</p>
+      </div>
+    </div>
+
+    <p class="pull">답변: 실제 현장 데이터가 아니라, 정답을 아는 환경에서 알고리즘 성능을 측정한 것입니다.</p>
+  </section>
+
+  <!-- ============ 6. 남은 것 ============ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">아직 안 끝난 것</p>
+      <h2>네 가지가 남아 있다</h2>
+    </div>
+
+    <div class="open">
+      <div class="open-row">
+        <div class="box" aria-hidden="true"></div>
+        <div>
+          <h3>KIPRIS 특허 직접 검색</h3>
+          <p>사전심사에서 <strong>실격을 판정하는 도구</strong>입니다. 브라우저 확장이 연결되지 않아 수행하지 못했습니다. Google Patents로 확인한 범위에서는 충돌이 없었지만, 이것으로 대체되지 않습니다. 검색식은 골격 문서에 정리해 두었습니다.</p>
+        </div>
+      </div>
+      <div class="open-row">
+        <div class="box" aria-hidden="true"></div>
+        <div>
+          <h3>구역 단위로 인원을 나누는 방법</h3>
+          <p>출입구 기록은 "현장 전체 <span class="num">80</span>명"이지 "A구역 <span class="num">20</span>명"이 아닙니다. 구역까지 쪼개려면 동선 가정이 필요합니다. <strong>1차 제안서는 현장 전체 단위 공백률로 한정하는 것이 안전합니다.</strong></p>
+        </div>
+      </div>
+      <div class="open-row">
+        <div class="box" aria-hidden="true"></div>
+        <div>
+          <h3>개인정보 처리</h3>
+          <p>출입 기록과 영상을 합치면 개인이 식별됩니다. <strong>사람 수만 세고 누구인지는 보지 않는다</strong>를 설계 단계에서 못 박아야 합니다. 그러지 않으면 실현가능성 점수에서 깎입니다.</p>
+        </div>
+      </div>
+      <div class="open-row">
+        <div class="box" aria-hidden="true"></div>
+        <div>
+          <h3>시공사 수용성</h3>
+          <p>"네 현장 점수가 낮다"로 쓰면 반발합니다. <strong>벌점이 아니라 개선 권고 도구로 포지셔닝</strong>하고, 평가 활용은 파급효과 절에서만 부차적으로 언급합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>근거 · 더팩트 2026.01.22 「스마트 장비 도입에도 평가는 제자리」 / 국토교통부 스마트 안전장비 관련 규정 / 국토안전관리원 건설공사 참여자 안전관리 수준평가 / 고용노동부 전자카드제 전면 확대 시행 / Choi &amp; Lee, Sensors 2015 / KR102333803B1 / ScienceON 「스마트 안전 통합 관제기술」 / LH 늘봄 A-Eye 운영 개시 보도 2026.04.22</p>
+    <p>상세 골격 · B안_감시공백진단_골격.md</p>
+  </footer>
+
+</div>
