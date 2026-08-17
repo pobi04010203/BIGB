@@ -64,8 +64,10 @@ class Site:
 
 # ── 골조 ──────────────────────────────────────────────────────────────────
 
-def _solids() -> list:
+def _solids(scaffold_coverage: float = None) -> list:
     """코어 벽체 + 슬래브 + 외곽 비계. 전부 직육면체 조합이다."""
+    if scaffold_coverage is None:
+        scaffold_coverage = config.SCAFFOLD_COVERAGE
     s = []
     # 코어 2개 — 엘리베이터·계단 코어. 시공 중이라 높이 12m
     for cx in (30.0, 70.0):
@@ -75,11 +77,11 @@ def _solids() -> list:
     s.append(Box(18.0, 14.0, 4.0, 82.0, 46.0, 4.3, "slab"))
 
     # 외곽 비계 — 건물 둘레를 두께 1.2m 로 감싼다. 수직 부재가 가림원이다
-    # 점유율 0.35 — 지주·띠장이 시야의 3분의 1가량을 막는다고 본다.
-    # 정확한 값은 비계 사양에 달렸고 공개 통계가 없어 잠정값이다.
+    # 점유율은 config.SCAFFOLD_COVERAGE. 지주·띠장이 시야의 얼마를 막는지는
+    # 비계 사양에 달렸고 공개 통계가 없어 잠정값이며, 민감도 스윕 대상이다.
     ox1, oy1, ox2, oy2 = 16.0, 12.0, 84.0, 48.0
     t = 1.2
-    SC = 0.35
+    SC = scaffold_coverage
     s.append(Box(ox1, oy1, 0.0, ox2, oy1 + t, 14.0, "scaffold", SC))
     s.append(Box(ox1, oy2 - t, 0.0, ox2, oy2, 14.0, "scaffold", SC))
     s.append(Box(ox1, oy1, 0.0, ox1 + t, oy2, 14.0, "scaffold", SC))
@@ -169,8 +171,8 @@ def _voxels(solids: list, zones: list) -> list:
     return out
 
 
-def build() -> Site:
-    solids = _solids()
+def build(scaffold_coverage: float = None) -> Site:
+    solids = _solids(scaffold_coverage)
     zones = _zones()
     return Site(
         width=config.SITE_WIDTH_M,

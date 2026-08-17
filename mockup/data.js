@@ -1,4 +1,5 @@
-{
+// report.py 가 만든 사본이다. 직접 고치지 말 것.
+window.SITE_DATA = {
  "site": {
   "width_m": 100,
   "depth_m": 60,
@@ -23685,4 +23686,4 @@
   }
  },
  "status": "ok"
-}
+};

@@ -4,13 +4,13 @@
     P(ρ, θ, o) = f(ρ) · g(θ) · h(o)
 
   f(ρ) = 로지스틱  L / (1 + exp(-k(ρ - x0)))
-  g(θ) = 1 에서 시작하는 단조 감소. 2차 또는 지수 중 R² 가 높은 쪽
+  g(θ) = 1 에서 시작하는 단조 감소. 2차·지수·로지스틱 중 R² 가 높은 쪽
   h(o) = 지수 감쇠  exp(-λ·o)
 
 상호작용항은 넣지 않는다. 1차 근사임을 제안서에 명시하는 것이 방어 전략이다(§4.5).
 
 각 축은 다른 두 축을 기준값(ρ=48, θ=0, o=0)에 고정한 단면으로 먼저 피팅하고,
-전체 125점에 대해 R² 를 계산해 검증한다.
+격자 전체(config.N_CONDITIONS 점)에 대해 R² 를 계산해 검증한다.
 
 g 와 h 는 기준점에서 1 이 되도록 정규화한다. 그래야 전체 크기를 f 가 지고
 곱이 기준 조건에서 실측값과 맞는다.
@@ -53,19 +53,38 @@ def g_exponential(x, lam):
     return np.exp(-lam * x)
 
 
+def g_logistic(x, k, x0):
+    """감소 로지스틱. 45°까지 평평하다가 60°에서 무너지는 절벽 모양을 2차·지수는
+    맞히지 못한다(2차 단면 R² 0.78). 후보에 넣어 R² 로 고르게 한다.
+
+    x=0 에서 1 이 되도록 정규화해 §4.5 의 "1 에서 시작" 요건을 지킨다.
+    k>0 이면 [0,90] 구간에서 단조 감소다.
+    """
+    return (1.0 + np.exp(-k * x0)) / (1.0 + np.exp(k * (x - x0)))
+
+
 def h_exp_decay(x, lam):
     return np.exp(-lam * x)
 
 
-def load_rows() -> list[dict]:
+def load_rows() -> tuple[list[dict], str]:
+    """행 목록과, 가림 축으로 쓴 컬럼 이름을 돌려준다.
+
+    `occ_pct_box`(인스턴스 평균 가림률)가 있으면 그것을 쓴다. §5.2 의 현장 `o` 가
+    개체 단위 값이라 정의가 맞기 때문이다. 없으면 화면 전체 실측치로 물러난다.
+    """
     with config.GRID_RESULTS_CSV.open(encoding="utf-8") as f:
         rows = [r for r in csv.DictReader(f) if r[TARGET] not in ("", "None")]
+
+    col = ("occ_pct_box"
+           if rows and rows[0].get("occ_pct_box") not in (None, "")
+           else "occ_pct_actual")
     for r in rows:
         r["rho"] = float(r["rho_px"])
         r["theta"] = float(r["theta_deg"])
-        r["occ"] = float(r["occ_pct_actual"]) / 100.0     # 실측 가림률
+        r["occ"] = float(r[col]) / 100.0
         r["y"] = float(r[TARGET])
-    return rows
+    return rows, col
 
 
 def main() -> dict:
@@ -73,7 +92,7 @@ def main() -> dict:
         raise FileNotFoundError(
             f"{config.GRID_RESULTS_CSV} 가 없다. 먼저 `python src/run_grid.py` 를 돌릴 것."
         )
-    rows = load_rows()
+    rows, occ_col = load_rows()
 
     def section(fix: dict) -> list[dict]:
         out = [r for r in rows
@@ -102,13 +121,19 @@ def main() -> dict:
                         bounds=([-np.inf, -np.inf], [0.0, 0.0]), maxfev=200000)
     p_ge, _ = curve_fit(g_exponential, xg, yg, p0=[0.005],
                         bounds=([0.0], [np.inf]), maxfev=200000)
-    r2_gq, r2_ge = r2(yg, g_quadratic(xg, *p_gq)), r2(yg, g_exponential(xg, *p_ge))
-    if r2_gq >= r2_ge:
-        g_form, g_params, g_fn, r2_g = "quadratic", {"a": p_gq[0], "b": p_gq[1]}, \
-            lambda x: g_quadratic(x, *p_gq), r2_gq
-    else:
-        g_form, g_params, g_fn, r2_g = "exponential", {"lambda": p_ge[0]}, \
-            lambda x: g_exponential(x, *p_ge), r2_ge
+    p_gl, _ = curve_fit(g_logistic, xg, yg, p0=[0.15, 60.0],
+                        bounds=([0.0, 0.0], [np.inf, 180.0]), maxfev=200000)
+
+    cands = [
+        ("quadratic", {"a": p_gq[0], "b": p_gq[1]},
+         lambda x: g_quadratic(x, *p_gq), r2(yg, g_quadratic(xg, *p_gq))),
+        ("exponential", {"lambda": p_ge[0]},
+         lambda x: g_exponential(x, *p_ge), r2(yg, g_exponential(xg, *p_ge))),
+        ("logistic", {"k": p_gl[0], "x0": p_gl[1]},
+         lambda x: g_logistic(x, *p_gl), r2(yg, g_logistic(xg, *p_gl))),
+    ]
+    g_r2_all = {name: round(v, 4) for name, _, _, v in cands}
+    g_form, g_params, g_fn, r2_g = max(cands, key=lambda c: c[3])
 
     # ── h(o) — ρ=48, θ=0 단면. 기준점에서 1 로 정규화 ──────────────────────
     sec_h = section({"rho": BASE_RHO, "theta": BASE_THETA})
@@ -118,7 +143,7 @@ def main() -> dict:
     p_h, _ = curve_fit(h_exp_decay, xh, yh, p0=[3.0], maxfev=200000)
     r2_h = r2(yh, h_exp_decay(xh, *p_h))
 
-    # ── 전체 125점 검증 ───────────────────────────────────────────────────
+    # ── 격자 전체 검증 ────────────────────────────────────────────────────
     y_all = np.array([r["y"] for r in rows])
     yhat = np.array([
         float(f_logistic(r["rho"], *p_f)) * float(g_fn(r["theta"]))
@@ -140,10 +165,17 @@ def main() -> dict:
                                    "하한 미만은 detect_model.py 가 0 으로 본다"},
         "g_theta": {"form": g_form,
                     "params": {k: float(v) for k, v in g_params.items()},
-                    "normalized_at": "theta=0", "r2_section": round(r2_g, 4)},
+                    "normalized_at": "theta=0", "r2_section": round(r2_g, 4),
+                    "r2_candidates": g_r2_all,
+                    "measured_range_deg": [float(min(xg)), float(max(xg))],
+                    "extrapolation": "measured_range 밖으로 외삽하지 않는다. "
+                                     "상한 초과는 detect_model.py 가 0 으로 본다"},
         "h_occ": {"form": "exp_decay", "lambda": float(p_h[0]),
-                  "normalized_at": "occ=0", "input": "occ_pct_actual/100",
-                  "r2_section": round(r2_h, 4)},
+                  "normalized_at": "occ=0", "input": f"{occ_col}/100",
+                  "r2_section": round(r2_h, 4),
+                  "measured_range": [float(min(xh)), float(max(xh))],
+                  "extrapolation": "measured_range 밖으로 외삽하지 않는다. "
+                                   "상한 초과는 detect_model.py 가 0 으로 본다"},
         "baseline_P": round(base, 4),
         "r2_full_grid": round(r2_full, 4),
         "r2_acceptance": config.R2_ACCEPTANCE,
@@ -171,6 +203,7 @@ if __name__ == "__main__":
           f"x0={params['f_rho']['x0']:.4f}   단면 R²={params['f_rho']['r2_section']}")
     print(f"g(θ) {params['g_theta']['form']:<12} {params['g_theta']['params']}"
           f"   단면 R²={params['g_theta']['r2_section']}")
+    print(f"     후보별 R² {params['g_theta']['r2_candidates']}")
     print(f"h(o) 지수감쇠  λ={params['h_occ']['lambda']:.4f}"
           f"                       단면 R²={params['h_occ']['r2_section']}")
     print()

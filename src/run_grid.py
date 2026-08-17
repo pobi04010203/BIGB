@@ -94,7 +94,8 @@ def match(gt: list, det: list, ignore: list | None = None) -> tuple[int, int, li
 
 
 def run_condition(model, records: list, rho: float, theta: float, occ: float,
-                  min_head_px: float = config.MIN_HEAD_PX) -> dict:
+                  min_head_px: float = config.MIN_HEAD_PX,
+                  occ_divisor: int = T.DEFAULT_STRIPE_DIVISOR) -> dict:
     per_cls_gt = {c: 0 for c in CLASSES}
     per_cls_tp = {c: 0 for c in CLASSES}
     n_fp = 0
@@ -124,7 +125,7 @@ def run_condition(model, records: list, rho: float, theta: float, occ: float,
         else:
             gt = list(zip(labels, boxes))
             ignore = list(zip(s_labels, s_boxes))
-        out, occ_actual = T.apply_occlusion(out, occ / 100.0)
+        out, occ_actual = T.apply_occlusion(out, occ / 100.0, divisor=occ_divisor)
         occ_actuals.append(occ_actual)
 
         if not gt:
@@ -166,7 +167,16 @@ def run_condition(model, records: list, rho: float, theta: float, occ: float,
     }
 
 
-def main(smoke: bool, limit: int | None) -> Path:
+def main(smoke: bool, limit: int | None,
+         occ_divisor: int = T.DEFAULT_STRIPE_DIVISOR,
+         out_csv: Path | None = None,
+         occ_only: bool = False) -> Path:
+    """occ_only 는 h(o) 단면(ρ=48, θ=0)만 돌린다 - 주기 민감도용이다.
+
+    가림축이 결과를 지배하는데 스트라이프 주기는 §4.2 가 자유 파라미터로 남긴
+    값이라 근거가 없다. 주기를 바꿔 단면만 다시 재면 λ 가 얼마나 흔들리는지
+    싸게 확인할 수 있다. 격자 전체를 다시 돌릴 이유가 없다.
+    """
     from ultralytics import YOLO
 
     if not WEIGHTS.exists():
@@ -180,11 +190,14 @@ def main(smoke: bool, limit: int | None) -> Path:
     if smoke:
         grid = [(r, t, o) for r in config.SMOKE_RHO_PX
                 for t in config.SMOKE_THETA_DEG for o in config.SMOKE_OCC_PCT]
-        out_csv = config.OUTPUTS / "smoke_results.csv"
+        out_csv = out_csv or config.OUTPUTS / "smoke_results.csv"
+    elif occ_only:
+        grid = [(48.0, 0.0, o) for o in config.OCC_LEVELS_PCT]
+        out_csv = out_csv or config.OUTPUTS / f"occ_section_div{occ_divisor}.csv"
     else:
         grid = [(r, t, o) for r in config.RHO_LEVELS_PX
                 for t in config.THETA_LEVELS_DEG for o in config.OCC_LEVELS_PCT]
-        out_csv = config.GRID_RESULTS_CSV
+        out_csv = out_csv or config.GRID_RESULTS_CSV
 
     # 이미 계산된 조건은 건너뛴다. 격자를 넓힐 때 앞선 결과를 다시 돌리지 않는다.
     done: dict[tuple, dict] = {}
@@ -204,7 +217,8 @@ def main(smoke: bool, limit: int | None) -> Path:
         if cached is not None:
             rows.append(cached)
             continue
-        row = run_condition(model, records, r, t, o, manifest['min_head_px'])
+        row = run_condition(model, records, r, t, o, manifest['min_head_px'],
+                            occ_divisor)
         rows.append(row)
         print(f"[{i}/{len(grid)}] ρ={r:>2} θ={t:>2} o={o:>2}  "
               f"recall_nohat {row['recall_nohat']}  recall_hat {row['recall_hat']}")
@@ -222,5 +236,10 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", action="store_true", help="9조건만 (§7 Phase 1)")
     ap.add_argument("--limit", type=int, default=None, help="이미지 수 제한 (디버그용)")
+    ap.add_argument("--occ-divisor", type=int, default=T.DEFAULT_STRIPE_DIVISOR,
+                    help="스트라이프 주기 = 화면 가로 / divisor")
+    ap.add_argument("--occ-only", action="store_true",
+                    help="h(o) 단면(ρ=48, θ=0)만 - 주기 민감도용")
+    ap.add_argument("--out", type=Path, default=None, help="출력 CSV 경로")
     args = ap.parse_args()
-    main(args.smoke, args.limit)
+    main(args.smoke, args.limit, args.occ_divisor, args.out, args.occ_only)

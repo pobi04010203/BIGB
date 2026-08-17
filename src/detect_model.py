@@ -32,23 +32,49 @@ class Curve:
         self.rho_min, self.rho_max = f["measured_range_px"]
         g = params["g_theta"]
         self.g_form, self.g_params = g["form"], g["params"]
-        self.lam = params["h_occ"]["lambda"]
+        # θ·o 도 ρ 와 같은 규칙을 받는다. 한 축에만 외삽 금지를 걸어두면 나머지
+        # 방어논리까지 의심받는다. 범위가 기록돼 있지 않은 옛 파일은 무한대로 둬
+        # 종전과 같이 동작시킨다.
+        self.theta_min, self.theta_max = g.get("measured_range_deg", [0.0, 90.0])
+        h = params["h_occ"]
+        self.lam = h["lambda"]
+        self.occ_min, self.occ_max = h.get("measured_range", [0.0, 1.0])
+
+        # 측정 범위 밖으로 나간 조회 횟수. 영향의 크기를 숫자로 남긴다.
+        self.out_of_range = {"rho": 0, "theta": 0, "occ": 0}
 
     def f(self, rho: float) -> float:
         if rho < self.rho_min:
+            self.out_of_range["rho"] += 1
             return 0.0                     # 측정 범위 밖 — 외삽하지 않는다
         r = min(rho, self.rho_max)         # 위쪽은 포화라 잘라도 무해하다
         return self.L / (1.0 + math.exp(-self.k * (r - self.x0)))
 
     def g(self, theta: float) -> float:
+        """부감각 감쇠. **측정 상한을 넘으면 0 이다.**
+
+        geometry.theta_deg 는 타워크레인(z=25m)에서 근거리 복셀에 상한을 넘는
+        각을 만든다. 거기서 곡선을 늘리면 근거 없는 값을 답하게 되고, 안전
+        판정에서 낙관은 위험한 방향이다.
+        """
+        if theta > self.theta_max:
+            self.out_of_range["theta"] += 1
+            return 0.0
         if self.g_form == "quadratic":
             a, b = self.g_params["a"], self.g_params["b"]
             v = 1.0 + a * theta + b * theta * theta
+        elif self.g_form == "logistic":
+            k, x0 = self.g_params["k"], self.g_params["x0"]
+            v = (1.0 + math.exp(-k * x0)) / (1.0 + math.exp(k * (theta - x0)))
         else:
             v = math.exp(-self.g_params["lambda"] * theta)
         return max(0.0, min(1.0, v))
 
     def h(self, occ: float) -> float:
+        """가림 감쇠. **측정 상한을 넘으면 0 이다.** (g 와 같은 이유)"""
+        if occ > self.occ_max:
+            self.out_of_range["occ"] += 1
+            return 0.0
         return max(0.0, min(1.0, math.exp(-self.lam * occ)))
 
     def p_detect(self, geo: dict) -> float:
@@ -58,11 +84,19 @@ class Curve:
         return self.f(geo["rho_px"]) * self.g(geo["theta_deg"]) * self.h(geo["occ_ratio"])
 
     def reason(self, geo: dict) -> str:
-        """왜 낮은가. 미달구역 목록에 붙인다 (§7 Phase 4 화면 2)."""
+        """왜 낮은가. 미달구역 목록에 붙인다 (§7 Phase 4 화면 2).
+
+        측정 범위 밖은 먼저 걸러낸다. 그래야 out_of_range 집계가 이 함수 호출로
+        부풀지 않는다.
+        """
         if not geo.get("visible"):
             return geo.get("reason", "비가시")
         if geo["rho_px"] < self.rho_min:
             return "ρ 부족 (측정 범위 밖)"
+        if geo["theta_deg"] > self.theta_max:
+            return "θ 과다 (측정 범위 밖)"
+        if geo["occ_ratio"] > self.occ_max:
+            return "가림 과다 (측정 범위 밖)"
         parts = [("ρ 부족", 1 - self.f(geo["rho_px"]) / max(self.L, 1e-9)),
                  ("θ 과다", 1 - self.g(geo["theta_deg"])),
                  ("가림", 1 - self.h(geo["occ_ratio"]))]

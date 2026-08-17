@@ -42,12 +42,20 @@ DETECTOR_WEIGHTS = "yolov8n.pt"          # 사전학습 가중치. 로컬 CUDA �
 # 100×60m 라 복셀-카메라 쌍 대부분이 40m 를 넘는데, 그 구간을 측정 없이 로지스틱
 # 외삽으로 채우면 WDR 이 통째로 부풀려진다. 실측으로 덮는다.
 RHO_LEVELS_PX = [48, 32, 24, 16, 12, 8, 6, 4]   # 머리 bbox 짧은 변 유효 픽셀
-THETA_LEVELS_DEG = [0, 15, 30, 45, 60]   # 부감각
-OCC_LEVELS_PCT = [0, 15, 30, 45, 60]     # 가림률
-N_CONDITIONS = len(RHO_LEVELS_PX) * len(THETA_LEVELS_DEG) * len(OCC_LEVELS_PCT)  # 200
+THETA_LEVELS_DEG = [0, 15, 30, 45, 60, 75]   # 부감각
+OCC_LEVELS_PCT = [0, 15, 30, 45, 60, 75]     # 가림률
+N_CONDITIONS = len(RHO_LEVELS_PX) * len(THETA_LEVELS_DEG) * len(OCC_LEVELS_PCT)  # 288
 
-# 실측으로 덮은 ρ 하한. 곡선을 이 아래로 외삽하지 않는다.
+# θ·o 에 75 수준을 덧붙였다 (2026-08-15). ρ 를 8·6·4 로 넓힌 것과 같은 이유다.
+# ρ 만 measured_range 밖을 막고 θ·o 는 외삽을 그대로 답하고 있었다.
+#   - geometry.theta_deg 는 타워크레인(z=25m)에서 근거리 복셀에 θ>60° 를 만든다
+#   - geometry.occlusion_ratio 는 0~1 연속값인데 실측 상한은 0.62 였다
+# 한 축에만 외삽 금지를 적용한 비대칭은 나머지 방어논리까지 의심받게 한다.
+
+# 실측으로 덮은 범위. 곡선을 이 밖으로 외삽하지 않는다.
 RHO_MEASURED_MIN_PX = min(RHO_LEVELS_PX)
+THETA_MEASURED_MAX_DEG = max(THETA_LEVELS_DEG)
+OCC_MEASURED_MAX_PCT = max(OCC_LEVELS_PCT)
 
 # 방위각 φ 는 제외한다 (§4.2, §6). 축을 추가하지 말 것.
 
@@ -102,6 +110,12 @@ RISK_WEIGHT_DEFAULT = 1          # 위 구역에 속하지 않는 복셀
 # 판정 임계. 0.5 는 잠정값이다(§5.3).
 P_DETECT_THRESHOLD = 0.5
 
+# 외곽 비계가 시선을 막는 비율. 지주·띠장 사이가 비어 있어 1.0 이 아니다.
+# **근거 없는 자유 파라미터다.** 건설현장 실측 가림률 통계는 공개된 것이 없다(§9).
+# WDR 이 가림축에 지배되므로 이 값 하나가 결과를 좌우한다. 민감도 스윕으로
+# 결론이 이 값에 얼마나 매달려 있는지 함께 보인다 (src/sensitivity.py).
+SCAFFOLD_COVERAGE = 0.35
+
 
 # ── §5.2 카메라 기하 ──────────────────────────────────────────────────────
 IMG_WIDTH_PX = 3840       # 4K
@@ -116,6 +130,44 @@ FOCAL_PX = (IMG_WIDTH_PX / 2) / math.tan(math.radians(HFOV_DEG) / 2)
 # 가림률 o: 복셀 위치에 높이 1.7m 수직 막대를 세우고 11개 샘플점에서 광선을 쏜다.
 OCCLUSION_BAR_HEIGHT_M = 1.7
 OCCLUSION_SAMPLE_POINTS = 11
+
+
+# ── 기하 기준선의 최소 픽셀밀도 (IEC 62676-4 DORI) ─────────────────────────
+# §5.4 A 의 기하 커버리지를 "화각 안 + 완전차폐 아님" 으로만 세면, 116m 떨어진
+# 복셀도 커버로 잡혀 기존 방식을 실제보다 못하게 모델링하게 된다. 실무 설계도구
+# (JVSG·Axis Site Designer)는 IEC 62676-4 의 DORI 최소 픽셀밀도를 지킨다.
+# 기준선을 그 수준으로 올려야 비교가 성립한다.
+#
+# DORI 는 장면 미터당 픽셀(PPM)로 규정된다. 머리 H_HEAD_M 기준 환산은
+#   ρ[px] = PPM × H_HEAD_M       (역으로 PPM = ρ / H_HEAD_M = 4ρ)
+# DORI 는 인간 관찰자 기준이며 AI 검출기에 대해 검증된 바 없다. 여기서는
+# **기존 방식의 기준선**을 세우는 용도로만 쓴다. 제안서에 이 한계를 명시한다.
+DORI_PPM = {
+    "detection": 25.0,        # ρ  6.25px
+    "observation": 62.5,      # ρ 15.63px
+    "recognition": 125.0,     # ρ 31.25px
+    "identification": 250.0,  # ρ 62.50px
+}
+# 기하 기준선이 지킬 등급. **기존 방식에 가장 유리한 등급을 고른다.**
+# 네 등급을 전수 실행해 확률 배치와의 격차(ΔWDR)를 재보면 observation 에서
+# 가장 작다 — 즉 기존 방식이 가장 잘 나오는 기준선이다. 우리에게 불리한 쪽을
+# 기본값으로 두어야 "기준선을 약하게 잡고 이겼다"는 비판을 받지 않는다.
+#
+#   임계 없음  ΔWDR +0.0964 | detection +0.0693
+#   observation +0.0316 (최소) | recognition +0.0420
+#
+# recognition 이 observation 보다 나쁜 것은 오류가 아니다. 임계를 올리면 만족
+# 가능한 복셀이 급감해(통과 쌍 28.4% → 6.1%) 탐욕이 오히려 나빠진다.
+# 임계 방식 자체의 구조적 결함이며 제안서 소재다.
+GEOMETRIC_DORI_LEVEL = "observation"
+
+
+def dori_rho_px(level: str = None) -> float:
+    """DORI 등급의 최소 픽셀밀도를 머리 bbox 픽셀로 환산한다."""
+    return DORI_PPM[level or GEOMETRIC_DORI_LEVEL] * H_HEAD_M
+
+
+GEOMETRIC_MIN_RHO_PX = dori_rho_px()
 
 
 def rho_px(distance_m: float) -> float:

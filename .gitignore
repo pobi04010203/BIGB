@@ -51,3 +51,9 @@ grid_full.log
 .playwright-mcp/
 mockup-*.png
 grid_ext.log
+sensitivity.log
+
+# 발표자료 생성물 — tools/ 가 outputs/*.json 에서 재생성한다.
+# .pptx 는 배포 단위라 커밋하고, 그림·PDF·PNG 는 제외한다
+outputs/figures/
+outputs/*_전달용/

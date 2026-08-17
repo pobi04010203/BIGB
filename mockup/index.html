@@ -4,8 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI CCTV 배치 적정성 평가</title>
-<!-- 인라인 파비콘. 없으면 브라우저가 /favicon.ico 를 찾다 404 를 콘솔에 남긴다 -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230b4f8a'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%23fff'/%3E%3C/svg%3E">
+<!-- 인라인 파비콘. 없으면 브라우저가 /favicon.ico 를 찾다 404 를 콘솔에 남긴다.
+     **SVG data URI 를 쓰면 안 된다** - file:// 로 열었을 때 크롬이 SVG 문서를
+     고유 출처로 보고 "Unsafe attempt to load URL ..." 오류를 남긴다. PNG 는 그렇지 않다. -->
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAIklEQVR42mPg9u8iCTEMTw3/kQBhDf8xwNDTQLKnR0TSAACXXScw+G9yggAAAABJRU5ErkJggg==">
 <style>
   :root{
     --ink:#16191d; --muted:#5c6570; --line:#d8dde3; --bg:#f4f6f8; --panel:#fff;
@@ -57,8 +59,13 @@
   <p class="hint">데이터를 읽는 중…</p>
 </div>
 
+<!-- data.js 는 data.json 과 같은 내용을 window.SITE_DATA 에 담은 사본이다.
+     file:// 로 직접 열면 브라우저가 fetch 를 막으므로 그때 쓰는 폴백이다.
+     데이터는 여전히 report.py 가 만든다 - HTML 에 하드코딩하지 않는다. -->
+<script src="data.js"></script>
 <script>
 const fmtPct = v => (v * 100).toFixed(1) + '%';
+let DATA = null, VIEW = 'empirical';
 
 function heat(p){                       // 0~1 → 적→황→녹
   const t = p <= .5 ? p/.5 : (p-.5)/.5;
@@ -68,14 +75,19 @@ function heat(p){                       // 0~1 → 적→황→녹
 
 function render(d){
   const root = document.getElementById('root');
-  const P = d.placements, geo = P.geometric, prob = P.probabilistic;
+  const P = d.placements, geo = P.geometric, asm = P.assumed, emp = P.empirical;
   const S = d.site, vox = d.voxels;
-  const key = prob ? 'P_total_probabilistic' : 'P_total_' + Object.keys(P)[0];
-  const dW = prob && geo ? prob.WDR - geo.WDR : null;
+  // 히트맵이 보여줄 배치. 세 배치를 같은 자로 재고 토글로 바꿔 보는 것이
+  // 이 자료의 요점이라, 실측 배치만 그리지 않는다.
+  const view = P[VIEW] ? VIEW : Object.keys(P)[0];
+  const shown = P[view];
+  const key = 'P_total_' + view;
+  const dW = emp && geo ? emp.WDR - geo.WDR : null;
+  const base = d.geometric_baseline || null;
 
   const scale = 1000 / S.width_m;        // 1000px 폭에 맞춘다
   const H = S.depth_m * scale, W = S.width_m * scale, vs = S.voxel_m * scale;
-  const chosen = new Set((prob || Object.values(P)[0]).camera_ids);
+  const chosen = new Set(shown.camera_ids);
 
   const camSvg = d.cameras.map(c => {
     const on = chosen.has(c.id);
@@ -98,26 +110,44 @@ function render(d){
       stroke="none"><title>${v.id} w=${v.w} P=${p.toFixed(3)}${v.zones.length?' · '+v.zones.join(', '):''}</title></rect>`;
   }).join('');
 
-  const fails = (d.fail_zones||[]).slice().sort((a,b)=> b.w-a.w || a.P_total-b.P_total);
+  const fails = ((shown && shown.fail_zones) || d.fail_zones || [])
+    .slice().sort((a,b)=> b.w-a.w || a.P_total-b.P_total);
+
+  // 미달 원인 분포 — "그래서 뭘 고치라는 건가"에 대한 답이 화면에 있어야 한다
+  const rc = {};
+  fails.forEach(f => { rc[f.reason] = (rc[f.reason]||0) + 1; });
+  const rcTxt = Object.entries(rc).sort((a,b)=>b[1]-a[1])
+    .map(([k,v])=>`${k} ${v}`).join(' · ') || '—';
 
   root.innerHTML = `
   <div class="cards">
-    <div class="card hi"><div class="k">WDR — 검출확률 기준 배치</div>
-      <div class="v">${prob ? fmtPct(prob.WDR) : '—'}</div>
-      <div class="n">제안 방식</div></div>
-    <div class="card"><div class="k">WDR — 기하 커버리지 배치</div>
+    <div class="card"><div class="k">① 기하 커버리지 배치</div>
       <div class="v">${geo ? fmtPct(geo.WDR) : '—'}</div>
-      <div class="n">기존 방식 · 같은 자로 측정</div></div>
-    <div class="card"><div class="k">차이</div>
-      <div class="v delta ${dW>=0?'up':'down'}">${dW===null?'—':(dW>=0?'+':'')+fmtPct(dW)}</div>
-      <div class="n">동일 대수(${d.camera_budget}대) 재배치 효과</div></div>
+      <div class="n">${base ? 'IEC 62676-4 DORI '+base.level+' 준수' : '기존 방식'}</div></div>
+    <div class="card"><div class="k">② 문헌의 가정 곡선 배치</div>
+      <div class="v">${asm ? fmtPct(asm.WDR) : '—'}</div>
+      <div class="n">${asm && asm.curve_source ? asm.curve_source : '해석적 가정'} · 측정값 아님</div></div>
+    <div class="card hi"><div class="k">③ 실측 곡선 배치</div>
+      <div class="v">${emp ? fmtPct(emp.WDR) : '—'}</div>
+      <div class="n">제안 방식</div></div>
     <div class="card"><div class="k">미달구역</div>
-      <div class="v">${prob ? prob.fail_voxel_count : '—'}</div>
-      <div class="n">P_total &lt; ${d.threshold} · 전체 ${vox.length}개 중</div></div>
+      <div class="v">${geo&&emp ? geo.fail_voxel_count+' → '+emp.fail_voxel_count
+                                 : (shown ? shown.fail_voxel_count : '—')}</div>
+      <div class="n">P_total &lt; ${d.threshold} · 전체 ${vox.length}개 중
+        ${asm ? '(가정 '+asm.fail_voxel_count+')' : ''}</div></div>
   </div>
 
   <section>
     <h2>현장 검출확률 히트맵</h2>
+    <div class="toolbar">
+      <label><input type="radio" name="view" value="geometric"
+        ${view==='geometric'?'checked':''} ${geo?'':'disabled'}> 기하 커버리지 배치 (기존)</label>
+      <label><input type="radio" name="view" value="assumed"
+        ${view==='assumed'?'checked':''} ${asm?'':'disabled'}> 가정 곡선 배치 (문헌)</label>
+      <label><input type="radio" name="view" value="empirical"
+        ${view==='empirical'?'checked':''} ${emp?'':'disabled'}> 실측 곡선 배치 (제안)</label>
+      <span class="pill">같은 ${d.camera_budget}대 · 같은 자로 측정</span>
+    </div>
     <p class="hint">복셀 ${S.voxel_m}m 격자 · 색이 붉을수록 검출확률이 낮다.
       파란 점이 선정된 카메라이고 부채꼴은 각 카메라가 고른 방위의 수평 화각(${d.aim.hfov_deg}°)이다.</p>
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="검출확률 히트맵">
@@ -135,8 +165,9 @@ function render(d){
   </section>
 
   <section>
-    <h2>미달구역 — ${fails.length}개</h2>
-    <p class="hint">위험가중치가 높은 순. 사유는 세 축 중 가장 크게 깎은 것이다.</p>
+    <h2>미달구역 — ${fails.length}개 <span class="pill">${({geometric:'기하 배치',assumed:'가정 곡선 배치',empirical:'실측 배치'})[view]||view}</span></h2>
+    <p class="hint">위험가중치가 높은 순. 사유는 세 축 중 가장 크게 깎은 것이다.<br>
+      <b>원인 분포 — ${rcTxt}</b></p>
     <div class="scroll"><table>
       <thead><tr><th>복셀</th><th>위치 (m)</th><th>위험구역</th>
         <th class="num">가중치</th><th class="num">P_total</th><th>원인</th></tr></thead>
@@ -152,40 +183,92 @@ function render(d){
 
   <section>
     <h2>배치 비교</h2>
-    <p class="hint">두 배치를 <b>같은 자(검출확률)</b>로 쟀다. 기하 기준으로 고른 배치도
-      실제 검출률은 낮다는 것이 확인 대상이다.</p>
+    <p class="hint">세 배치를 <b>같은 자(실측 검출확률)</b>로 쟀다. 가정 곡선은
+      설계에만 쓰고 채점에는 쓰지 않는다 — 그래야 “가정으로 설계하면 실제로 어디까지
+      가는가”가 같은 눈금 위에서 읽힌다.</p>
     <table>
-      <thead><tr><th>기준</th><th class="num">WDR</th><th class="num">미달구역</th><th>선정 카메라</th></tr></thead>
+      <thead><tr><th>설계 기준</th><th class="num">실측 WDR</th><th class="num">미달구역</th><th>선정 카메라</th></tr></thead>
       <tbody>
-        ${geo?`<tr><td>기하 커버리지 (기존)</td><td class="num">${fmtPct(geo.WDR)}</td>
+        ${geo?`<tr><td>① 기하 커버리지 (기존)</td><td class="num">${fmtPct(geo.WDR)}</td>
           <td class="num">${geo.fail_voxel_count}</td><td>${geo.camera_ids.join(', ')}</td></tr>`:''}
-        ${prob?`<tr><td><b>검출확률 (제안)</b></td><td class="num"><b>${fmtPct(prob.WDR)}</b></td>
-          <td class="num">${prob.fail_voxel_count}</td><td>${prob.camera_ids.join(', ')}</td></tr>`:''}
+        ${asm?`<tr><td>② 문헌의 가정 곡선</td><td class="num">${fmtPct(asm.WDR)}</td>
+          <td class="num">${asm.fail_voxel_count}</td><td>${asm.camera_ids.join(', ')}</td></tr>`:''}
+        ${emp?`<tr><td><b>③ 실측 곡선 (제안)</b></td><td class="num"><b>${fmtPct(emp.WDR)}</b></td>
+          <td class="num">${emp.fail_voxel_count}</td><td>${emp.camera_ids.join(', ')}</td></tr>`:''}
       </tbody>
     </table>
+    ${asm&&d.assumed_curve?`<p class="hint" style="margin-top:10px">
+      가정 곡선은 <b>${d.assumed_curve.f_rho.derived_from}</b> 에서 유도했고,
+      가림은 ${d.assumed_curve.h_occ.form==='binary_los'?'이진 가시선(부분 가림 무시)':'—'} 이다.
+      <b>${d.assumed_curve.warning}</b></p>`:''}
   </section>
+
+  ${base&&base.sweep?`  <section>
+    <h2>기하 기준선을 어디에 세워도 결과가 유지되는가</h2>
+    <p class="hint">기존 방식의 커버리지 판정에 IEC 62676-4(DORI)의 최소 픽셀밀도를 등급별로
+      걸어 다시 최적화했다. 임계 없이 "보이기만 하면 커버"로 세면 기존 방식을 실무보다
+      못하게 모델링하게 되므로, <b>기존 방식에 가장 유리한 등급(${base.level})을 기본값</b>으로 쓴다.</p>
+    <table>
+      <thead><tr><th>기하 기준선</th><th class="num">최소 PPM</th><th class="num">ρ 임계</th>
+        <th class="num">WDR</th><th class="num">미달구역</th><th class="num">ΔWDR</th></tr></thead>
+      <tbody>${base.sweep.map(r=>`<tr${r.is_default?' style="background:#f7fafc"':''}>
+        <td>${r.dori_level==='none'?'임계 없음':'DORI '+r.dori_level}${r.is_default?' <span class="pill">기본</span>':''}</td>
+        <td class="num">${r.ppm ?? '—'}</td><td class="num">${r.min_rho_px}</td>
+        <td class="num">${fmtPct(r.WDR)}</td><td class="num">${r.fail_voxel_count}</td>
+        <td class="num">${(r.delta_WDR>=0?'+':'')+fmtPct(r.delta_WDR)}</td></tr>`).join('')}</tbody>
+    </table>
+    ${d.dori_pair_stats && d.dori_pair_stats.levels ? `
+    <p class="hint" style="margin-top:12px">가시 복셀-카메라 쌍 ${d.dori_pair_stats.n_visible}개의
+      ρ 중앙값은 ${d.dori_pair_stats.rho_px_median}px(=${(d.dori_pair_stats.rho_px_median*4).toFixed(0)} PPM)다.
+      등급별 만족 비율 —
+      ${Object.entries(d.dori_pair_stats.levels).map(([k,v])=>`${k} ${fmtPct(v.ratio)}`).join(' · ')}.
+      <b>안전모 착용 판별에 필요한 Recognition(125 PPM)을 만족하는 쌍은
+      ${fmtPct(d.dori_pair_stats.levels.recognition.ratio)}에 그친다.</b></p>` : ''}
+  </section>` : ''}
 
   <footer>
     ρ 곡선 실측 범위 ${d.curve.rho_measured_px[0]}–${d.curve.rho_measured_px[1]}px ·
     전체 격자 R² ${d.curve.r2_full_grid} · 임계 ${d.threshold} (잠정값)<br>
+    ${base ? '기하 기준선: '+base.standard+' '+base.level+' (ρ≥'+base.min_rho_px+'px). DORI 는 인간 관찰자 기준이며 AI 검출기에 대해 검증된 바 없다.<br>' : ''}
     ${d.aim.note}<br>
     검출기는 SHWD 파인튜닝본이며 실제 운용 모델이 아니다. 절대 수치가 아니라
     설치 조건에 따라 검출률이 변한다는 관계를 보이는 자료다.
   </footer>`;
+
+  root.querySelectorAll('input[name=view]').forEach(el => {
+    el.addEventListener('change', () => { VIEW = el.value; render(DATA); });
+  });
 }
 
-fetch('data.json')
-  .then(r => { if(!r.ok) throw new Error('data.json 을 읽지 못했다 (HTTP '+r.status+')'); return r.json(); })
-  .then(d => {
-    if (d.status !== 'ok') throw new Error('status 가 ok 가 아니다: ' + d.status);
-    render(d);
-  })
-  .catch(e => {
-    document.getElementById('root').innerHTML =
-      '<div class="err"><b>표시할 수 없습니다.</b><br>' + e.message +
-      '<br><br>로컬 파일로 직접 열면 브라우저가 fetch 를 막습니다. ' +
-      '<code>python -m http.server</code> 로 띄운 뒤 접속하십시오.</div>';
-  });
+function show(d){
+  if (!d) throw new Error('데이터가 비어 있다');
+  if (d.status !== 'ok') throw new Error('status 가 ok 가 아니다: ' + d.status);
+  DATA = d;
+  render(d);
+}
+
+function fail(msg){
+  document.getElementById('root').innerHTML =
+    '<div class="err"><b>표시할 수 없습니다.</b><br>' + msg +
+    '<br><br><code>python -m http.server</code> 로 띄운 뒤 접속하거나, ' +
+    'report.py 를 다시 돌려 data.json / data.js 를 만드십시오.</div>';
+}
+
+// file:// 로 열면 브라우저가 fetch 를 막고 콘솔에 오류를 남긴다. 프로토콜을 먼저
+// 보고 그때는 fetch 를 아예 시도하지 않는다 - 실패한 요청을 콘솔에 남기지 않기
+// 위해서다. data.js 는 report.py 가 data.json 과 함께 쓰는 사본이다.
+if (location.protocol === 'file:') {
+  try { show(window.SITE_DATA); }
+  catch (e) { fail(e.message + ' (data.js 폴백)'); }
+} else {
+  fetch('data.json')
+    .then(r => { if(!r.ok) throw new Error('data.json 을 읽지 못했다 (HTTP '+r.status+')'); return r.json(); })
+    .then(show)
+    .catch(e => {
+      try { show(window.SITE_DATA); }
+      catch (_) { fail(e.message); }
+    });
+}
 </script>
 </body>
 </html>

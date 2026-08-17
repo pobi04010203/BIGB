@@ -17,29 +17,44 @@
     "extrapolation": "measured_range 밖으로 외삽하지 않는다. 하한 미만은 detect_model.py 가 0 으로 본다"
   },
   "g_theta": {
-    "form": "quadratic",
+    "form": "logistic",
     "params": {
-      "a": -2.9414966317152255e-13,
-      "b": -9.016530217509595e-05
+      "k": 0.24196737120562176,
+      "x0": 61.35766052166504
     },
     "normalized_at": "theta=0",
-    "r2_section": 0.7769
+    "r2_section": 0.9973,
+    "r2_candidates": {
+      "quadratic": 0.8586,
+      "exponential": 0.5125,
+      "logistic": 0.9973
+    },
+    "measured_range_deg": [
+      0.0,
+      75.0
+    ],
+    "extrapolation": "measured_range 밖으로 외삽하지 않는다. 상한 초과는 detect_model.py 가 0 으로 본다"
   },
   "h_occ": {
     "form": "exp_decay",
-    "lambda": 4.1149788797858555,
+    "lambda": 4.200734437482722,
     "normalized_at": "occ=0",
-    "input": "occ_pct_actual/100",
-    "r2_section": 0.938
+    "input": "occ_pct_box/100",
+    "r2_section": 0.9467,
+    "measured_range": [
+      0.0,
+      0.7501000000000001
+    ],
+    "extrapolation": "measured_range 밖으로 외삽하지 않는다. 상한 초과는 detect_model.py 가 0 으로 본다"
   },
   "baseline_P": 0.9374,
-  "r2_full_grid": 0.8731,
+  "r2_full_grid": 0.8977,
   "r2_acceptance": 0.8,
   "acceptance_passed": true,
-  "n_conditions": 200,
+  "n_conditions": 288,
   "n_images": 500,
   "iou_thr": 0.5,
   "conf_thr": 0.25,
   "status": "ok",
-  "generated_at": "2026-08-14T16:55:34"
+  "generated_at": "2026-08-15T23:51:32"
 }

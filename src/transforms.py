@@ -112,16 +112,73 @@ def apply_theta(img: np.ndarray, theta_deg: float,
 
 # ── o 가림률 ──────────────────────────────────────────────────────────────
 
+DEFAULT_STRIPE_DIVISOR = 24      # 화면 가로에 놓이는 수직 부재 개수
+
+
+def stripe_period(w: int, divisor: int = DEFAULT_STRIPE_DIVISOR) -> int:
+    """스트라이프 주기. 화면 가로를 divisor 개 부재가 지나간다고 본다.
+
+    divisor 는 §4.2 가 자유 파라미터로 남긴 값이다. **임의값은 아니다** —
+    스윕 범위는 아래처럼 유도된다.
+
+      화면이 담는 장면 폭   W_scene = 2·d·tan(HFOV/2)  (HFOV 90° 이면 2d)
+      강관비계 지주 간격    s ≈ 1.8 m (통상)
+      화면을 지나는 부재 수 divisor = W_scene / s = d / 0.9
+
+    즉 카메라-피사체 거리에 따라 d=10m 에서 11, 20m 에서 22, 40m 에서 44 다.
+    민감도 스윕의 12 / 24 / 48 이 그 범위를 덮는다.
+
+    **거리 의존을 모델에 넣지는 않는다.** 넣으면 분리형 곱셈 모델(§4.5)이
+    깨지고 축이 하나 늘어난다. 대신 스윕으로 결론의 강건성을 보인다.
+    같은 가림률이라도 부재가 촘촘할수록 검출률이 급락한다(o=30% 에서
+    divisor 12/24/48 이 recall 0.443/0.239/0.045). 이 방향성 자체가 결과다.
+    """
+    return max(4, int(round(w / divisor)))
+
+
+def stripe_spans(w: int, occ_ratio: float, period_px: int | None = None,
+                 divisor: int = DEFAULT_STRIPE_DIVISOR) -> list[tuple[int, int]]:
+    """가려지는 x 구간 목록. 마스킹과 박스별 가림률 계산이 같은 것을 쓴다."""
+    if occ_ratio <= 0:
+        return []
+    if period_px is None:
+        period_px = stripe_period(w, divisor)
+    stripe_w = int(round(period_px * occ_ratio))
+    stripe_w = max(1, min(stripe_w, period_px - 1))  # 완전 차폐 방지
+    return [(x0, min(x0 + stripe_w, w)) for x0 in range(0, w, period_px)
+            if min(x0 + stripe_w, w) > x0]
+
+
+def box_occlusion(box, spans: list[tuple[int, int]]) -> float:
+    """박스 하나가 스트라이프에 얼마나 가려지는가 (0~1).
+
+    스트라이프는 전 높이를 지나는 수직 부재이므로 가로 겹침만 보면 된다.
+
+    **화면 전체 가림률과 다르다.** §5.2 의 현장 `o` 는 복셀에 세운 사람 막대의
+    가려진 비율, 즉 **개체 단위** 값이다. 곡선을 화면 평균으로 피팅해놓고
+    개체 가림률을 입력하면 정의가 어긋난 두 값을 잇게 된다.
+    """
+    x1, x2 = float(box[0]), float(box[2])
+    width = x2 - x1
+    if width <= 0:
+        return 0.0
+    covered = sum(max(0.0, min(x2, s1) - max(x1, s0)) for s0, s1 in spans)
+    return min(1.0, covered / width)
+
+
 def apply_occlusion(img: np.ndarray, occ_ratio: float,
                     period_px: int | None = None,
-                    color=(128, 128, 128)) -> tuple[np.ndarray, float]:
+                    color=(128, 128, 128),
+                    divisor: int = DEFAULT_STRIPE_DIVISOR,
+                    ) -> tuple[np.ndarray, float]:
     """수직 스트라이프로 가림을 모사한다 (§4.2).
 
     랜덤 사각형이 아니라 **수직 스트라이프**여야 한다. 현장의 가림원은
     비계·동바리·거푸집 지주로 대부분 수직 부재다.
 
-    반환값은 (이미지, 실제 가림률) 이다. 정수 픽셀로 떨어뜨리느라 목표와
-    미세하게 어긋나므로, 지어낸 값 대신 **실측 비율**을 함께 돌려준다.
+    반환값은 (이미지, 화면 전체 실측 가림률) 이다. 정수 픽셀로 떨어뜨리느라
+    목표와 미세하게 어긋나므로, 지어낸 값 대신 **실측 비율**을 돌려준다.
+    개체 단위 가림률이 필요하면 `box_occlusion` 을 쓴다.
     """
     if not (0.0 <= occ_ratio < 1.0):
         raise ValueError("occ_ratio 는 0 이상 1 미만이어야 한다")
@@ -131,17 +188,11 @@ def apply_occlusion(img: np.ndarray, occ_ratio: float,
     if occ_ratio == 0:
         return out, 0.0
 
-    if period_px is None:
-        period_px = max(4, int(round(w / 24)))     # 화면 가로에 부재 24개
-    stripe_w = int(round(period_px * occ_ratio))
-    stripe_w = max(1, min(stripe_w, period_px - 1))  # 완전 차폐 방지
-
+    spans = stripe_spans(w, occ_ratio, period_px, divisor)
     covered = 0
-    for x0 in range(0, w, period_px):
-        x1 = min(x0 + stripe_w, w)
-        if x1 > x0:
-            out[:, x0:x1] = color
-            covered += x1 - x0
+    for x0, x1 in spans:
+        out[:, x0:x1] = color
+        covered += x1 - x0
 
     return out, covered / w
 

@@ -4,10 +4,15 @@
     P_total(v) = 1 − Π_c (1 − P(v, c))
     WDR        = Σ_v w(v) · P_total(v) / Σ_v w(v)
 
-**중첩은 이득이다.** 각 0.6 인 두 대가 합쳐 0.84 가 된다. 기존 연구는 처리·저장
-부담을 이유로 중첩 최소화를 목표로 삼지만, 확률 모델에서는 고위험 구역의 최적해가
-정반대로 나온다. 이 반전이 제안서의 핵심 그림이므로 **중첩을 페널티로 다루는 코드를
-절대 넣지 않는다** (§5.3).
+다중 카메라 결합은 WSN target coverage 문헌의 표준 형태다.
+**중첩은 페널티가 아니다.** 각 0.6 인 두 대가 합쳐 0.84 가 된다.
+참고: RESPIRE(2020)도 coverage-only 접근이 단일 센서 의존을 낳는다고 보고했다.
+
+**중첩을 페널티로 다루는 코드를 절대 넣지 않는다** (§5.3).
+
+> ADDENDUM-01 §5.1 로 문구를 고쳤다. 종전에는 *"기존 연구는 중첩 최소화를 목표로
+> 삼는데 우리는 반대"* 라고 적었으나 **사실이 아니다** — 센서 네트워크 분야에서는
+> 이미 알려진 결과다. 코드 동작은 바뀌지 않았다.
 """
 from pathlib import Path
 import sys
@@ -62,10 +67,24 @@ def evaluate(site, cam_ids, pairs: dict, curve) -> dict:
     }
 
 
-def coverage_score(site, cam_ids, pairs: dict) -> float:
-    """기하 커버리지 Σ w(v)·1[가시] — 기존 방식의 목적함수 (§5.4 A)."""
+def coverage_score(site, cam_ids, pairs: dict, min_rho_px: float = None) -> float:
+    """기하 커버리지 Σ w(v)·1[가시] — 기존 방식의 목적함수 (§5.4 A).
+
+    **가시 판정에 최소 픽셀밀도를 건다.** "화각 안 + 완전차폐 아님" 만으로 세면
+    116m 떨어진 복셀도 커버로 잡혀, 기존 방식을 실무보다 못하게 모델링한 채
+    이기게 된다. 실무 설계도구는 IEC 62676-4 의 DORI 최소 PPM 을 지키므로
+    기준선도 그 수준이어야 비교가 성립한다 (config.GEOMETRIC_DORI_LEVEL).
+
+    min_rho_px=0 을 주면 임계 없는 순수 가시성으로 돌아간다 — 등급별 비교용.
+    """
+    if min_rho_px is None:
+        min_rho_px = config.GEOMETRIC_MIN_RHO_PX
     total = 0.0
     for v in site.voxels:
-        if any(pairs.get((cid, v["id"]), {}).get("visible") for cid in cam_ids):
+        if any(_covers(pairs.get((cid, v["id"])), min_rho_px) for cid in cam_ids):
             total += v["w"]
     return total
+
+
+def _covers(geo: dict | None, min_rho_px: float) -> bool:
+    return bool(geo) and geo.get("visible") and geo.get("rho_px", 0.0) >= min_rho_px
