@@ -1,0 +1,6466 @@
+{
+ "plan": {
+  "path": "data\\plans\\as_planned.json",
+  "note": "예시 계획서 — 경계 폴에 균등 배치한 8대 (실무 관행 모사)",
+  "cameras": 8
+ },
+ "site": {
+  "width_m": 100,
+  "depth_m": 60,
+  "voxel_m": 2,
+  "levels": 3,
+  "voxels": 2088
+ },
+ "standard": {
+  "target": 0.9,
+  "metric": "risk_coverage",
+  "source": "proposed_provisional",
+  "threshold": 0.5,
+  "note": "LH 가 게시한 커버리지 기준은 아직 없다. 이 값은 우리가 제안하는 잠정 임계이며 고시값이 아니다"
+ },
+ "verdict": {
+  "passes": false,
+  "value": 0.7767,
+  "gap": 0.1233
+ },
+ "coverage": {
+  "overall": {
+   "spatial_coverage": 0.7275,
+   "WDR": 0.6056,
+   "risk_coverage": 0.7767,
+   "covered_voxels": 1519,
+   "fail_voxels": 569,
+   "n_cameras": 8
+  },
+  "by_level": {
+   "0": {
+    "floor_z_m": 0.0,
+    "voxels": 1256,
+    "spatial_coverage": 0.7333,
+    "risk_coverage": 0.7682
+   },
+   "1": {
+    "floor_z_m": 4.3,
+    "voxels": 416,
+    "spatial_coverage": 0.7188,
+    "risk_coverage": 0.7848
+   },
+   "2": {
+    "floor_z_m": 8.3,
+    "voxels": 416,
+    "spatial_coverage": 0.7188,
+    "risk_coverage": 0.7848
+   }
+  },
+  "by_zone": {
+   "gangform_workface": {
+    "voxels": 192,
+    "coverage": 0.75,
+    "weight": 5
+   },
+   "lift_landing": {
+    "voxels": 48,
+    "coverage": 1.0,
+    "weight": 4
+   },
+   "material_yard": {
+    "voxels": 48,
+    "coverage": 0.5,
+    "weight": 2
+   },
+   "opening_perimeter": {
+    "voxels": 72,
+    "coverage": 0.5,
+    "weight": 5
+   },
+   "tower_crane_radius": {
+    "voxels": 520,
+    "coverage": 1.0,
+    "weight": 3
+   }
+  }
+ },
+ "blind_spots": [
+  {
+   "voxel_id": "v_0335",
+   "x": 81.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.312,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0951",
+   "x": 81.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.312,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1703",
+   "x": 81.0,
+   "y": 15.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3122,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2087",
+   "x": 81.0,
+   "y": 45.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3122,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1287",
+   "x": 81.0,
+   "y": 15.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3127,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1671",
+   "x": 81.0,
+   "y": 45.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3127,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0334",
+   "x": 79.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3201,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0950",
+   "x": 79.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3201,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1702",
+   "x": 79.0,
+   "y": 15.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3206,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2086",
+   "x": 79.0,
+   "y": 45.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3206,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1286",
+   "x": 79.0,
+   "y": 15.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.321,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1670",
+   "x": 79.0,
+   "y": 45.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.321,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0333",
+   "x": 77.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.328,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0949",
+   "x": 77.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.328,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1701",
+   "x": 77.0,
+   "y": 15.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3281,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2085",
+   "x": 77.0,
+   "y": 45.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3281,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1285",
+   "x": 77.0,
+   "y": 15.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3286,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1669",
+   "x": 77.0,
+   "y": 45.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3286,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0808",
+   "x": 75.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3287,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1988",
+   "x": 75.0,
+   "y": 39.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3291,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1572",
+   "x": 75.0,
+   "y": 39.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3296,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0332",
+   "x": 75.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3351,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0948",
+   "x": 75.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3351,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1700",
+   "x": 75.0,
+   "y": 15.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3355,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2084",
+   "x": 75.0,
+   "y": 45.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3355,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0807",
+   "x": 73.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3357,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1284",
+   "x": 75.0,
+   "y": 15.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3358,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1668",
+   "x": 75.0,
+   "y": 45.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3358,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1987",
+   "x": 73.0,
+   "y": 39.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3361,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1571",
+   "x": 73.0,
+   "y": 39.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3364,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0947",
+   "x": 73.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3419,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2083",
+   "x": 73.0,
+   "y": 45.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3422,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0806",
+   "x": 71.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3424,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1667",
+   "x": 73.0,
+   "y": 45.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3425,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1986",
+   "x": 71.0,
+   "y": 39.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3427,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1570",
+   "x": 71.0,
+   "y": 39.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.343,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0946",
+   "x": 71.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.348,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2082",
+   "x": 71.0,
+   "y": 45.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3483,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1666",
+   "x": 71.0,
+   "y": 45.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3486,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0447",
+   "x": 25.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.376,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1771",
+   "x": 25.0,
+   "y": 21.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3761,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1355",
+   "x": 25.0,
+   "y": 21.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3763,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0448",
+   "x": 27.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3779,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1772",
+   "x": 27.0,
+   "y": 21.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.378,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1356",
+   "x": 27.0,
+   "y": 21.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3782,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0449",
+   "x": 29.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3795,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1773",
+   "x": 29.0,
+   "y": 21.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3796,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1357",
+   "x": 29.0,
+   "y": 21.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.3797,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0308",
+   "x": 27.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3799,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1260",
+   "x": 27.0,
+   "y": 15.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.38,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1676",
+   "x": 27.0,
+   "y": 15.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.38,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0309",
+   "x": 29.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3812,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1677",
+   "x": 29.0,
+   "y": 15.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3812,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1261",
+   "x": 29.0,
+   "y": 15.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.3813,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0472",
+   "x": 75.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4732,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1796",
+   "x": 75.0,
+   "y": 21.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4735,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1380",
+   "x": 75.0,
+   "y": 21.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4739,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0471",
+   "x": 73.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4788,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1795",
+   "x": 73.0,
+   "y": 21.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.479,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1379",
+   "x": 73.0,
+   "y": 21.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4793,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0331",
+   "x": 73.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4837,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1699",
+   "x": 73.0,
+   "y": 15.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4839,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0470",
+   "x": 71.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1283",
+   "x": 73.0,
+   "y": 15.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1794",
+   "x": 71.0,
+   "y": 21.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4843,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1378",
+   "x": 71.0,
+   "y": 21.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4845,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0330",
+   "x": 71.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4885,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0805",
+   "x": 69.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4887,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1698",
+   "x": 71.0,
+   "y": 15.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4887,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1282",
+   "x": 71.0,
+   "y": 15.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4889,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1985",
+   "x": 69.0,
+   "y": 39.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4889,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1569",
+   "x": 69.0,
+   "y": 39.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4891,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0945",
+   "x": 69.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4929,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0804",
+   "x": 67.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.493,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2081",
+   "x": 69.0,
+   "y": 45.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.493,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1984",
+   "x": 67.0,
+   "y": 39.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4932,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1665",
+   "x": 69.0,
+   "y": 45.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4934,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1568",
+   "x": 67.0,
+   "y": 39.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4935,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0944",
+   "x": 67.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4968,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0803",
+   "x": 65.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4969,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2080",
+   "x": 67.0,
+   "y": 45.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.497,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1983",
+   "x": 65.0,
+   "y": 39.0,
+   "level": 2,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4971,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1567",
+   "x": 65.0,
+   "y": 39.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "opening_perimeter"
+   ],
+   "P_total": 0.4973,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1664",
+   "x": 67.0,
+   "y": 45.0,
+   "level": 1,
+   "w": 5,
+   "zones": [
+    "gangform_workface"
+   ],
+   "P_total": 0.4973,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0152",
+   "x": 5.0,
+   "y": 7.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0198",
+   "x": 5.0,
+   "y": 9.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0244",
+   "x": 5.0,
+   "y": 11.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0290",
+   "x": 5.0,
+   "y": 13.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0302",
+   "x": 5.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0346",
+   "x": 5.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0390",
+   "x": 5.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0391",
+   "x": 7.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0392",
+   "x": 9.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0864",
+   "x": 93.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0865",
+   "x": 95.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0866",
+   "x": 97.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0910",
+   "x": 97.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0954",
+   "x": 97.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0966",
+   "x": 97.0,
+   "y": 47.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1012",
+   "x": 97.0,
+   "y": 49.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1058",
+   "x": 97.0,
+   "y": 51.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1104",
+   "x": 97.0,
+   "y": 53.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0863",
+   "x": 91.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.2614,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0862",
+   "x": 89.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.2708,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0861",
+   "x": 87.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.2804,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0909",
+   "x": 87.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.2828,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0953",
+   "x": 87.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.285,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0965",
+   "x": 87.0,
+   "y": 47.0,
+   "level": 0,
+   "w": 2,
+   "zones": [
+    "material_yard"
+   ],
+   "P_total": 0.2869,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0150",
+   "x": 1.0,
+   "y": 7.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0151",
+   "x": 3.0,
+   "y": 7.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0196",
+   "x": 1.0,
+   "y": 9.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0197",
+   "x": 3.0,
+   "y": 9.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0242",
+   "x": 1.0,
+   "y": 11.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0243",
+   "x": 3.0,
+   "y": 11.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0288",
+   "x": 1.0,
+   "y": 13.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0289",
+   "x": 3.0,
+   "y": 13.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0300",
+   "x": 1.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0301",
+   "x": 3.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0344",
+   "x": 1.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0345",
+   "x": 3.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0388",
+   "x": 1.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0389",
+   "x": 3.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0436",
+   "x": 1.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0437",
+   "x": 3.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "화각 밖"
+  },
+  {
+   "voxel_id": "v_0509",
+   "x": 77.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0545",
+   "x": 77.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0546",
+   "x": 79.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0581",
+   "x": 77.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0582",
+   "x": 79.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0583",
+   "x": 81.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0617",
+   "x": 77.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0618",
+   "x": 79.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0619",
+   "x": 81.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0653",
+   "x": 77.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0654",
+   "x": 79.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0655",
+   "x": 81.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0656",
+   "x": 85.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0657",
+   "x": 87.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0689",
+   "x": 77.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0690",
+   "x": 79.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0691",
+   "x": 81.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0692",
+   "x": 85.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0725",
+   "x": 77.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0726",
+   "x": 79.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0727",
+   "x": 81.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0761",
+   "x": 77.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0867",
+   "x": 99.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0911",
+   "x": 99.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0955",
+   "x": 99.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0967",
+   "x": 99.0,
+   "y": 47.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1013",
+   "x": 99.0,
+   "y": 49.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1059",
+   "x": 99.0,
+   "y": 51.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1105",
+   "x": 99.0,
+   "y": 53.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1401",
+   "x": 77.0,
+   "y": 23.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1421",
+   "x": 77.0,
+   "y": 25.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1422",
+   "x": 79.0,
+   "y": 25.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1441",
+   "x": 77.0,
+   "y": 27.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1442",
+   "x": 79.0,
+   "y": 27.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1443",
+   "x": 81.0,
+   "y": 27.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1461",
+   "x": 77.0,
+   "y": 29.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1462",
+   "x": 79.0,
+   "y": 29.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1463",
+   "x": 81.0,
+   "y": 29.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1481",
+   "x": 77.0,
+   "y": 31.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1482",
+   "x": 79.0,
+   "y": 31.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1483",
+   "x": 81.0,
+   "y": 31.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1501",
+   "x": 77.0,
+   "y": 33.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1502",
+   "x": 79.0,
+   "y": 33.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1503",
+   "x": 81.0,
+   "y": 33.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1521",
+   "x": 77.0,
+   "y": 35.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1522",
+   "x": 79.0,
+   "y": 35.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1523",
+   "x": 81.0,
+   "y": 35.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1541",
+   "x": 77.0,
+   "y": 37.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1817",
+   "x": 77.0,
+   "y": 23.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1837",
+   "x": 77.0,
+   "y": 25.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1838",
+   "x": 79.0,
+   "y": 25.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1857",
+   "x": 77.0,
+   "y": 27.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1858",
+   "x": 79.0,
+   "y": 27.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1859",
+   "x": 81.0,
+   "y": 27.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1877",
+   "x": 77.0,
+   "y": 29.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1878",
+   "x": 79.0,
+   "y": 29.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1879",
+   "x": 81.0,
+   "y": 29.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1897",
+   "x": 77.0,
+   "y": 31.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1898",
+   "x": 79.0,
+   "y": 31.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1899",
+   "x": 81.0,
+   "y": 31.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1917",
+   "x": 77.0,
+   "y": 33.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1918",
+   "x": 79.0,
+   "y": 33.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1919",
+   "x": 81.0,
+   "y": 33.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1937",
+   "x": 77.0,
+   "y": 35.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1938",
+   "x": 79.0,
+   "y": 35.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1939",
+   "x": 81.0,
+   "y": 35.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_1957",
+   "x": 77.0,
+   "y": 37.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0,
+   "reason": "완전 차폐"
+  },
+  {
+   "voxel_id": "v_0819",
+   "x": 99.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.0888,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0596",
+   "x": 9.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1231,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0659",
+   "x": 91.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1231,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0658",
+   "x": 89.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1247,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0664",
+   "x": 1.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1375,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0700",
+   "x": 1.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1397,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0484",
+   "x": 1.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1415,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0736",
+   "x": 1.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1415,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0665",
+   "x": 3.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1433,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0772",
+   "x": 1.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1437,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0820",
+   "x": 1.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1454,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0701",
+   "x": 3.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1458,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0868",
+   "x": 1.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1468,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0485",
+   "x": 3.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1479,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0737",
+   "x": 3.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1479,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0773",
+   "x": 3.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1499,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0821",
+   "x": 3.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1516,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0702",
+   "x": 5.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1519,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0869",
+   "x": 3.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1532,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0486",
+   "x": 5.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1542,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0738",
+   "x": 5.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1542,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0913",
+   "x": 3.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1548,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0438",
+   "x": 5.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1561,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0774",
+   "x": 5.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1561,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0703",
+   "x": 7.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.158,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0822",
+   "x": 5.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.158,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0623",
+   "x": 91.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1592,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0632",
+   "x": 9.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1592,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0870",
+   "x": 5.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1595,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0487",
+   "x": 7.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1602,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0739",
+   "x": 7.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1602,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0622",
+   "x": 89.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.161,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0914",
+   "x": 5.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1611,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0439",
+   "x": 7.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1623,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0775",
+   "x": 7.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1623,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0621",
+   "x": 87.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1626,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0620",
+   "x": 85.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1638,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0524",
+   "x": 9.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.164,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0823",
+   "x": 7.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1643,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0871",
+   "x": 7.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1657,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0488",
+   "x": 9.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1663,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0740",
+   "x": 9.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1663,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0694",
+   "x": 89.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1674,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0915",
+   "x": 7.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1674,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0440",
+   "x": 9.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1685,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0776",
+   "x": 9.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1685,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0824",
+   "x": 9.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1704,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0872",
+   "x": 9.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1719,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0693",
+   "x": 87.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1732,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0916",
+   "x": 9.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1734,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0520",
+   "x": 1.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.175,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0628",
+   "x": 1.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1777,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0728",
+   "x": 85.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1809,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0521",
+   "x": 3.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1816,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0522",
+   "x": 5.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1883,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0523",
+   "x": 7.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1948,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0762",
+   "x": 79.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1966,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0556",
+   "x": 1.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1967,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1958",
+   "x": 79.0,
+   "y": 37.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1968,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1542",
+   "x": 79.0,
+   "y": 37.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.1971,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0557",
+   "x": 3.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2035,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0558",
+   "x": 5.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2105,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0584",
+   "x": 85.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.211,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0591",
+   "x": 99.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2115,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0547",
+   "x": 81.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2136,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1423",
+   "x": 81.0,
+   "y": 25.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2137,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1839",
+   "x": 81.0,
+   "y": 25.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2137,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0555",
+   "x": 99.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2145,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0519",
+   "x": 99.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2171,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0771",
+   "x": 99.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2171,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0559",
+   "x": 7.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2174,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0483",
+   "x": 99.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2197,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0590",
+   "x": 97.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2204,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0594",
+   "x": 5.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2204,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0661",
+   "x": 95.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2204,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0435",
+   "x": 99.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2223,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0554",
+   "x": 97.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2236,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0560",
+   "x": 9.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2239,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0695",
+   "x": 91.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2239,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0387",
+   "x": 99.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2242,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0595",
+   "x": 7.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2264,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0660",
+   "x": 93.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2264,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0518",
+   "x": 97.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2265,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0770",
+   "x": 97.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2265,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0482",
+   "x": 97.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2293,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0818",
+   "x": 97.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2293,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0434",
+   "x": 97.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2319,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0627",
+   "x": 99.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2319,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0553",
+   "x": 95.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2332,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0386",
+   "x": 97.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.234,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0342",
+   "x": 97.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2361,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0517",
+   "x": 95.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2362,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0769",
+   "x": 95.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2362,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0481",
+   "x": 95.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.239,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0817",
+   "x": 95.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.239,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0433",
+   "x": 95.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2417,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0552",
+   "x": 93.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2427,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0385",
+   "x": 95.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2437,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0516",
+   "x": 93.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2456,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0768",
+   "x": 93.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2456,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0341",
+   "x": 95.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2458,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0735",
+   "x": 99.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2466,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0480",
+   "x": 93.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2485,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0816",
+   "x": 93.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2485,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0432",
+   "x": 93.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2513,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0625",
+   "x": 95.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2517,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0630",
+   "x": 5.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2517,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0731",
+   "x": 91.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2521,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0384",
+   "x": 93.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2536,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0515",
+   "x": 91.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2554,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0767",
+   "x": 91.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2554,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0340",
+   "x": 93.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2557,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0734",
+   "x": 97.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2562,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0624",
+   "x": 93.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2578,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0631",
+   "x": 7.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2578,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0479",
+   "x": 91.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2584,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0815",
+   "x": 91.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2584,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0431",
+   "x": 91.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2614,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0730",
+   "x": 89.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2618,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0383",
+   "x": 91.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2634,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0514",
+   "x": 89.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.265,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0766",
+   "x": 89.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.265,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0699",
+   "x": 99.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2656,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0339",
+   "x": 91.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2658,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0733",
+   "x": 95.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.266,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0478",
+   "x": 89.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2681,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0814",
+   "x": 89.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2681,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0430",
+   "x": 89.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2708,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0729",
+   "x": 87.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2713,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0592",
+   "x": 1.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2718,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0382",
+   "x": 89.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2732,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0765",
+   "x": 87.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2745,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0698",
+   "x": 97.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2752,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0338",
+   "x": 89.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2754,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0732",
+   "x": 93.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2758,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0477",
+   "x": 87.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2776,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0813",
+   "x": 87.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2776,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0429",
+   "x": 87.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2804,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0593",
+   "x": 3.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2805,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0662",
+   "x": 97.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2805,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0381",
+   "x": 87.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2828,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0764",
+   "x": 85.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0697",
+   "x": 95.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2849,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0337",
+   "x": 87.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.285,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0293",
+   "x": 87.0,
+   "y": 13.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2869,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0476",
+   "x": 85.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2869,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0812",
+   "x": 85.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2869,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0428",
+   "x": 85.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2898,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0860",
+   "x": 85.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2898,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0380",
+   "x": 85.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2923,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0908",
+   "x": 85.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2923,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0336",
+   "x": 85.0,
+   "y": 15.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2944,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0952",
+   "x": 85.0,
+   "y": 45.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2944,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0696",
+   "x": 93.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2949,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0292",
+   "x": 85.0,
+   "y": 13.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2963,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0964",
+   "x": 85.0,
+   "y": 47.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.2963,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0763",
+   "x": 81.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3018,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1959",
+   "x": 81.0,
+   "y": 37.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3022,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1543",
+   "x": 81.0,
+   "y": 37.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3028,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0811",
+   "x": 81.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3048,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1991",
+   "x": 81.0,
+   "y": 39.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3052,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1575",
+   "x": 81.0,
+   "y": 39.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3058,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0859",
+   "x": 81.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3076,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2023",
+   "x": 81.0,
+   "y": 41.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3081,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1607",
+   "x": 81.0,
+   "y": 41.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3082,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0626",
+   "x": 97.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3088,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0629",
+   "x": 3.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3088,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0379",
+   "x": 81.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3098,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0907",
+   "x": 81.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3098,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1735",
+   "x": 81.0,
+   "y": 17.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3103,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2055",
+   "x": 81.0,
+   "y": 43.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3103,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1319",
+   "x": 81.0,
+   "y": 17.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3108,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1639",
+   "x": 81.0,
+   "y": 43.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3108,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0810",
+   "x": 79.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3134,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1990",
+   "x": 79.0,
+   "y": 39.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3136,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1574",
+   "x": 79.0,
+   "y": 39.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.314,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0858",
+   "x": 79.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.316,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2022",
+   "x": 79.0,
+   "y": 41.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3161,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1606",
+   "x": 79.0,
+   "y": 41.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3166,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0378",
+   "x": 79.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3181,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0906",
+   "x": 79.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3181,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1734",
+   "x": 79.0,
+   "y": 17.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3186,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2054",
+   "x": 79.0,
+   "y": 43.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3186,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1318",
+   "x": 79.0,
+   "y": 17.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.319,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1638",
+   "x": 79.0,
+   "y": 43.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.319,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0666",
+   "x": 5.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3197,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0663",
+   "x": 99.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3199,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0809",
+   "x": 77.0,
+   "y": 39.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3213,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1989",
+   "x": 77.0,
+   "y": 39.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3217,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1573",
+   "x": 77.0,
+   "y": 39.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3219,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0857",
+   "x": 77.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3237,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2021",
+   "x": 77.0,
+   "y": 41.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3241,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1605",
+   "x": 77.0,
+   "y": 41.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3246,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0905",
+   "x": 77.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3259,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2053",
+   "x": 77.0,
+   "y": 43.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3263,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1637",
+   "x": 77.0,
+   "y": 43.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3268,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0667",
+   "x": 7.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3272,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0856",
+   "x": 75.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3312,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2020",
+   "x": 75.0,
+   "y": 41.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3316,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1604",
+   "x": 75.0,
+   "y": 41.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3319,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0904",
+   "x": 75.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3332,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2052",
+   "x": 75.0,
+   "y": 43.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3336,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0587",
+   "x": 91.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.334,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0668",
+   "x": 9.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.334,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1636",
+   "x": 75.0,
+   "y": 43.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.334,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0704",
+   "x": 9.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.337,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0855",
+   "x": 73.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3382,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2019",
+   "x": 73.0,
+   "y": 41.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3385,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1603",
+   "x": 73.0,
+   "y": 41.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3389,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0903",
+   "x": 73.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.34,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2051",
+   "x": 73.0,
+   "y": 43.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3403,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0586",
+   "x": 89.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3404,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1635",
+   "x": 73.0,
+   "y": 43.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3406,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0854",
+   "x": 71.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3446,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2018",
+   "x": 71.0,
+   "y": 41.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3449,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1602",
+   "x": 71.0,
+   "y": 41.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3452,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0902",
+   "x": 71.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3464,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0585",
+   "x": 87.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3465,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2050",
+   "x": 71.0,
+   "y": 43.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3466,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1634",
+   "x": 71.0,
+   "y": 43.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.347,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0548",
+   "x": 85.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3544,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0510",
+   "x": 79.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3689,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1818",
+   "x": 79.0,
+   "y": 23.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3691,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1402",
+   "x": 79.0,
+   "y": 23.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3694,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0400",
+   "x": 27.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3787,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1740",
+   "x": 27.0,
+   "y": 19.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3788,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1324",
+   "x": 27.0,
+   "y": 19.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3789,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0352",
+   "x": 27.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3794,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1708",
+   "x": 27.0,
+   "y": 17.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3794,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1292",
+   "x": 27.0,
+   "y": 17.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3795,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0401",
+   "x": 29.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3802,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1741",
+   "x": 29.0,
+   "y": 19.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3803,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1325",
+   "x": 29.0,
+   "y": 19.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3804,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0353",
+   "x": 29.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3807,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1709",
+   "x": 29.0,
+   "y": 17.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3808,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1293",
+   "x": 29.0,
+   "y": 17.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3809,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0495",
+   "x": 37.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3829,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1387",
+   "x": 37.0,
+   "y": 23.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.383,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1803",
+   "x": 37.0,
+   "y": 23.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.383,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0494",
+   "x": 23.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3833,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0746",
+   "x": 23.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3833,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1386",
+   "x": 23.0,
+   "y": 23.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3834,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1526",
+   "x": 23.0,
+   "y": 37.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3834,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1802",
+   "x": 23.0,
+   "y": 23.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3834,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1942",
+   "x": 23.0,
+   "y": 37.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3834,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0530",
+   "x": 23.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3838,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0589",
+   "x": 95.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3838,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0710",
+   "x": 23.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3838,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1406",
+   "x": 23.0,
+   "y": 25.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3838,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1506",
+   "x": 23.0,
+   "y": 35.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3838,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1822",
+   "x": 23.0,
+   "y": 25.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3838,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1922",
+   "x": 23.0,
+   "y": 35.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3838,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0529",
+   "x": 21.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3839,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0709",
+   "x": 21.0,
+   "y": 35.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3839,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1405",
+   "x": 21.0,
+   "y": 25.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3839,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1505",
+   "x": 21.0,
+   "y": 35.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3839,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1821",
+   "x": 21.0,
+   "y": 25.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3839,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1921",
+   "x": 21.0,
+   "y": 35.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3839,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0528",
+   "x": 19.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.384,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0566",
+   "x": 23.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.384,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0674",
+   "x": 23.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.384,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1404",
+   "x": 19.0,
+   "y": 25.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.384,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1820",
+   "x": 19.0,
+   "y": 25.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.384,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1842",
+   "x": 23.0,
+   "y": 27.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.384,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1902",
+   "x": 23.0,
+   "y": 33.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.384,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0565",
+   "x": 21.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0602",
+   "x": 23.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0638",
+   "x": 23.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0673",
+   "x": 21.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1426",
+   "x": 23.0,
+   "y": 27.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1486",
+   "x": 23.0,
+   "y": 33.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1841",
+   "x": 21.0,
+   "y": 27.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1901",
+   "x": 21.0,
+   "y": 33.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3841,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0564",
+   "x": 19.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0601",
+   "x": 21.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0637",
+   "x": 21.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0672",
+   "x": 19.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1424",
+   "x": 19.0,
+   "y": 27.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1425",
+   "x": 21.0,
+   "y": 27.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1446",
+   "x": 23.0,
+   "y": 29.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1466",
+   "x": 23.0,
+   "y": 31.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1484",
+   "x": 19.0,
+   "y": 33.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1485",
+   "x": 21.0,
+   "y": 33.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1840",
+   "x": 19.0,
+   "y": 27.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1861",
+   "x": 21.0,
+   "y": 29.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1862",
+   "x": 23.0,
+   "y": 29.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1881",
+   "x": 21.0,
+   "y": 31.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1882",
+   "x": 23.0,
+   "y": 31.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1900",
+   "x": 19.0,
+   "y": 33.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3842,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0600",
+   "x": 19.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3843,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0636",
+   "x": 19.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3843,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1444",
+   "x": 19.0,
+   "y": 29.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3843,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1445",
+   "x": 21.0,
+   "y": 29.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3843,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1464",
+   "x": 19.0,
+   "y": 31.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3843,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1465",
+   "x": 21.0,
+   "y": 31.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3843,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1860",
+   "x": 19.0,
+   "y": 29.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3843,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1880",
+   "x": 19.0,
+   "y": 31.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3843,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0588",
+   "x": 93.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.3938,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0551",
+   "x": 91.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4068,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0550",
+   "x": 89.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4161,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0549",
+   "x": 87.0,
+   "y": 25.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4248,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0513",
+   "x": 87.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4279,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0512",
+   "x": 85.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4362,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0511",
+   "x": 81.0,
+   "y": 23.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4513,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1819",
+   "x": 81.0,
+   "y": 23.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4516,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1403",
+   "x": 81.0,
+   "y": 23.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4521,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0475",
+   "x": 81.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4539,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1799",
+   "x": 81.0,
+   "y": 21.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4542,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1383",
+   "x": 81.0,
+   "y": 21.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4547,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0427",
+   "x": 81.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4562,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1767",
+   "x": 81.0,
+   "y": 19.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4566,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1351",
+   "x": 81.0,
+   "y": 19.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4568,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0474",
+   "x": 79.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4608,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1798",
+   "x": 79.0,
+   "y": 21.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.461,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1382",
+   "x": 79.0,
+   "y": 21.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4614,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0426",
+   "x": 79.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4631,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1766",
+   "x": 79.0,
+   "y": 19.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4631,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1350",
+   "x": 79.0,
+   "y": 19.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4635,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0473",
+   "x": 77.0,
+   "y": 21.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4673,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1797",
+   "x": 77.0,
+   "y": 21.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4676,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1381",
+   "x": 77.0,
+   "y": 21.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4678,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0425",
+   "x": 77.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4693,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1765",
+   "x": 77.0,
+   "y": 19.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4695,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1349",
+   "x": 77.0,
+   "y": 19.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4699,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0377",
+   "x": 77.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.471,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1733",
+   "x": 77.0,
+   "y": 17.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4713,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1317",
+   "x": 77.0,
+   "y": 17.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4717,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0603",
+   "x": 37.0,
+   "y": 29.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4735,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0639",
+   "x": 37.0,
+   "y": 31.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4735,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1863",
+   "x": 37.0,
+   "y": 29.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4736,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1883",
+   "x": 37.0,
+   "y": 31.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4736,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1447",
+   "x": 37.0,
+   "y": 29.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4738,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1467",
+   "x": 37.0,
+   "y": 31.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4738,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0424",
+   "x": 75.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4752,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0567",
+   "x": 37.0,
+   "y": 27.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4752,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0675",
+   "x": 37.0,
+   "y": 33.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4752,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1843",
+   "x": 37.0,
+   "y": 27.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4753,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1903",
+   "x": 37.0,
+   "y": 33.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4753,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1427",
+   "x": 37.0,
+   "y": 27.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4754,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1487",
+   "x": 37.0,
+   "y": 33.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4754,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1764",
+   "x": 75.0,
+   "y": 19.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4755,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1348",
+   "x": 75.0,
+   "y": 19.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4758,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0376",
+   "x": 75.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4768,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1732",
+   "x": 75.0,
+   "y": 17.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4771,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1316",
+   "x": 75.0,
+   "y": 17.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4774,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0423",
+   "x": 73.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4807,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1763",
+   "x": 73.0,
+   "y": 19.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.481,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1347",
+   "x": 73.0,
+   "y": 19.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4813,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0375",
+   "x": 73.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4822,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1731",
+   "x": 73.0,
+   "y": 17.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4824,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1315",
+   "x": 73.0,
+   "y": 17.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4827,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0422",
+   "x": 71.0,
+   "y": 19.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4858,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1762",
+   "x": 71.0,
+   "y": 19.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.486,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1346",
+   "x": 71.0,
+   "y": 19.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4863,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0374",
+   "x": 71.0,
+   "y": 17.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4872,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1730",
+   "x": 71.0,
+   "y": 17.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4874,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1314",
+   "x": 71.0,
+   "y": 17.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4877,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0853",
+   "x": 69.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4904,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2017",
+   "x": 69.0,
+   "y": 41.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4906,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1601",
+   "x": 69.0,
+   "y": 41.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4908,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0901",
+   "x": 69.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4917,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2049",
+   "x": 69.0,
+   "y": 43.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4919,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1633",
+   "x": 69.0,
+   "y": 43.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4921,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0852",
+   "x": 67.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4944,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2016",
+   "x": 67.0,
+   "y": 41.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4947,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1600",
+   "x": 67.0,
+   "y": 41.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4949,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0900",
+   "x": 67.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4958,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2048",
+   "x": 67.0,
+   "y": 43.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4959,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1632",
+   "x": 67.0,
+   "y": 43.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4962,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0851",
+   "x": 65.0,
+   "y": 41.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4983,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2015",
+   "x": 65.0,
+   "y": 41.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4984,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1599",
+   "x": 65.0,
+   "y": 41.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4986,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0760",
+   "x": 63.0,
+   "y": 37.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.499,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1956",
+   "x": 63.0,
+   "y": 37.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4991,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1540",
+   "x": 63.0,
+   "y": 37.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4993,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_0899",
+   "x": 65.0,
+   "y": 43.0,
+   "level": 0,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4994,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_2047",
+   "x": 65.0,
+   "y": 43.0,
+   "level": 2,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4995,
+   "reason": "가림"
+  },
+  {
+   "voxel_id": "v_1631",
+   "x": 65.0,
+   "y": 43.0,
+   "level": 1,
+   "w": 1,
+   "zones": [],
+   "P_total": 0.4998,
+   "reason": "가림"
+  }
+ ],
+ "prescription": {
+  "verdict": "증설 필요",
+  "text": "현 계획서는 77.7%로 목표 90%에 미달한다. 같은 8대를 재배치해도 83.4%에 그친다. **3대를 증설**해 c_b08, c_b09, c_b10 위치에 달면 92.6%가 되어 목표를 넘는다.",
+  "add_cameras": 3,
+  "add_at": [
+   "c_b08",
+   "c_b09",
+   "c_b10"
+  ],
+  "resulting": 0.926
+ },
+ "options": {
+  "reallocate": {
+   "spatial_coverage": 0.7931,
+   "WDR": 0.6438,
+   "risk_coverage": 0.8339,
+   "covered_voxels": 1656,
+   "fail_voxels": 432,
+   "n_cameras": 8,
+   "camera_ids": [
+    "c_b08",
+    "c_b01",
+    "c_b00",
+    "c_b09",
+    "c_b02",
+    "c_b07",
+    "c_b06",
+    "c_b03"
+   ]
+  },
+  "ceiling": {
+   "spatial_coverage": 0.9602,
+   "WDR": 0.7972,
+   "risk_coverage": 0.9776,
+   "covered_voxels": 2005,
+   "fail_voxels": 83,
+   "n_cameras": 24,
+   "camera_ids": [
+    "c_b08",
+    "c_b01",
+    "c_b00",
+    "c_b09",
+    "c_b02",
+    "c_b07",
+    "c_b06",
+    "c_b03",
+    "c_b10",
+    "c_b15",
+    "c_b04",
+    "c_b14",
+    "c_b05",
+    "c_b11",
+    "c_b12",
+    "c_b13",
+    "c_t20",
+    "c_t23",
+    "c_t21",
+    "c_t22",
+    "c_k18",
+    "c_k17",
+    "c_k16",
+    "c_k19"
+   ]
+  },
+  "add_curve": [
+   {
+    "spatial_coverage": 0.1331,
+    "WDR": 0.1569,
+    "risk_coverage": 0.0774,
+    "covered_voxels": 278,
+    "fail_voxels": 1810,
+    "n_cameras": 1
+   },
+   {
+    "spatial_coverage": 0.2486,
+    "WDR": 0.2969,
+    "risk_coverage": 0.1481,
+    "covered_voxels": 519,
+    "fail_voxels": 1569,
+    "n_cameras": 2
+   },
+   {
+    "spatial_coverage": 0.2658,
+    "WDR": 0.3705,
+    "risk_coverage": 0.1567,
+    "covered_voxels": 555,
+    "fail_voxels": 1533,
+    "n_cameras": 3
+   },
+   {
+    "spatial_coverage": 0.2725,
+    "WDR": 0.4389,
+    "risk_coverage": 0.1611,
+    "covered_voxels": 569,
+    "fail_voxels": 1519,
+    "n_cameras": 4
+   },
+   {
+    "spatial_coverage": 0.4219,
+    "WDR": 0.4796,
+    "risk_coverage": 0.3897,
+    "covered_voxels": 881,
+    "fail_voxels": 1207,
+    "n_cameras": 5
+   },
+   {
+    "spatial_coverage": 0.5757,
+    "WDR": 0.5176,
+    "risk_coverage": 0.6017,
+    "covered_voxels": 1202,
+    "fail_voxels": 886,
+    "n_cameras": 6
+   },
+   {
+    "spatial_coverage": 0.67,
+    "WDR": 0.5614,
+    "risk_coverage": 0.7103,
+    "covered_voxels": 1399,
+    "fail_voxels": 689,
+    "n_cameras": 7
+   },
+   {
+    "spatial_coverage": 0.7275,
+    "WDR": 0.6056,
+    "risk_coverage": 0.7767,
+    "covered_voxels": 1519,
+    "fail_voxels": 569,
+    "n_cameras": 8
+   },
+   {
+    "spatial_coverage": 0.7859,
+    "WDR": 0.6549,
+    "risk_coverage": 0.8216,
+    "covered_voxels": 1641,
+    "fail_voxels": 447,
+    "n_cameras": 9
+   },
+   {
+    "spatial_coverage": 0.8362,
+    "WDR": 0.6927,
+    "risk_coverage": 0.8844,
+    "covered_voxels": 1746,
+    "fail_voxels": 342,
+    "n_cameras": 10
+   },
+   {
+    "spatial_coverage": 0.8875,
+    "WDR": 0.7184,
+    "risk_coverage": 0.926,
+    "covered_voxels": 1853,
+    "fail_voxels": 235,
+    "n_cameras": 11
+   },
+   {
+    "spatial_coverage": 0.9368,
+    "WDR": 0.7419,
+    "risk_coverage": 0.9659,
+    "covered_voxels": 1956,
+    "fail_voxels": 132,
+    "n_cameras": 12
+   },
+   {
+    "spatial_coverage": 0.9468,
+    "WDR": 0.7614,
+    "risk_coverage": 0.9709,
+    "covered_voxels": 1977,
+    "fail_voxels": 111,
+    "n_cameras": 13
+   },
+   {
+    "spatial_coverage": 0.9555,
+    "WDR": 0.7803,
+    "risk_coverage": 0.9752,
+    "covered_voxels": 1995,
+    "fail_voxels": 93,
+    "n_cameras": 14
+   },
+   {
+    "spatial_coverage": 0.9579,
+    "WDR": 0.7887,
+    "risk_coverage": 0.9764,
+    "covered_voxels": 2000,
+    "fail_voxels": 88,
+    "n_cameras": 15
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7969,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 16
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.797,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 17
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7971,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 18
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7971,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 19
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 20
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 21
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 22
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 23
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 24
+   }
+  ],
+  "full_curve": [
+   {
+    "spatial_coverage": 0.1427,
+    "WDR": 0.1613,
+    "risk_coverage": 0.0849,
+    "covered_voxels": 298,
+    "fail_voxels": 1790,
+    "n_cameras": 1
+   },
+   {
+    "spatial_coverage": 0.272,
+    "WDR": 0.3098,
+    "risk_coverage": 0.1611,
+    "covered_voxels": 568,
+    "fail_voxels": 1520,
+    "n_cameras": 2
+   },
+   {
+    "spatial_coverage": 0.2744,
+    "WDR": 0.3886,
+    "risk_coverage": 0.1623,
+    "covered_voxels": 573,
+    "fail_voxels": 1515,
+    "n_cameras": 3
+   },
+   {
+    "spatial_coverage": 0.2749,
+    "WDR": 0.4626,
+    "risk_coverage": 0.1625,
+    "covered_voxels": 574,
+    "fail_voxels": 1514,
+    "n_cameras": 4
+   },
+   {
+    "spatial_coverage": 0.4497,
+    "WDR": 0.5149,
+    "risk_coverage": 0.4075,
+    "covered_voxels": 939,
+    "fail_voxels": 1149,
+    "n_cameras": 5
+   },
+   {
+    "spatial_coverage": 0.6303,
+    "WDR": 0.5647,
+    "risk_coverage": 0.6524,
+    "covered_voxels": 1316,
+    "fail_voxels": 772,
+    "n_cameras": 6
+   },
+   {
+    "spatial_coverage": 0.7208,
+    "WDR": 0.6052,
+    "risk_coverage": 0.7538,
+    "covered_voxels": 1505,
+    "fail_voxels": 583,
+    "n_cameras": 7
+   },
+   {
+    "spatial_coverage": 0.7931,
+    "WDR": 0.6438,
+    "risk_coverage": 0.8339,
+    "covered_voxels": 1656,
+    "fail_voxels": 432,
+    "n_cameras": 8
+   },
+   {
+    "spatial_coverage": 0.8587,
+    "WDR": 0.6718,
+    "risk_coverage": 0.8942,
+    "covered_voxels": 1793,
+    "fail_voxels": 295,
+    "n_cameras": 9
+   },
+   {
+    "spatial_coverage": 0.9138,
+    "WDR": 0.6976,
+    "risk_coverage": 0.937,
+    "covered_voxels": 1908,
+    "fail_voxels": 180,
+    "n_cameras": 10
+   },
+   {
+    "spatial_coverage": 0.9282,
+    "WDR": 0.7205,
+    "risk_coverage": 0.9529,
+    "covered_voxels": 1938,
+    "fail_voxels": 150,
+    "n_cameras": 11
+   },
+   {
+    "spatial_coverage": 0.9425,
+    "WDR": 0.7422,
+    "risk_coverage": 0.9688,
+    "covered_voxels": 1968,
+    "fail_voxels": 120,
+    "n_cameras": 12
+   },
+   {
+    "spatial_coverage": 0.9468,
+    "WDR": 0.7614,
+    "risk_coverage": 0.9709,
+    "covered_voxels": 1977,
+    "fail_voxels": 111,
+    "n_cameras": 13
+   },
+   {
+    "spatial_coverage": 0.9555,
+    "WDR": 0.7803,
+    "risk_coverage": 0.9752,
+    "covered_voxels": 1995,
+    "fail_voxels": 93,
+    "n_cameras": 14
+   },
+   {
+    "spatial_coverage": 0.9579,
+    "WDR": 0.7887,
+    "risk_coverage": 0.9764,
+    "covered_voxels": 2000,
+    "fail_voxels": 88,
+    "n_cameras": 15
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7969,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 16
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.797,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 17
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7971,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 18
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7971,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 19
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 20
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 21
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 22
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 23
+   },
+   {
+    "spatial_coverage": 0.9602,
+    "WDR": 0.7972,
+    "risk_coverage": 0.9776,
+    "covered_voxels": 2005,
+    "fail_voxels": 83,
+    "n_cameras": 24
+   }
+  ]
+ },
+ "basis": {
+  "detector": "yolov8n",
+  "detector_weights": "runs/detect/shwd_yolov8n/weights/best.pt",
+  "curve": "outputs\\curve_params.json",
+  "r2_full_grid": 0.8977,
+  "rho_measured_px": [
+   4.0,
+   48.0
+  ],
+  "camera_spec": {
+   "img_w": 3840,
+   "img_h": 2160,
+   "hfov_deg": 90.0
+  },
+  "limits": [
+   "곡선은 SHWD 정지영상의 합성 변형에서 얻었다. 합성 가림(수직 스트라이프)과 실제 비계 가림의 등가성은 검증되지 않았다",
+   "카메라 부각(pitch)은 검사하지 않는다 — 작업면을 덮도록 조준했다고 본다",
+   "비계 점유율은 잠정값이다. 건설현장 실측 가림률 통계가 없다",
+   "위험 가중치 1~5 는 상대 순위이며 LH 지수 원자료가 아니다"
+  ]
+ },
+ "status": "ok"
+}

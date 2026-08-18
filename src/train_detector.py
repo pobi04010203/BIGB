@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config
 
 YOLO_YAML = config.ROOT / "data" / "yolo" / "shwd.yaml"
-RUN_NAME = "shwd_yolov8n"
+RUN_NAME = config.DETECTOR_RUN_NAME
 WEIGHTS_OUT = config.ROOT / "runs" / "detect" / RUN_NAME / "weights" / "best.pt"
 
 EPOCHS = 50

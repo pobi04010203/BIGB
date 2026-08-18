@@ -35,7 +35,12 @@ R2_ACCEPTANCE = 0.80
 # §10 의 Phase 0 지시는 §5.1·§5.2 만 열거하지만, Phase 1 의 transforms.py 가
 # 이 값들을 그대로 쓴다. 모듈에 숫자를 박지 않으려고 여기에 함께 둔다.
 
-DETECTOR_WEIGHTS = "yolov8n.pt"          # 사전학습 가중치. 로컬 CUDA 세팅 금지(§0.1-3)
+# 검출기. 교수 지시(2026-08-19)로 **YOLO 최신 계열**을 기준으로 올린다.
+# 사전학습 가중치에서 출발해 SHWD 로 파인튜닝한다. 로컬 CUDA 세팅 금지(§0.1-3).
+DETECTOR_ARCH = "yolo26n"                       # 최신. 종전은 yolov8n
+DETECTOR_WEIGHTS = f"{DETECTOR_ARCH}.pt"        # 출발점 (사전학습)
+DETECTOR_RUN_NAME = f"shwd_{DETECTOR_ARCH}"     # runs/detect/<이 이름>/
+DETECTOR_BEST = (ROOT / "runs" / "detect" / DETECTOR_RUN_NAME / "weights" / "best.pt")
 
 # ρ 는 §4.2 원안이 [48,32,24,16,12] 였으나 8·6·4 를 덧붙였다(2026-08-14 승인).
 # 이유: §5.2 의 4K·HFOV 90° 에서 ρ = 480/d 이므로 ρ=12px 가 d=40m 다. 현장이
@@ -86,8 +91,16 @@ SITE_WIDTH_M = 100        # LH 아파트 건설현장 1개 공구 모사
 SITE_DEPTH_M = 60
 VOXEL_M = 2               # 복셀 격자
 
-WORK_PLANE_Z_MIN_M = 0.5  # 작업면 높이대만 복셀화
+WORK_PLANE_Z_MIN_M = 0.5  # 작업면 높이대
 WORK_PLANE_Z_MAX_M = 2.0
+
+# 3D 화 (2026-08-19 교수 지시). 사람은 공중에 뜨지 않는다 — 층마다 놓인
+# **작업면** 위에 선다. 그래서 건물 부피를 균등 복셀로 채우지 않고 슬래브
+# 상단마다 작업면을 하나씩 얹는다. 이것이 물리적으로 맞고 계산도 아낀다.
+#
+# 슬래브 레벨 (구조체 상단 z). site_model._solids 의 슬래브와 짝을 이룬다.
+SLAB_LEVELS_M = [0.0, 4.3, 8.3]          # 지상 + 2개 층
+WORK_PLANE_OFFSET_M = 1.25                # 바닥에서 사람 머리 높이대 중앙까지
 
 CAMERA_CANDIDATE_COUNT = 24   # 현장 경계 폴 + 코어 상부 + 타워크레인
 CAMERA_BUDGET = 8             # 실제 좌표 생성은 Phase 3 의 site.py 담당
@@ -109,6 +122,22 @@ RISK_WEIGHT_DEFAULT = 1          # 위 구역에 속하지 않는 복셀
 
 # 판정 임계. 0.5 는 잠정값이다(§5.3).
 P_DETECT_THRESHOLD = 0.5
+
+# ── LH 기준 커버리지 (2026-08-19 교수 지시) ────────────────────────────────
+# "AI CCTV 가 전 범위 중 얼마나 커버하는지 진단해 LH 기준을 넘는지 본다."
+#
+# ▶ **LH 가 게시한 커버리지 기준은 아직 없다.** 현행 가이드라인에는 해상도·화각·
+#   픽셀 규정이 0건이고 운용 기준은 "적정하게 유지" 로만 적혀 있다(전수 확인).
+#   따라서 아래 0.90 은 **우리가 제안하는 잠정 임계**이며 LH 고시값이 아니다.
+#   게시되면 이 값만 바꾸면 된다.
+LH_COVERAGE_TARGET = 0.90
+LH_COVERAGE_TARGET_SOURCE = "proposed_provisional"   # 게시 시 "lh_published"
+
+# 목표를 재는 잣대. 분모가 다르면 다른 숫자가 나오므로 무엇을 쓰는지 밝힌다.
+#   spatial_coverage  임계 넘는 복셀 수 / 전체 복셀 수
+#   risk_coverage     임계 넘는 복셀의 가중치 합 / 전체 가중치 합
+#   WDR               Σw·P_total / Σw  (임계 없이 기대값)
+LH_TARGET_METRIC = "risk_coverage"
 
 # 외곽 비계가 시선을 막는 비율. 지주·띠장 사이가 비어 있어 1.0 이 아니다.
 # **근거 없는 자유 파라미터다.** 건설현장 실측 가림률 통계는 공개된 것이 없다(§9).

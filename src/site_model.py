@@ -73,8 +73,10 @@ def _solids(scaffold_coverage: float = None) -> list:
     for cx in (30.0, 70.0):
         s.append(Box(cx - 6, 22.0, 0.0, cx + 6, 38.0, 12.0, "core"))
 
-    # 슬래브 — 지상 1층 바닥 위로 4m 지점에 판 하나. 두께 0.3m
-    s.append(Box(18.0, 14.0, 4.0, 82.0, 46.0, 4.3, "slab"))
+    # 슬래브 — 층마다 판 하나. 두께 0.3m. config.SLAB_LEVELS_M 과 짝을 이룬다.
+    # 지상(0.0)은 지면이므로 판을 두지 않는다.
+    for top in config.SLAB_LEVELS_M[1:]:
+        s.append(Box(18.0, 14.0, top - 0.3, 82.0, 46.0, top, "slab"))
 
     # 외곽 비계 — 건물 둘레를 두께 1.2m 로 감싼다. 수직 부재가 가림원이다
     # 점유율은 config.SCAFFOLD_COVERAGE. 지주·띠장이 시야의 얼마를 막는지는
@@ -143,31 +145,48 @@ def _cameras() -> list:
 # ── 복셀 ──────────────────────────────────────────────────────────────────
 
 def _voxels(solids: list, zones: list) -> list:
-    """작업면 높이대(z=0.5~2.0m)만 2m 격자로 나눈다.
+    """층별 작업면을 2m 격자로 나눈다 (3D).
 
-    복셀 대표점은 격자 중심이고 z 는 작업면 중간 높이로 잡는다.
-    골조 솔리드 안에 들어간 복셀은 사람이 설 수 없으므로 제외한다.
+    사람은 공중에 뜨지 않는다. 슬래브 상단마다 작업면을 하나씩 얹고 그 위의
+    머리 높이대만 복셀로 만든다. 건물 부피를 균등 복셀로 채우는 것보다
+    물리적으로 맞고 계산도 아낀다.
+
+    지상층(z=0)은 현장 전역이지만 상부층은 **슬래브가 깔린 범위**만 바닥이
+    있다. 슬래브 밖은 허공이므로 복셀을 두지 않는다.
+
+    골조 솔리드 안에 들어간 복셀은 사람이 설 자리가 아니므로 제외한다.
     """
     step = config.VOXEL_M
-    z = (config.WORK_PLANE_Z_MIN_M + config.WORK_PLANE_Z_MAX_M) / 2.0
     out = []
     ny = int(config.SITE_DEPTH_M / step)
     nx = int(config.SITE_WIDTH_M / step)
-    for j in range(ny):
-        for i in range(nx):
-            x = (i + 0.5) * step
-            y = (j + 0.5) * step
-            if any(s.x1 <= x <= s.x2 and s.y1 <= y <= s.y2 and s.z1 <= z <= s.z2
-                   for s in solids):
-                continue                      # 골조 안 — 사람이 설 자리가 아니다
-            w = config.RISK_WEIGHT_DEFAULT
-            names = []
-            for zn in zones:
-                if zn.contains(x, y):
-                    w = max(w, zn.weight)     # 겹치면 높은 쪽
-                    names.append(zn.name)
-            out.append({"id": f"v_{len(out):04d}", "x": x, "y": y, "z": z,
-                        "w": w, "zones": names})
+
+    slabs = [b for b in solids if b.kind == "slab"]
+
+    for lvl, floor_z in enumerate(config.SLAB_LEVELS_M):
+        z = floor_z + config.WORK_PLANE_OFFSET_M
+        for j in range(ny):
+            for i in range(nx):
+                x = (i + 0.5) * step
+                y = (j + 0.5) * step
+                if lvl > 0:
+                    # 상부층은 슬래브가 받쳐주는 자리에만 바닥이 있다
+                    on_slab = any(b.x1 <= x <= b.x2 and b.y1 <= y <= b.y2
+                                  and abs(b.z2 - floor_z) < 1e-6 for b in slabs)
+                    if not on_slab:
+                        continue
+                if any(s.x1 <= x <= s.x2 and s.y1 <= y <= s.y2 and s.z1 <= z <= s.z2
+                       for s in solids):
+                    continue                  # 골조 안 — 사람이 설 자리가 아니다
+                w = config.RISK_WEIGHT_DEFAULT
+                names = []
+                for zn in zones:
+                    if zn.contains(x, y):
+                        w = max(w, zn.weight)  # 겹치면 높은 쪽
+                        names.append(zn.name)
+                out.append({"id": f"v_{len(out):04d}", "x": x, "y": y, "z": z,
+                            "level": lvl, "floor_z": floor_z,
+                            "w": w, "zones": names})
     return out
 
 

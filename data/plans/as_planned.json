@@ -1,0 +1,98 @@
+{
+ "_about": "CCTV 계획서 (BIGB 입력 계약)",
+ "_note": "예시 계획서 — 경계 폴에 균등 배치한 8대 (실무 관행 모사)",
+ "site": {
+  "width_m": 100,
+  "depth_m": 60
+ },
+ "cameras": [
+  {
+   "id": "c_b00",
+   "x": 10.0,
+   "y": 1.0,
+   "z": 6.0,
+   "yaw_deg": 45.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  },
+  {
+   "id": "c_b01",
+   "x": 10.0,
+   "y": 59.0,
+   "z": 6.0,
+   "yaw_deg": 315.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  },
+  {
+   "id": "c_b02",
+   "x": 30.0,
+   "y": 1.0,
+   "z": 6.0,
+   "yaw_deg": 45.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  },
+  {
+   "id": "c_b03",
+   "x": 30.0,
+   "y": 59.0,
+   "z": 6.0,
+   "yaw_deg": 315.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  },
+  {
+   "id": "c_b04",
+   "x": 50.0,
+   "y": 1.0,
+   "z": 6.0,
+   "yaw_deg": 75.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  },
+  {
+   "id": "c_b05",
+   "x": 50.0,
+   "y": 59.0,
+   "z": 6.0,
+   "yaw_deg": 255.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  },
+  {
+   "id": "c_b06",
+   "x": 70.0,
+   "y": 1.0,
+   "z": 6.0,
+   "yaw_deg": 135.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  },
+  {
+   "id": "c_b07",
+   "x": 70.0,
+   "y": 59.0,
+   "z": 6.0,
+   "yaw_deg": 225.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  }
+ ]
+}

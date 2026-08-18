@@ -155,8 +155,8 @@ def main() -> dict:
     params = {
         "model": "separable_multiplicative",
         "target": TARGET,
-        "detector": "yolov8n",
-        "detector_weights": "runs/detect/shwd_yolov8n/weights/best.pt",
+        "detector": config.DETECTOR_ARCH,
+        "detector_weights": str(config.DETECTOR_BEST.relative_to(config.ROOT)).replace("\\", "/"),
         "detector_note": "COCO 사전학습본이 아니라 SHWD train 분할로 파인튜닝한 가중치다",
         "f_rho": {"form": "logistic", "L": float(p_f[0]), "k": float(p_f[1]),
                   "x0": float(p_f[2]), "r2_section": round(r2_f, 4),

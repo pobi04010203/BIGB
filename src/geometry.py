@@ -128,14 +128,23 @@ def pair(voxel: dict, cam, solids: list, yaw: float) -> dict:
     }
 
 
-def all_pairs(site) -> tuple[dict, dict]:
+def all_pairs(site, cameras=None, fixed_yaws: dict = None) -> tuple[dict, dict]:
     """(camera_id, voxel_id) → 기하량, 그리고 카메라별 방위.
 
     카메라 선택과 무관하므로 한 번만 계산한다.
+
+    `cameras` 로 다른 카메라 집합을 줄 수 있다 — CCTV 계획서를 진단할 때 쓴다.
+    `fixed_yaws` 가 있으면 그 방위를 그대로 쓴다. **계획서는 방위가 이미 정해져
+    있으므로 우리가 고르지 않는다.** 없는 카메라만 자동으로 고른다.
     """
-    yaws = {c.cid: choose_yaw(c, site.voxels, site.solids) for c in site.cameras}
+    cams = list(cameras if cameras is not None else site.cameras)
+    fixed_yaws = fixed_yaws or {}
+    yaws = {}
+    for c in cams:
+        yaws[c.cid] = (fixed_yaws[c.cid] if c.cid in fixed_yaws
+                       else choose_yaw(c, site.voxels, site.solids))
     out = {}
-    for cam in site.cameras:
+    for cam in cams:
         for v in site.voxels:
             out[(cam.cid, v["id"])] = pair(v, cam, site.solids, yaws[cam.cid])
     return out, yaws

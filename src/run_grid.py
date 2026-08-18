@@ -31,7 +31,7 @@ import config
 import transforms as T
 
 MANIFEST = config.DATA_FILTERED / "manifest.json"
-WEIGHTS = config.ROOT / "runs" / "detect" / "shwd_yolov8n" / "weights" / "best.pt"
+WEIGHTS = config.DETECTOR_BEST
 
 CLASSES = ("hat", "person")
 
