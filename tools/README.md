@@ -12,6 +12,10 @@ python tools/build_brief.py       # 슬라이드 -> outputs/주제설명_3장.pp
 python tools/render_deck.py       # 실제 렌더 -> outputs/주제설명_3장_전달용/ (PDF + PNG)
 ```
 
+`theme.py` 가 색·서체·활자 크기·판면을 한 곳에 모아둔다. 디자인을 바꾸려면 거기만 고친다.
+본문 서체 Pretendard 는 `install_fonts.py` 가 받고, 제목 서체 **KoPub바탕체**는
+kopus.org 에서 받아 설치한다(무료).
+
 마지막 단계는 선택이 아니다. **눈으로 확인하지 않으면 잘린 슬라이드가 그대로 나간다.**
 
 PowerPoint 로 pptx 를 열어둔 상태면 저장이 `PermissionError` 로 막힌다.
@@ -30,6 +34,20 @@ PowerPoint 로 pptx 를 열어둔 상태면 저장이 `PermissionError` 로 막�
 `python-pptx` · `matplotlib` · `pillow` · `fonttools` · `pymupdf`,
 **LibreOffice** (`winget install TheDocumentFoundation.LibreOffice`),
 **Pretendard** (`tools/install_fonts.py`). PowerPoint 는 없어도 된다.
+
+---
+
+# 내용 규칙 ― ADDENDUM-01
+
+슬라이드 문구는 `ADDENDUM-01-prior-art.md` 의 재포지셔닝을 따른다.
+
+- 방법론(확률 커버리지 배치·거리각도 감쇠·다중 결합·위험가중 탐욕)은 **기존 것**이다.
+  우리가 하는 것은 **가정된 감쇠 함수 자리에 실측값을 채우는 일**이다.
+- §4 **금지 표현**: "최초 · novel · unprecedented · 기존에 없던",
+  "기존 연구는 중첩을 낭비로 본다"(사실 아님), "확률 커버리지 모델을 제안한다".
+  → `build_brief.py` 의 `gate_banned_words()` 가 빌드를 실패시킨다.
+- §5.4 **3단 비교**(기하 / 가정 곡선 / 실측 곡선)가 기여를 증명하는 유일한 그림이다.
+  3장 슬라이드의 결론이 이것이다.
 
 ---
 
@@ -78,16 +96,52 @@ Pretendard 는 14,336자로 구멍이 없어 지금은 문제가 없지만, 폰�
 PPTX 는 상대 PC 에 Pretendard 가 없으면 폰트가 대체된다. PPTX 를 보내야 한다면
 PowerPoint 에서 `파일 > 옵션 > 저장 > 파일에 글꼴 포함` 을 체크하고 저장한다.
 
-### 8. Pretendard 배포 zip 은 두 종류다
+### 8. KoPub 은 굵기마다 패밀리 이름이 다르다
+
+`KoPubBatang Bold` · `KoPubBatang Medium` · `KoPubBatang Light` 가 각각 별개 패밀리다.
+`bold=True` 를 쓰면 PowerPoint 가 가짜 볼드를 합성한다. 굵기별 패밀리명을 직접 지정한다.
+
+### 9. Pretendard 배포 zip 은 두 종류다
 
 `PretendardStd-*.zip` 은 **라틴 서브셋으로 한글이 0자다**. 전체판 `Pretendard-*.zip`(46 MB)
 을 써야 한다. `install_fonts.py` 가 알아서 전체판을 고른다.
 
 ---
 
-# 폰트를 왜 Pretendard 로 골랐나
+# 디자인 ― 왜 이렇게 생겼나
 
-후보를 실제로 렌더해 비교했다.
+[hallmark](https://github.com/nutlope/hallmark)(anti-AI-slop 스킬)의 editorial 장르 규칙을
+따랐다. 스킬은 `~/.claude/skills/hallmark` 에 설치되어 있다.
+
+이전 판이 밟고 있던 금지 패턴:
+
+| 패턴 | 왜 AI 티인가 |
+|---|---|
+| 제목 왼쪽 세로 색 스트라이프 | *side-stripe card* ― 비대칭 굵은 띠 금지 |
+| 번호 왼쪽 · 제목 오른쪽 2단 헤더 | *hanging header* ― 게이트 54, 하드 밴 |
+| 연한 파란 라운드 박스 5개 | *card-in-card* ― 카드 대신 헤어라인 |
+| 3등분 동일 카드 | *3-column feature grid* ― 모든 LLM 이 뱉는 형태 |
+| 순백 배경 | *pure white* ― 앵커 색조로 틔워야 한다 |
+| 슬라이드 3장 동일 골격 | *default-attractor sameness* ― 구조 반복 = 템플릿 |
+| 촘촘한 활자 급간(13~29pt) | 큰 순간이 없다 |
+
+지금 판:
+
+- 슬라이드마다 **구조가 다르다** ― 1) 비대칭 2단 긴 문서 2) 그림 지배 + 큰 숫자 3열
+  3) 명조 선언 문장 + 근거 그림
+- 종이 `#FBFAF6`, 잉크 `#1C1A17` ― 순백·순흑 없음
+- 강조색 **하나**(`#A33B29`), 결론을 지는 계열에만
+- 카드 없음. 가로·세로 헤어라인과 겹줄만
+- 쪽번호는 하단 folio 로 (제목 옆 번호 금지)
+- 차트는 격자·프레임 제거, 범례 대신 직접 라벨
+
+# 폰트를 왜 이렇게 짝지었나
+
+**제목 KoPub바탕체(명조) + 본문 Pretendard(산세리프).**
+한 서체만 쓰면 템플릿처럼 보인다는 것이 hallmark 의 지적이고, 출판용 명조는
+"사료적·널리지식" 톤에 맞는다.
+
+본문 서체 후보는 실제로 렌더해 비교했다.
 
 | 후보 | 판단 |
 |---|---|
@@ -98,4 +152,4 @@ PowerPoint 에서 `파일 > 옵션 > 저장 > 파일에 글꼴 포함` 을 체�
 | **Pretendard** | **자간이 고르고 숫자 조판이 가장 정돈된다. 글리프 누락 없음. Regular/Bold 별도 파일** |
 
 이 자료는 수치가 주인공(`66.8% → 70.0%`, `334 → 168`)이라 숫자 조판 품질이 컸다.
-바꾸려면 `tools/fonts.py` 의 `FAMILY` 와 `FILES` 만 고치면 된다.
+서체를 바꾸려면 `tools/theme.py` 의 `DISPLAY`·`TEXT`·`FONT_FILES` 만 고친다.

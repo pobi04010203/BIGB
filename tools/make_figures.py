@@ -1,7 +1,9 @@
-"""발표자료용 그림 — 슬라이드에 배치되는 실제 폭으로 만들어 축소되지 않게 한다.
+"""발표자료용 그림 ― 편집 디자인 규칙에 맞춰 그린다.
 
-이전 판은 13.5in 로 그려 11in 로 줄여 넣는 바람에 차트 글씨가 본문보다 훨씬 작아졌다.
-figsize 를 배치 폭에 맞추고 폰트를 슬라이드 본문(17pt)에 근접시킨다.
+  - 격자·축 프레임 없음. 기준선 헤어라인 하나만 남긴다
+  - 범례 대신 직접 라벨
+  - 강조색은 결론을 지는 계열에만. 나머지는 중립색
+  - figsize 는 슬라이드에 놓일 실제 폭과 같게 ― 축소하면 글씨가 본문보다 작아진다
 """
 import csv
 import json
@@ -11,29 +13,35 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import font_manager, patches
+from matplotlib import font_manager
+
+import fonts as F
+import theme as T
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "outputs" / "figures"
-
 OUT.mkdir(parents=True, exist_ok=True)
 
-import fonts as F                                   # noqa: E402  (경로 해석 헬퍼)
-for _f in (F.regular(), F.bold()):
-    font_manager.fontManager.addfont(str(_f))
+for _p in F.all_files():
+    font_manager.fontManager.addfont(str(_p))
 plt.rcParams.update({
-    "font.family": F.FAMILY,
-    "axes.unicode_minus": True,      # Pretendard 는 U+2212(마이너스)가 있다
+    "font.family": T.TEXT,
+    "axes.unicode_minus": True,
     "font.size": 13,
-    "axes.labelsize": 14,
+    "axes.labelsize": 13.5,
     "xtick.labelsize": 12.5,
     "ytick.labelsize": 12.5,
+    "figure.facecolor": T.HEX["paper"],
+    "axes.facecolor": T.HEX["paper"],
+    "savefig.facecolor": T.HEX["paper"],
+    "text.color": T.HEX["body"],
+    "axes.labelcolor": T.HEX["muted"],
+    "xtick.color": T.HEX["muted"],
+    "ytick.color": T.HEX["muted"],
 })
 
-NAVY, BLUE, GRAY, RED, AMBER = "#1F4E79", "#2E75B6", "#8A8A8A", "#C00000", "#E6A700"
-
 cp = json.loads((ROOT / "outputs" / "curve_params.json").read_text(encoding="utf-8"))
-cmp_ = json.loads((ROOT / "outputs" / "comparison.json").read_text(encoding="utf-8"))
+cm = json.loads((ROOT / "outputs" / "comparison.json").read_text(encoding="utf-8"))
 rows = list(csv.DictReader((ROOT / "outputs" / "grid_results.csv").open(encoding="utf-8")))
 for r in rows:
     for k in r:
@@ -59,24 +67,27 @@ def section(fixed):
     return [r for r in rows if all(abs(r[k] - v) < 1e-6 for k, v in fixed.items())]
 
 
-def clean(ax, spines=("top", "right")):
-    for s in spines:
+def bare(ax):
+    """축 프레임을 걷어내고 기준선 헤어라인만 남긴다."""
+    for s in ("top", "right", "left"):
         ax.spines[s].set_visible(False)
-    ax.grid(alpha=0.22, lw=0.6)
-    ax.set_axisbelow(True)
+    ax.spines["bottom"].set_color(T.HEX["rule"])
+    ax.spines["bottom"].set_linewidth(0.9)
+    ax.tick_params(length=3, width=0.8, pad=5)
+    ax.grid(False)
 
 
-# ── 3축 곡선 (슬라이드 배치 폭 11.0 in) ────────────────────────────────────
-fig, axes = plt.subplots(1, 3, figsize=(11.0, 3.55))
+# ══ 1. 3축 응답 곡선 ═══════════════════════════════════════════════════════
+fig, axes = plt.subplots(1, 3, figsize=(11.4, 3.05))
 specs = [
     ("rho_px", {"theta_deg": 0.0, "occ_pct_target": 0.0}, f_rho,
-     "화면 속 머리 크기 (픽셀)", "카메라와의 거리", (3.2, 50)),
+     "화면 속 머리 크기 (픽셀)", (3.0, 50), False),
     ("theta_deg", {"rho_px": 48.0, "occ_pct_target": 0.0}, g_theta,
-     "내려다보는 각도 (도)", "내려다보는 각도", (-3, 79)),
+     "내려다보는 각도 (도)", (-3, 79), False),
     ("occ_pct_target", {"rho_px": 48.0, "theta_deg": 0.0}, h_occ,
-     "가려진 정도 (%)", "가려진 정도", (-4, 79)),
+     "가려진 정도 (%)", (-4, 79), True),
 ]
-for ax, (xkey, fixed, fn, xlabel, tag, xlim) in zip(axes, specs):
+for ax, (xkey, fixed, fn, xlabel, xlim, hot) in zip(axes, specs):
     pts = section(fixed)
     xs = np.array([p[xkey] for p in pts])
     ys = np.array([p["recall_nohat"] for p in pts]) / BASE
@@ -85,83 +96,66 @@ for ax, (xkey, fixed, fn, xlabel, tag, xlim) in zip(axes, specs):
     fit = fn(grid / 100.0 if xkey == "occ_pct_target" else grid)
     if xkey == "rho_px":
         fit = fit / BASE
-    ax.plot(grid, fit, color=BLUE, lw=2.6, zorder=2)
-    ax.scatter(xs, ys, s=46, color=NAVY, zorder=3)
+    ax.plot(grid, fit, color=T.HEX["accent"] if hot else T.HEX["neutral"],
+            lw=2.4, zorder=2, solid_capstyle="round")
+    ax.scatter(xs, ys, s=24, color=T.HEX["ink"] if hot else T.HEX["muted"], zorder=3)
     ax.set_xlabel(xlabel)
-    ax.set_ylim(-0.05, 1.12)
+    ax.set_ylim(-0.06, 1.16)
     ax.set_xlim(*xlim)
-    ax.set_title(tag, fontsize=15, color=NAVY, weight="bold", pad=9)
-    clean(ax)
-axes[0].set_ylabel("검출률 (조건 없을 때 대비)")
-axes[1].set_yticklabels([]); axes[2].set_yticklabels([])
+    ax.set_yticks([0, 1.0])
+    bare(ax)
+
+axes[0].set_ylabel("검출률", labelpad=2)
+axes[0].set_yticklabels(["0", "1"])
+for ax in axes[1:]:
+    ax.set_yticks([])
 
 o15 = [p for p in section({"rho_px": 48.0, "theta_deg": 0.0})
        if abs(p["occ_pct_target"] - 15) < 1e-6][0]
-axes[2].annotate(f"15% → {o15['recall_nohat']/BASE*100:.0f}%", xy=(15, o15["recall_nohat"] / BASE),
-                 xytext=(31, 0.80), fontsize=14.5, color=RED, weight="bold",
-                 arrowprops=dict(arrowstyle="->", color=RED, lw=2.0))
-r12 = [p for p in section({"theta_deg": 0.0, "occ_pct_target": 0.0})
-       if abs(p["rho_px"] - 12) < 1e-6][0]
-axes[0].annotate(f"12픽셀 = 40 m 거리\n{r12['recall_nohat']/BASE*100:.0f}%",
-                 xy=(12, r12["recall_nohat"] / BASE),
-                 xytext=(15.5, 0.34), fontsize=14, color=NAVY,
-                 arrowprops=dict(arrowstyle="->", color=NAVY, lw=1.8))
-fig.tight_layout(w_pad=1.6)
-fig.savefig(OUT / "fig_curves.png", dpi=220, facecolor="white")
+axes[2].annotate(f"15% → {o15['recall_nohat']/BASE*100:.0f}%",
+                 xy=(15.6, o15["recall_nohat"] / BASE + 0.02), xytext=(27, 0.88),
+                 fontsize=13.5, color=T.HEX["accent"], fontweight="bold",
+                 arrowprops=dict(arrowstyle="-", color=T.HEX["accent"], lw=1.1))
+fig.tight_layout(w_pad=2.8)
+fig.savefig(OUT / "fig_curves.png", dpi=220)
 plt.close(fig)
 
-# ── 배치 비교 (배치 폭 7.5 in) ─────────────────────────────────────────────
-geo, pro = cmp_["geometric"], cmp_["probabilistic"]
-fig, (a1, a2) = plt.subplots(1, 2, figsize=(7.5, 3.5))
+# ══ 2. 3단 비교 ― 평균은 붙고 꼬리는 벌어진다 (ADDENDUM-01 §5.4) ══════════
+P = cm["placements"]
+ARMS = [("시야만 따짐", "geometric"), ("가정한 값", "assumed"), ("직접 잰 값", "empirical")]
 
-b = a1.bar(["기존 기준", "제안 기준"], [geo["WDR"] * 100, pro["WDR"] * 100],
-           color=[GRAY, BLUE], width=0.5)
-a1.set_ylabel("위험가중 검출률 (%)")
-a1.set_ylim(0, 88)
-for bb, v in zip(b, [geo["WDR"], pro["WDR"]]):
-    a1.text(bb.get_x() + bb.get_width() / 2, v * 100 + 2.4, f"{v*100:.1f}%",
-            ha="center", fontsize=17, weight="bold", color=NAVY)
-clean(a1); a1.grid(axis="x", alpha=0)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.4, 2.35))
+ys = [2, 1, 0]
 
-b2 = a2.bar(["기존 기준", "제안 기준"],
-            [geo["fail_voxel_count"], pro["fail_voxel_count"]], color=[GRAY, RED], width=0.5)
-a2.set_ylabel("사각지대 (칸)")
-a2.set_ylim(0, 440)
-for bb, v in zip(b2, [geo["fail_voxel_count"], pro["fail_voxel_count"]]):
-    a2.text(bb.get_x() + bb.get_width() / 2, v + 12, f"{v}", ha="center",
-            fontsize=17, weight="bold", color=NAVY)
-a2.annotate("", xy=(1, pro["fail_voxel_count"] + 34), xytext=(1, geo["fail_voxel_count"] - 10),
-            arrowprops=dict(arrowstyle="-|>", color=RED, lw=2.6))
-a2.text(1.10, (geo["fail_voxel_count"] + pro["fail_voxel_count"]) / 2, "절반",
-        fontsize=15, color=RED, weight="bold", va="center")
-clean(a2); a2.grid(axis="x", alpha=0)
-fig.tight_layout(w_pad=2.2)
-fig.savefig(OUT / "fig_result.png", dpi=220, facecolor="white")
-plt.close(fig)
+for ax, key, xlabel, fmt in (
+        (ax1, "WDR", "위험가중 검출률 (%)", lambda v: f"{v*100:.1f}%"),
+        (ax2, "fail_voxel_count", "사각지대 (칸)", lambda v: f"{v:,}")):
+    vals = [P[k][key] for _, k in ARMS]
+    show = [v * 100 if key == "WDR" else v for v in vals]
+    lo, hi = min(show), max(show)
+    pad = (hi - lo) * 0.42 or 1
+    ax.set_xlim(lo - pad, hi + pad * 1.35)
+    for y, v, (label, k) in zip(ys, show, ARMS):
+        hot = k == "empirical"
+        ax.plot([lo - pad, v], [y, y], color=T.HEX["rule"], lw=0.9, zorder=1)
+        ax.scatter([v], [y], s=118 if hot else 82,
+                   color=T.HEX["accent"] if hot else T.HEX["neutral"], zorder=3)
+        ax.text(v + pad * 0.16, y, fmt(P[k][key]), va="center", ha="left",
+                fontsize=14.5 if hot else 13,
+                color=T.HEX["ink"] if hot else T.HEX["muted"],
+                fontweight="bold" if hot else "normal")
+    ax.set_yticks(ys)
+    ax.set_yticklabels([l for l, _ in ARMS], fontsize=12.5, color=T.HEX["body"])
+    ax.set_xticks([])
+    ax.set_ylim(-0.6, 2.6)
+    for sp in ("top", "right", "bottom"):
+        ax.spines[sp].set_visible(False)
+    ax.spines["left"].set_color(T.HEX["rule"]); ax.spines["left"].set_linewidth(0.9)
+    ax.tick_params(length=0, pad=9)
+    ax.set_xlabel(xlabel, color=T.HEX["muted"], fontsize=12, labelpad=8)
 
-# ── 파이프라인 (배치 폭 11.6 in) ───────────────────────────────────────────
-fig, ax = plt.subplots(figsize=(11.6, 1.95))
-ax.set_xlim(0, 11.6); ax.set_ylim(0, 1.95); ax.axis("off")
-steps = [("가상 현장", "복셀 1,500칸"), ("광선투사", "36,000쌍"),
-         ("검출확률", "P = f·g·h"), ("다중 결합", "겹치면 상승"),
-         ("위험가중", "WDR"), ("배치 최적화", "탐욕 8대")]
-w, h, gap = 1.62, 1.05, 0.28
-x = 0.16
-for i, (head, body) in enumerate(steps):
-    face = "#EBF3FA" if i < 5 else "#FFF6DE"
-    edge = BLUE if i < 5 else AMBER
-    ax.add_patch(patches.FancyBboxPatch((x, 0.5), w, h,
-                                        boxstyle="round,pad=0.03,rounding_size=0.07",
-                                        facecolor=face, edgecolor=edge, lw=1.7))
-    ax.text(x + w / 2, 1.26, head, ha="center", va="center", fontsize=14,
-            weight="bold", color=NAVY)
-    ax.text(x + w / 2, 0.86, body, ha="center", va="center", fontsize=12, color="#444444")
-    if i < len(steps) - 1:
-        ax.annotate("", xy=(x + w + gap - 0.03, 1.02), xytext=(x + w + 0.03, 1.02),
-                    arrowprops=dict(arrowstyle="-|>", color=GRAY, lw=1.9))
-    x += w + gap
-fig.tight_layout(pad=0.1)
-fig.savefig(OUT / "fig_pipeline.png", dpi=220, facecolor="white")
+fig.tight_layout(w_pad=5.0)
+fig.savefig(OUT / "fig_three.png", dpi=220)
 plt.close(fig)
 
 print("saved:", sorted(p.name for p in OUT.glob("*.png")))
