@@ -283,14 +283,20 @@ note(s, "성능 기준은 KISA 지능형 CCTV 성능 시험인증 · 장비 사�
 # 2 ― 그림 지배형. 규정하는 축과 지배하는 축이 다르다는 것이 요점
 # ══════════════════════════════════════════════════════════════════════════
 s = page(2)
-text(s, "지금 기준이 정한 것이 셋 중 영향이 가장 작았다",
-     T.ML, T.MT, T.CW, 0.7, 32, T.INK, face=T.DISPLAY, line=1.18)
-text(s, "셋은 단위가 달라 그대로 견줄 수 없다. 검출률이 90%까지 떨어지는 지점으로 "
-        "맞춰 비교했다.",
-     T.ML, 1.18, T.CW - 1.2, 0.32, T.TXT, T.MUTED, line=1.4)
-rule(s, T.ML, 1.58, T.CW, weight=0.9)
+text(s, "AI가 못 찾는 이유는 거리·각도·가려짐 셋.\n기준이 정한 것은 그중 영향이 가장 작았다",
+     T.ML, T.MT, T.CW, 1.30, 31, T.INK, face=T.DISPLAY, line=1.2)
+rule(s, T.ML, 2.02, T.CW, weight=0.9)
 
-fb = figure(s, "fig_curves.png", T.ML - 0.06, 1.72, 11.4)
+SUB2 = (f"가려지면 잘 못 찾는다는 건 다 아는 이야기다. 여기서 한 일은 그게 얼마나 나쁜지를 "
+        f"{cp['n_conditions']}가지 조건에서 직접 재어, 카메라 자리를 계산할 때 쓸 수 있는 "
+        f"식으로 만든 것이다.")
+h_sub2 = measure(SUB2, T.CW - 1.0, T.TXT, 1.46)
+text(s, SUB2, T.ML, 2.16, T.CW - 1.0, h_sub2, T.TXT, T.MUTED, line=1.46)
+
+fb = figure(s, "fig_curves.png", (T.W - 9.4) / 2, 2.16 + h_sub2 + 0.14, 9.4)
+
+text(s, "세 가지는 단위가 달라 그대로 견줄 수 없다. 아래는 검출률이 90%까지 떨어지는 지점이다.",
+     T.ML, fb + 0.13, T.CW, 0.28, T.LABEL, T.MUTED)
 
 STATS = [
     ("카메라와의 거리", f"{D_90_M:.0f}", " m",
@@ -300,7 +306,7 @@ STATS = [
     ("가려진 정도", f"{OCC_90:.1f}", "%",
      f"실제로 재본 15%에서는 이미 {PCT_AT_OCC15:.0f}%다", True),
 ]
-sy = fb + 0.22
+sy = fb + 0.46
 colw = (T.CW - 0.9) / 3
 for i, (lab, num, unit, sub, hot) in enumerate(STATS):
     cx = T.ML + i * (colw + 0.45)
@@ -313,57 +319,48 @@ for i, (lab, num, unit, sub, hot) in enumerate(STATS):
          cx, sy + 0.28, colw, 0.56, T.STAT, col)
     text(s, sub, cx, sy + 0.84, colw, 0.3, T.FOLIO + 1, T.MUTED)
 
-my = sy + 1.24
-rule(s, T.ML, my, T.CW)
-text(s, [[("어느 게 나쁘냐가 아니라 얼마나 나쁘냐  ", {"bold": True, "color": T.INK}),
-          (f"가려지면 잘 못 찾는다는 건 다 아는 이야기다. 여기서 한 일은 그게 얼마나 "
-           f"나쁜지를 {cp['n_conditions']}가지 조건에서 직접 재어, 배치 계산에 넣을 수 있는 "
-           f"식으로 만든 것이다. 기존 연구는 가림을 막혔다·안 막혔다 둘 중 하나로만 다룬다. "
-           f"위 세 값은 식으로 계산한 지점이고, 실제로 재본 가림은 15%부터다.", {})]],
-     T.ML, my + 0.15, T.CW - 0.3, 0.66, T.FOLIO + 1, T.BODY, line=1.48)
-note(s, f"안전모 사진 {cp['n_images']}장 · 세로축은 아무 조건도 안 걸었을 때({BASE_PCT:.1f}%)를 "
-        f"1로 둔 비율 · 세 조건을 곱해 쓰는 식, 설명력 {cp['r2_full_grid']:.3f} · 검출기는 "
-        f"안전모 사진으로 추가 학습시킨 YOLOv8n · 거리는 4K 해상도, 화각 90° 기준")
+note(s, f"안전모 사진 {cp['n_images']}장을 흐리게·기울여·세로줄로 가려 만든 "
+        f"{cp['n_conditions']}가지 상태 · 세로축은 아무 조건도 안 걸었을 때({BASE_PCT:.1f}%)를 "
+        f"1로 둔 비율 · 세 조건을 곱해 쓰는 식, 설명력 {cp['r2_full_grid']:.3f} · 위 세 값은 "
+        f"식으로 계산한 지점이고 실제로 재본 가려짐은 15%부터다 · 거리는 4K 해상도, 화각 90° 기준")
 
 # ══════════════════════════════════════════════════════════════════════════
 # 3 ― 문장 선언형. 평균이 붙어 있다는 것을 먼저 인정하고 들어간다
 # ══════════════════════════════════════════════════════════════════════════
 s = page(3)
-text(s, "가정한 값으로 설계해도 평균은 비슷하다.\n차이는 사각지대에서 난다",
-     T.ML, T.MT, T.CW - 1.2, 1.4, 33, T.INK, face=T.DISPLAY, line=1.2)
+text(s, "가정한 값으로 배치해도 평균 점수는 비슷하다.\n그런데 사각지대가 더 남는다",
+     T.ML, T.MT, T.CW - 1.2, 1.30, 31, T.INK, face=T.DISPLAY, line=1.2)
 ly = double_rule(s, T.ML, 2.02, T.CW) + 0.22
 
-text(s, [[("카메라 8대와 후보 자리는 그대로 두고 배치만 세 번 다르게 짰다. 셋 다 직접 잰 "
-           "값으로 다시 채점했다. 사각지대는 ", {}),
-          (f"{N_VOXEL:,}칸 중 {GEO['fail_voxel_count']} → {ASM['fail_voxel_count']} → "
-           f"{EMP['fail_voxel_count']}칸", {"face": T.DISPLAY, "color": T.ACCENT}),
-          ("으로 갈렸다.", {})]],
-     T.ML + 0.9, ly, T.CW - 1.8, 0.92, T.LEAD - 4, T.BODY,
+LEAD3 = ("카메라 8대와 달 수 있는 자리는 그대로 두고, 배치만 세 가지 방법으로 짰다. "
+         "① 눈에 보이기만 하면 되는 방법 ② 재보지 않고 식으로 가정한 값 ③ 우리가 직접 잰 값. "
+         "셋 다 ③의 자로 다시 채점했다.")
+h_l3 = measure(LEAD3, T.CW - 1.8, T.LEAD - 5, 1.42, face=T.DISPLAY_LIGHT)
+text(s, LEAD3, T.ML + 0.9, ly, T.CW - 1.8, h_l3, T.LEAD - 5, T.BODY,
      face=T.DISPLAY_LIGHT, line=1.42)
 
-fy = figure(s, "fig_three.png", (T.W - 10.7) / 2, ly + 1.00, 10.7)
+fy = figure(s, "fig_three.png", (T.W - 10.2) / 2, ly + h_l3 + 0.14, 10.2)
 
-by = fy + 0.16
+by = fy + 0.12
 rule(s, T.ML, by, T.CW)
 CW2 = (T.CW - 0.8) / 2
 text(s, [[("왜 갈리나  ", {"bold": True, "color": T.INK}),
-          (f"가정한 값은 가림을 막혔다·안 막혔다 둘 중 하나로 본다. 조금 가려진 곳을 "
-           f"괜찮다고 넘기는데, 그런 곳이 곧 사각지대다. 평균이 아니라 나쁜 쪽에서 갈린다"
+          (f"②는 가려짐을 막혔다·안 막혔다 둘 중 하나로 본다. 조금 가려진 곳을 괜찮다고 "
+           f"넘기는데, 그런 곳이 곧 사각지대다. 나쁜 쪽에서 갈린다"
            f"({abs(D_EA):.2f}%p 대 {ASM['fail_voxel_count'] - EMP['fail_voxel_count']}칸).",
            {})]],
      T.ML, by + 0.16, CW2, 1.1, T.FOLIO + 1, T.BODY, line=1.48)
 text(s, [[("기준을 바꿔도  ", {"bold": True, "color": T.INK}),
           (f"사각지대로 치는 선을 {THR_SWEEP[0]['threshold']}·{THR_SWEEP[1]['threshold']}·"
-           f"{THR_SWEEP[2]['threshold']}으로 바꿔도 제안 쪽이 늘 적다. 줄어드는 양은 "
-           f"각각 {THR_SWEEP[0]['reduction']}·{THR_SWEEP[1]['reduction']}·"
+           f"{THR_SWEEP[2]['threshold']}으로 바꿔도 ③이 늘 적다. 줄어드는 양은 각각 "
+           f"{THR_SWEEP[0]['reduction']}·{THR_SWEEP[1]['reduction']}·"
            f"{THR_SWEEP[2]['reduction']}칸이며, {THR_SWEEP[2]['threshold']}에서는 차이가 "
-           f"좁아진다. 가상 현장이라 숫자 자체가 아니라 세 배치의 순서를 주장한다.", {})]],
+           f"좁아진다. 가상 현장이라 숫자 자체가 아니라 셋의 순서를 주장한다.", {})]],
      T.ML + CW2 + 0.8, by + 0.16, CW2, 1.1, T.FOLIO + 1, T.BODY, line=1.48)
-note(s, f"현장 {se['site']['width_m']}×{se['site']['depth_m']} m · 카메라 자리 후보 "
-        f"{len(se['cameras'])}곳에서 {se['camera_budget']}대 · 비교 대상인 기존 방식은 국제표준 "
-        f"네 등급을 다 돌려보고 기존 방식에 가장 유리한 등급으로 정했다 · 가정한 값은 국제표준의 "
-        f"두 지점(125·250 PPM)으로 고정 · 한 대씩 고르는 방식이지만 최적해의 63% 이상이 "
-        f"보장된다")
+note(s, f"현장 {se['site']['width_m']}×{se['site']['depth_m']} m 를 2 m 칸 {N_VOXEL:,}개로 나눴다 · "
+        f"카메라 자리 후보 {len(se['cameras'])}곳에서 {se['camera_budget']}대 · ①은 국제표준 네 "
+        f"등급을 다 돌려보고 ①에 가장 유리한 등급으로 정했다 · ②는 국제표준의 두 지점"
+        f"(125·250 PPM)으로 고정 · 한 대씩 고르는 방식이지만 최적해의 63% 이상이 보장된다")
 
 # ── 게이트 ─────────────────────────────────────────────────────────────────
 def gate_glyphs():
