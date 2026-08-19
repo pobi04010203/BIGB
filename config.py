@@ -37,7 +37,7 @@ R2_ACCEPTANCE = 0.80
 
 # 검출기. 교수 지시(2026-08-19)로 **YOLO 최신 계열**을 기준으로 올린다.
 # 사전학습 가중치에서 출발해 SHWD 로 파인튜닝한다. 로컬 CUDA 세팅 금지(§0.1-3).
-DETECTOR_ARCH = "yolo26n"                       # 최신. 종전은 yolov8n
+DETECTOR_ARCH = "yolo26s"                       # 최신 세대. 크기만 바꾸면 된다 (n/s/m/l/x)
 DETECTOR_WEIGHTS = f"{DETECTOR_ARCH}.pt"        # 출발점 (사전학습)
 DETECTOR_RUN_NAME = f"shwd_{DETECTOR_ARCH}"     # runs/detect/<이 이름>/
 DETECTOR_BEST = (ROOT / "runs" / "detect" / DETECTOR_RUN_NAME / "weights" / "best.pt")
