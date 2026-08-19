@@ -144,50 +144,103 @@ def _cameras() -> list:
 
 # ── 복셀 ──────────────────────────────────────────────────────────────────
 
+def _occupiable(x: float, y: float, z: float, solids: list) -> bool:
+    """이 자리에 사람이 있을 수 있는가.
+
+    CCTV 는 공중도 보지만 **검출 대상은 사람**이다. 부피 전체를 분모로 삼으면
+    아무도 못 가는 허공이 커버리지를 희석한다. 그래서 복셀마다 이 판정을 달고
+    지표는 여기 해당하는 것만으로 낸다. 시각화는 전부 그린다.
+
+    사람이 있을 수 있는 자리는 둘이다.
+      ① 바닥(지면·슬래브) 위 작업 높이대
+      ② 비계·갱폼 작업발판 곁 — 건설현장에서 추락 위험이 큰 자리가 여기다
+    """
+    lo, hi = config.OCCUPIABLE_BAND_M
+    for floor_z in config.SLAB_LEVELS_M:
+        if floor_z + lo <= z <= floor_z + hi:
+            if floor_z == 0.0:
+                return True                     # 지면은 현장 전역
+            for b in solids:                    # 상부층은 슬래브 위만
+                if (b.kind == "slab" and abs(b.z2 - floor_z) < 1e-6
+                        and b.x1 <= x <= b.x2 and b.y1 <= y <= b.y2):
+                    return True
+
+    d = config.OCCUPIABLE_NEAR_SCAFFOLD_M
+    for b in solids:                            # 비계 작업발판 곁
+        if b.kind != "scaffold":
+            continue
+        if (b.x1 - d <= x <= b.x2 + d and b.y1 - d <= y <= b.y2 + d
+                and b.z1 <= z <= b.z2):
+            return True
+    return False
+
+
+def _level_of(z: float) -> int:
+    """이 높이가 몇 층대인가. 2D 모드의 층 선택에 쓴다."""
+    lvl = 0
+    for i, fz in enumerate(config.SLAB_LEVELS_M):
+        if z >= fz:
+            lvl = i
+    return lvl
+
+
 def _voxels(solids: list, zones: list) -> list:
-    """층별 작업면을 2m 격자로 나눈다 (3D).
+    """현장을 복셀로 자른다.
 
-    사람은 공중에 뜨지 않는다. 슬래브 상단마다 작업면을 하나씩 얹고 그 위의
-    머리 높이대만 복셀로 만든다. 건물 부피를 균등 복셀로 채우는 것보다
-    물리적으로 맞고 계산도 아낀다.
+    `config.VOXEL_MODE` 가
+      "volume"      부피 전체를 큐브로 (CCTV 는 공중도 본다)
+      "work_plane"  층별 작업면만 (가볍다)
 
-    지상층(z=0)은 현장 전역이지만 상부층은 **슬래브가 깔린 범위**만 바닥이
-    있다. 슬래브 밖은 허공이므로 복셀을 두지 않는다.
-
-    골조 솔리드 안에 들어간 복셀은 사람이 설 자리가 아니므로 제외한다.
+    골조 솔리드 안은 사람이 들어갈 수 없으므로 아예 만들지 않는다.
     """
     step = config.VOXEL_M
-    out = []
-    ny = int(config.SITE_DEPTH_M / step)
     nx = int(config.SITE_WIDTH_M / step)
+    ny = int(config.SITE_DEPTH_M / step)
+    out = []
+
+    if config.VOXEL_MODE == "volume":
+        zs = [(k + 0.5) * step for k in range(int(config.VOXEL_Z_MAX_M / step))]
+    else:
+        zs = [fz + config.WORK_PLANE_OFFSET_M for fz in config.SLAB_LEVELS_M]
 
     slabs = [b for b in solids if b.kind == "slab"]
 
-    for lvl, floor_z in enumerate(config.SLAB_LEVELS_M):
-        z = floor_z + config.WORK_PLANE_OFFSET_M
+    for zi, z in enumerate(zs):
         for j in range(ny):
             for i in range(nx):
-                x = (i + 0.5) * step
-                y = (j + 0.5) * step
-                if lvl > 0:
-                    # 상부층은 슬래브가 받쳐주는 자리에만 바닥이 있다
-                    on_slab = any(b.x1 <= x <= b.x2 and b.y1 <= y <= b.y2
-                                  and abs(b.z2 - floor_z) < 1e-6 for b in slabs)
-                    if not on_slab:
-                        continue
-                if any(s.x1 <= x <= s.x2 and s.y1 <= y <= s.y2 and s.z1 <= z <= s.z2
+                x, y = (i + 0.5) * step, (j + 0.5) * step
+
+                if any(s.x1 <= x <= s.x2 and s.y1 <= y <= s.y2
+                       and s.z1 <= z <= s.z2
+                       and s.kind in ("core", "slab", "stack")
                        for s in solids):
-                    continue                  # 골조 안 — 사람이 설 자리가 아니다
+                    continue                    # 골조 안 — 들어갈 수 없다
+
+                if config.VOXEL_MODE == "volume":
+                    occ = _occupiable(x, y, z, solids)
+                    lvl = _level_of(z)
+                else:
+                    if zi > 0:
+                        floor_z = config.SLAB_LEVELS_M[zi]
+                        if not any(b.x1 <= x <= b.x2 and b.y1 <= y <= b.y2
+                                   and abs(b.z2 - floor_z) < 1e-6 for b in slabs):
+                            continue
+                    occ, lvl = True, zi
+
                 w = config.RISK_WEIGHT_DEFAULT
                 names = []
                 for zn in zones:
                     if zn.contains(x, y):
-                        w = max(w, zn.weight)  # 겹치면 높은 쪽
+                        w = max(w, zn.weight)
                         names.append(zn.name)
+
                 out.append({"id": f"v_{len(out):04d}", "x": x, "y": y, "z": z,
-                            "level": lvl, "floor_z": floor_z,
-                            "w": w, "zones": names})
+                            "level": lvl,
+                            "floor_z": config.SLAB_LEVELS_M[
+                                min(lvl, len(config.SLAB_LEVELS_M) - 1)],
+                            "occupiable": occ, "w": w, "zones": names})
     return out
+
 
 
 def build(scaffold_coverage: float = None) -> Site:
@@ -206,9 +259,12 @@ def build(scaffold_coverage: float = None) -> Site:
 if __name__ == "__main__":
     s = build()
     import collections
-    wc = collections.Counter(v["w"] for v in s.voxels)
+    wc = collections.Counter(v["w"] for v in s.voxels if v["occupiable"])
     print(f"현장 {s.width:.0f}×{s.depth:.0f}m · 복셀 {config.VOXEL_M:.0f}m 격자")
     print(f"  솔리드 {len(s.solids)} · 위험구역 {len(s.zones)} · 카메라 후보 {len(s.cameras)}")
-    print(f"  복셀 {len(s.voxels)}개 (골조 내부 제외)")
+    occ = [v for v in s.voxels if v["occupiable"]]
+    print(f"  복셀 {len(s.voxels)}개 (골조 내부 제외) · 그중 사람이 있을 수 있는 "
+          f"자리 {len(occ)}개 ({len(occ)/len(s.voxels)*100:.1f}%)")
     print("  가중치 분포:", dict(sorted(wc.items())))
-    print(f"  가중치 총합 Σw = {sum(v['w'] for v in s.voxels)}")
+    print(f"  가중치 총합 Σw = {sum(v['w'] for v in s.voxels if v['occupiable'])}"
+          f"  (occupiable 만)")

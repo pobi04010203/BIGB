@@ -71,6 +71,7 @@ def build_payload() -> dict:
     for v in site.voxels:
         row = {"id": v["id"], "x": v["x"], "y": v["y"], "z": v["z"],
                "level": v["level"], "floor_z": v["floor_z"],
+               "occupiable": v["occupiable"],
                "w": v["w"], "zones": v["zones"]}
         for key, res in placements.items():
             row[f"P_total_{key}"] = round(res["per_voxel"][v["id"]], 4)

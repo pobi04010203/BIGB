@@ -16,11 +16,13 @@
   const DEG = Math.PI / 180;
 
   const PRESETS = {
-    // zx = 수직 과장. 층간 4m 는 100×60m 현장에 견주면 너무 얇아 층이 뭉쳐
-    // 보인다. 3D 로 만든 이유가 층 구분이므로 눌러 보이지 않게 늘린다.
+    // zx = 수직 과장.
+    // **부피 복셀(큐브)에서는 1에 가깝게 둔다.** 큐브가 이미 실제 높이를 차지하고
+    // 있어서 늘리면 14m 현장이 45m 로 보인다. 층별 판(work_plane)일 때만 층이
+    // 뭉쳐 보여 과장이 필요했다. 데이터가 어느 쪽인지 보고 정한다.
     '2d':   { yaw: 0,  pitch: 90, persp: false, orbit: false, single: true,  zx: 1 },
-    '2.5d': { yaw: 45, pitch: 30, persp: false, orbit: false, single: false, zx: 3.2 },
-    '3d':   { yaw: 35, pitch: 25, persp: true,  orbit: true,  single: false, zx: 2.4 },
+    '2.5d': { yaw: 45, pitch: 30, persp: false, orbit: false, single: false, zx: 1.15 },
+    '3d':   { yaw: 35, pitch: 25, persp: true,  orbit: true,  single: false, zx: 1.0 },
   };
 
   function heat(p) {
@@ -42,6 +44,7 @@
       this.opts = Object.assign({ mode: '2.5d', level: 0, key: 'P_total_empirical',
                                   showCams: true, showSolids: true }, opts || {});
       this.cam = Object.assign({}, PRESETS[this.opts.mode]);
+      if (this._isPlanar()) this.cam.zx *= 2.8;
       this.zoom = 1;
       this._bindOrbit();
       this.resize();
@@ -50,8 +53,19 @@
     setMode(mode) {
       this.opts.mode = mode;
       this.cam = Object.assign({}, PRESETS[mode]);
+      if (this._isPlanar()) this.cam.zx *= 2.8;   // 판 데이터는 층이 뭉친다
       this.zoom = 1;
       this.draw();
+    }
+
+    /* 데이터가 층별 판인가(work_plane), 부피 큐브인가(volume).
+     * 서로 다른 수직 과장이 필요해 한 번 재둔다. */
+    _isPlanar() {
+      if (this._planar === undefined) {
+        const zs = new Set(this.d.voxels.map(v => Math.round(v.z * 10)));
+        this._planar = zs.size <= 4;
+      }
+      return this._planar;
     }
 
     set(k, v) { this.opts[k] = v; this.draw(); }
@@ -130,9 +144,13 @@
         if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y;
       };
       const single = this.cam.single;
+      const onlyOcc = this.opts.onlyOccupiable !== false;
+      const hh = d.site.voxel_m / 2;
       d.voxels.forEach(v => {
         if (single && v.level !== this.opts.level) return;
-        put(this._raw(v.x, v.y, v.z));
+        if (onlyOcc && v.occupiable === false) return;
+        put(this._raw(v.x, v.y, v.z - hh));
+        put(this._raw(v.x, v.y, v.z + hh));
       });
       if (this.opts.showSolids && d.solids && !single) {
         d.solids.forEach(b => {
@@ -153,6 +171,27 @@
       return [[x - h, y - h, z], [x + h, y - h, z],
               [x + h, y + h, z], [x - h, y + h, z]]
         .map(p => this._project(p[0], p[1], p[2]));
+    }
+
+    /* 큐브의 **보이는 면만** 돌려준다.
+     * 6면을 다 그리면 복셀 1만 개에 6만 폴리곤이라 회전이 버벅인다.
+     * 정사영·원근 모두 카메라를 등진 면은 어차피 앞면에 가리므로 셋이면 된다.
+     * 어느 셋인지는 yaw·pitch 부호로 정해진다. */
+    _cubeFaces(x, y, z, s) {
+      const h = s / 2;
+      const P = (a, b, c) => this._project(a, b, c);
+      const yaw = ((this.cam.yaw % 360) + 360) % 360;
+      const east = (yaw > 180);            // +x 면이 보이는가
+      const north = (yaw > 90 && yaw < 270);
+      const sx = east ? h : -h, sy = north ? h : -h;
+      return [
+        // 윗면 — pitch 가 양수면 항상 보인다
+        [P(x-h,y-h,z+h), P(x+h,y-h,z+h), P(x+h,y+h,z+h), P(x-h,y+h,z+h)],
+        // x 쪽 옆면
+        [P(x+sx,y-h,z-h), P(x+sx,y+h,z-h), P(x+sx,y+h,z+h), P(x+sx,y-h,z+h)],
+        // y 쪽 옆면
+        [P(x-h,y+sy,z-h), P(x+h,y+sy,z-h), P(x+h,y+sy,z+h), P(x-h,y+sy,z+h)],
+      ];
     }
 
     _boxFaces(b) {
@@ -191,14 +230,32 @@
       // ── 복셀 ──
       const key = this.opts.key;
       const single = this.cam.single;
+      const flat = this.cam.pitch >= 89;      // 2D 는 판으로 그리는 게 읽기 쉽다
+      const onlyOcc = this.opts.onlyOccupiable !== false;
+      const s = d.site.voxel_m;
+      // 큐브를 꽉 채우면 안쪽이 안 보인다. 살짝 줄여 사이가 비게 둔다.
+      const cs = s * 0.86;
+      const shade = [1.0, 0.82, 0.66];        // 윗면 / 옆면 둘 — 입체감
+
       d.voxels.forEach(v => {
         if (single && v.level !== this.opts.level) return;
+        if (onlyOcc && v.occupiable === false) return;
         const p = v[key];
         if (p === undefined || p === null) return;
-        const pts = this._quad(v.x, v.y, v.z, d.site.voxel_m);
-        const dep = pts.reduce((a, q) => a + q.depth, 0) / pts.length;
-        items.push({ depth: dep, pts,
-                     fill: rgba(heat(p), 0.34 + 0.56 * (1 - p)), stroke: null });
+
+        const base = heat(p);
+        const alpha = 0.30 + 0.55 * (1 - p);
+        if (flat) {
+          const pts = this._quad(v.x, v.y, v.z, s);
+          items.push({ depth: pts.reduce((a,q)=>a+q.depth,0)/pts.length, pts,
+                       fill: rgba(base, alpha), stroke: null });
+          return;
+        }
+        this._cubeFaces(v.x, v.y, v.z, cs).forEach((f, fi) => {
+          const dep = f.reduce((a, q) => a + q.depth, 0) / f.length;
+          const c = base.map(ch => Math.round(ch * shade[fi]));
+          items.push({ depth: dep, pts: f, fill: rgba(c, alpha), stroke: null });
+        });
       });
 
       // 화가 알고리즘 — 먼 것부터

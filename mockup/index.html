@@ -146,6 +146,7 @@ function render(d){
           `<option value="${l}">${l===0?'지상층':l+'층'}</option>`).join('')}</select>
       </span>
       <label><input type="checkbox" id="showSolids" checked> 골조</label>
+      <label><input type="checkbox" id="onlyOcc" checked> 사람이 있을 수 있는 자리만</label>
       <span class="pill" id="modehint"></span>
     </div>
     <canvas id="view3d" style="width:100%;height:520px;background:#fbfcfd;
@@ -286,6 +287,8 @@ function mountViewer(d, view) {
   if (sel) { sel.value = String(level); sel.onchange = () => VIEWER.set('level', +sel.value); }
   const sol = document.getElementById('showSolids');
   if (sol) sol.onchange = () => VIEWER.set('showSolids', sol.checked);
+  const occ = document.getElementById('onlyOcc');
+  if (occ) occ.onchange = () => VIEWER.set('onlyOccupiable', occ.checked);
   addEventListener('resize', () => VIEWER && VIEWER.resize(), { passive: true });
 }
 

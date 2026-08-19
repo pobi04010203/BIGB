@@ -31,7 +31,9 @@ def build_matrix(site, pairs: dict, curve, cam_ids: list = None) -> tuple:
     """P[카메라, 복셀] 행렬과 가중치 벡터를 만든다."""
     cams = cam_ids if cam_ids is not None else [c.cid for c in site.cameras]
     vox = [v["id"] for v in site.voxels]
-    w = np.array([v["w"] for v in site.voxels], dtype=float)
+    # 사람이 못 가는 허공은 가중치 0 — 분모에서 빠진다. 시각화는 별개로 전부 그린다.
+    w = np.array([v["w"] if v.get("occupiable", True) else 0.0
+                  for v in site.voxels], dtype=float)
     P = np.zeros((len(cams), len(vox)), dtype=float)
     for i, cid in enumerate(cams):
         for j, vid in enumerate(vox):
@@ -49,14 +51,18 @@ def p_total(P: np.ndarray, idx) -> np.ndarray:
 
 
 def metrics(pt: np.ndarray, w: np.ndarray, threshold: float = None) -> dict:
+    """분모는 사람이 있을 수 있는 복셀(w > 0)뿐이다."""
     thr = config.P_DETECT_THRESHOLD if threshold is None else threshold
-    ok = pt >= thr
+    live = w > 0
+    ok = (pt >= thr) & live
+    n = int(live.sum())
     return {
-        "spatial_coverage": round(float(ok.mean()), 4),
+        "spatial_coverage": round(float(ok.sum() / n), 4) if n else None,
         "WDR": round(float((w * pt).sum() / w.sum()), 4),
         "risk_coverage": round(float(w[ok].sum() / w.sum()), 4),
         "covered_voxels": int(ok.sum()),
-        "fail_voxels": int((~ok).sum()),
+        "fail_voxels": int((live & ~ok).sum()),
+        "denominator_voxels": n,
     }
 
 

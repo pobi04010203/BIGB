@@ -34,11 +34,19 @@ def p_total(voxel_id: str, cam_ids, pairs: dict, curve) -> float:
 
 
 def evaluate(site, cam_ids, pairs: dict, curve) -> dict:
-    """배치 하나를 평가한다. WDR 과 미달구역을 낸다."""
+    """배치 하나를 평가한다. WDR 과 미달구역을 낸다.
+
+    **분모는 사람이 있을 수 있는 복셀(occupiable)뿐이다.** CCTV 는 공중도
+    보지만 검출 대상은 사람이라, 아무도 못 가는 허공을 분모에 넣으면
+    커버리지가 의미 없이 희석된다. 시각화는 전 복셀을 그린다.
+    """
     num = den = 0.0
     per_voxel = {}
     fails = []
     for v in site.voxels:
+        if not v.get("occupiable", True):
+            per_voxel[v["id"]] = p_total(v["id"], cam_ids, pairs, curve)
+            continue
         pt = p_total(v["id"], cam_ids, pairs, curve)
         per_voxel[v["id"]] = pt
         num += v["w"] * pt
@@ -81,6 +89,8 @@ def coverage_score(site, cam_ids, pairs: dict, min_rho_px: float = None) -> floa
         min_rho_px = config.GEOMETRIC_MIN_RHO_PX
     total = 0.0
     for v in site.voxels:
+        if not v.get("occupiable", True):
+            continue
         if any(_covers(pairs.get((cid, v["id"])), min_rho_px) for cid in cam_ids):
             total += v["w"]
     return total
