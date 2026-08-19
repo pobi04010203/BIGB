@@ -57,3 +57,7 @@ sensitivity.log
 # .pptx 는 배포 단위라 커밋하고, 그림·PDF·PNG 는 제외한다
 outputs/figures/
 outputs/*_전달용/
+
+# 검증용 스크린샷·로그 (루트에 떨어지는 것들). 재생성되므로 추적하지 않는다
+/*.png
+/*.log
