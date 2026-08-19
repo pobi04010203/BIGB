@@ -68,7 +68,7 @@ section.list{padding:var(--space-sm) var(--space-md) var(--space-md)}
 h2{margin:0 0 var(--space-3xs);font-size:var(--text-md);font-weight:600;
    letter-spacing:var(--track-snug);overflow-wrap:anywhere;min-width:0}
 .hint{color:var(--color-muted);font-size:var(--text-xs);
-      margin:0 0 var(--space-sm);max-width:78ch;line-height:1.55}
+      margin:0 0 var(--space-sm);max-width:72ch;line-height:1.55}
 
 /* -- 컨트롤 ---------------------------------------------------------- */
 .toolbar{display:flex;gap:var(--space-sm);align-items:center;flex-wrap:wrap;
@@ -89,7 +89,10 @@ input[type=radio],input[type=checkbox]{accent-color:var(--color-chrome);margin:0
                  color var(--dur-short) var(--ease-out)}
 .mode:last-child{border-right:0}
 .mode:hover{background:var(--color-paper-3);color:var(--color-ink)}
+.mode:active{background:var(--color-paper-3);transform:translateY(1px)}
 .mode.on{background:var(--color-chrome);color:var(--color-paper-2)}
+.mode:disabled,label:has(input:disabled){opacity:.45;cursor:not-allowed}
+label:has(input:disabled):hover{color:var(--color-ink-2)}
 
 canvas{display:block;width:100%;background:var(--color-paper);
        border:var(--rule-hair) solid var(--color-rule);
@@ -247,7 +250,8 @@ function render(d){
       <span class="pill">선정 ${shown.camera_ids.length}대 —
         ${({geometric:'기하 커버리지 배치',assumed:'가정 곡선 배치',empirical:'실측 곡선 배치'})[view]||view}</span>
     </div>
-    <canvas id="plan" style="height:420px"></canvas>
+    <canvas id="plan" style="height:420px" role="img"
+      aria-label="가상 현장 평면도. 골조·위험구역·카메라 배치. 수치는 아래 표와 범례에 있다"></canvas>
     <div class="legend" id="planlegend"></div>
   </section>
 
@@ -276,7 +280,8 @@ function render(d){
       <label><input type="checkbox" id="onlyOcc" checked> 사람이 있을 수 있는 자리만</label>
       <span class="pill" id="modehint"></span>
     </div>
-    <canvas id="view3d" style="height:520px;touch-action:none"></canvas>
+    <canvas id="view3d" style="height:520px;touch-action:none" role="img"
+      aria-label="복셀별 검출확률 히트맵. 임계 미만 구역의 목록과 수치는 아래 미달구역 표에 있다"></canvas>
     <div class="legend">
       <span>미달</span>
       <span class="ramp">${rampHTML(d.threshold)}</span>
