@@ -212,6 +212,20 @@ def main(smoke: bool, limit: int | None,
 
     model = YOLO(str(WEIGHTS))
     rows = []
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+
+    def flush():
+        """조건 하나가 끝날 때마다 쓴다.
+
+        맨 끝에 한 번만 쓰면 중간에 프로세스가 죽었을 때 몇 시간치가 통째로
+        날아간다. 이 환경에서 장시간 작업이 끊기는 일이 있어 매번 흘려둔다.
+        재실행하면 위의 `done` 이 읽어 이어서 돈다.
+        """
+        with out_csv.open("w", newline="", encoding="utf-8") as f:
+            wr = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            wr.writeheader()
+            wr.writerows(rows)
+
     for i, (r, t, o) in enumerate(grid, 1):
         cached = done.get((float(r), float(t), float(o)))
         if cached is not None:
@@ -220,14 +234,13 @@ def main(smoke: bool, limit: int | None,
         row = run_condition(model, records, r, t, o, manifest['min_head_px'],
                             occ_divisor)
         rows.append(row)
+        flush()
         print(f"[{i}/{len(grid)}] ρ={r:>2} θ={t:>2} o={o:>2}  "
-              f"recall_nohat {row['recall_nohat']}  recall_hat {row['recall_hat']}")
+              f"recall_nohat {row['recall_nohat']}  recall_hat {row['recall_hat']}",
+              flush=True)
 
-    out_csv.parent.mkdir(parents=True, exist_ok=True)
-    with out_csv.open("w", newline="", encoding="utf-8") as f:
-        wr = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
-        wr.writeheader()
-        wr.writerows(rows)
+    if rows:
+        flush()
     print(f"→ {out_csv}  ({len(rows)}조건 · 이미지 {len(records)}장)")
     return out_csv
 

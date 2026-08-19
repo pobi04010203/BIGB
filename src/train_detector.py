@@ -41,6 +41,15 @@ def main() -> Path:
     device = 0 if torch.cuda.is_available() else "cpu"
     print(f"device={device}  epochs={EPOCHS}  imgsz={IMGSZ}  batch={BATCH}")
 
+    # 중단된 학습이 있으면 이어붙인다. 이 환경에서 장시간 작업이 끊기는 일이
+    # 있어, 매번 처음부터 돌리면 끝나지 않는다.
+    last = config.ROOT / "runs" / "detect" / RUN_NAME / "weights" / "last.pt"
+    if last.exists() and "--fresh" not in sys.argv:
+        print(f"이어서 학습: {last}")
+        YOLO(str(last)).train(resume=True)
+        print(f"best weights → {WEIGHTS_OUT}")
+        return WEIGHTS_OUT
+
     model = YOLO(config.DETECTOR_WEIGHTS)     # COCO 가중치에서 출발
     model.train(
         data=str(YOLO_YAML),
