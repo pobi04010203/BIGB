@@ -35,9 +35,23 @@ R2_ACCEPTANCE = 0.80
 # §10 의 Phase 0 지시는 §5.1·§5.2 만 열거하지만, Phase 1 의 transforms.py 가
 # 이 값들을 그대로 쓴다. 모듈에 숫자를 박지 않으려고 여기에 함께 둔다.
 
-# 검출기. 교수 지시(2026-08-19)로 **YOLO 최신 계열**을 기준으로 올린다.
-# 사전학습 가중치에서 출발해 SHWD 로 파인튜닝한다. 로컬 CUDA 세팅 금지(§0.1-3).
-DETECTOR_ARCH = "yolo26s"                       # 최신 세대. 크기만 바꾸면 된다 (n/s/m/l/x)
+# 검출기. 사전학습 가중치에서 출발해 SHWD 로 파인튜닝한다. 로컬 CUDA 세팅 금지(§0.1-3).
+#
+# 교수 지시(2026-08-19)로 최신 계열을 가리키게 했으나 **2026-08-19 되돌렸다.**
+# `yolo26s` 로 적혀 있었는데 그 이름으로 학습한 적이 없다 - 있는 것은
+# `runs/detect/shwd_yolo26n` 과 `shwd_yolov8n` 뿐이라 `DETECTOR_BEST` 가
+# 존재하지 않는 경로를 가리켰고 `run_grid.py` 가 FileNotFoundError 로 죽었다.
+# 게다가 `grid_results.csv` 288행과 `curve_params.json` 은 전부 yolov8n 산출이라,
+# 검출기 대조 로직이 288행을 통째로 버리고 없는 가중치로 재실행을 시도했다.
+#
+# 되돌린 뒤 `yolov8n` 은 전 구간이 실측으로 닫힌다: 288조건 격자 · 주 지표
+# 단면 R² 0.8977 · val mAP50 0.935.
+#
+# **환경 제약은 아니다.** 이 PC 는 RTX 3070 Ti · torch cu118 · CUDA 사용 가능이며
+# `shwd_yolo26n` 가중치도 이미 있다. 전환하려면 아래를 `yolo26n` 으로 바꾸고
+# run_grid → occ_box → fit_curve → report 를 다시 돌리면 된다(격자 재측정 필요).
+# 지금 되돌리는 것은 **설정과 데이터를 일치시키기 위해서**다.
+DETECTOR_ARCH = "yolov8n"                       # 실측 곡선의 출처. 전환은 위 주석 참조
 DETECTOR_WEIGHTS = f"{DETECTOR_ARCH}.pt"        # 출발점 (사전학습)
 DETECTOR_RUN_NAME = f"shwd_{DETECTOR_ARCH}"     # runs/detect/<이 이름>/
 DETECTOR_BEST = (ROOT / "runs" / "detect" / DETECTOR_RUN_NAME / "weights" / "best.pt")

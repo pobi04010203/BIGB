@@ -34,6 +34,20 @@ REPORT_JSON = config.OUTPUTS / "safety_report.json"
 REPORT_HTML = config.OUTPUTS / "safety_report.html"
 
 
+def _shown_path(plan_path: Path) -> str:
+    """보고서에 찍을 계획서 경로. 표시용이므로 여기서 죽어선 안 된다.
+
+    리포 안이면 상대경로가 읽기 좋고, 밖이면 절대경로 말고 쓸 것이 없다.
+    `relative_to` 를 그냥 부르면 상대경로 인자(`data/plans/...`)와 리포 밖
+    경로 둘 다에서 ValueError 가 나 보고서 전체가 못 나온다.
+    """
+    p = Path(plan_path).resolve()
+    try:
+        return str(p.relative_to(config.ROOT))
+    except ValueError:
+        return str(p)
+
+
 def build(plan_path: Path) -> dict:
     site = site_model.build()
     cams_plan, yaws_plan, doc = plan_io.load(plan_path)
@@ -86,7 +100,7 @@ def build(plan_path: Path) -> dict:
         key=lambda r: (-r["w"], r["P_total"]))
 
     return {
-        "plan": {"path": str(Path(plan_path).relative_to(config.ROOT)),
+        "plan": {"path": _shown_path(plan_path),
                  "note": doc.get("_note", ""), "cameras": len(cams_plan)},
         "site": {"width_m": site.width, "depth_m": site.depth,
                  "voxel_m": config.VOXEL_M, "levels": len(levels),
