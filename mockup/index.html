@@ -69,6 +69,7 @@
      데이터는 여전히 report.py 가 만든다 - HTML 에 하드코딩하지 않는다. -->
 <script src="data.js"></script>
 <script src="viewer.js"></script>
+<script src="plan.js"></script>
 <script>
 const fmtPct = v => (v * 100).toFixed(1) + '%';
 let DATA = null, VIEW = 'empirical';
@@ -123,6 +124,23 @@ function render(d){
       <div class="n">P_total &lt; ${d.threshold} · 전체 ${vox.length}개 중
         ${asm ? '(가정 '+asm.fail_voxel_count+')' : ''}</div></div>
   </div>
+
+  <section>
+    <h2>현장 평면도 — 무엇을 평가했는가</h2>
+    <p class="hint"><b>가상 현장이다. 실제 LH 현장 도면이 아니다.</b>
+      LH 아파트 건설현장 1개 공구(${S.width_m}×${S.depth_m} m)를 모사해
+      <code>site_model.py</code> 가 직육면체 조합으로 생성한다(CLAUDE.md §5.1).
+      아래 화면은 그 입력을 평면으로 옮긴 것이며, 새로 만든 수치는 없다.</p>
+    <div class="toolbar">
+      <label><input type="checkbox" id="planZones" checked> 위험구역</label>
+      <label><input type="checkbox" id="planCams" checked> 카메라</label>
+      <span class="pill">선정 ${shown.camera_ids.length}대 —
+        ${({geometric:'기하 커버리지 배치',assumed:'가정 곡선 배치',empirical:'실측 곡선 배치'})[view]||view}</span>
+    </div>
+    <canvas id="plan" style="width:100%;height:420px;background:#fff;
+      border:1px solid var(--line);border-radius:4px"></canvas>
+    <div class="legend" id="planlegend"></div>
+  </section>
 
   <section>
     <h2>현장 검출확률 — 2D / 2.5D / 3D</h2>
@@ -234,10 +252,29 @@ function render(d){
   </footer>`;
 
   mountViewer(d, view);
+  mountPlan(d, shown.camera_ids);
   root.querySelectorAll('input[name=view]').forEach(el => {
     el.addEventListener('change', () => { VIEW = el.value; render(DATA); });
   });
 }
+
+/* 평면도. 히트맵과 같은 배치를 보여준다 — 위 라디오로 배치를 바꾸면
+ * render() 가 다시 돌아 여기도 새 camera_ids 로 다시 그려진다. */
+let PLAN = null;
+function mountPlan(d, chosen) {
+  const cv = document.getElementById('plan');
+  if (!cv || !window.SitePlan) return;
+  PLAN = new SitePlan.SitePlan(cv, d, { chosen });
+  const leg = document.getElementById('planlegend');
+  if (leg) leg.innerHTML = PLAN.legendHTML();
+  const bind = (id, key) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', () => PLAN.set(key, el.checked));
+  };
+  bind('planZones', 'showZones');
+  bind('planCams', 'showCams');
+}
+addEventListener('resize', () => PLAN && PLAN.resize(), { passive: true });
 
 function show(d){
   if (!d) throw new Error('데이터가 비어 있다');
@@ -253,14 +290,6 @@ function fail(msg){
     'report.py 를 다시 돌려 data.json / data.js 를 만드십시오.</div>';
 }
 
-// file:// 로 열면 브라우저가 fetch 를 막고 콘솔에 오류를 남긴다. 프로토콜을 먼저
-// 보고 그때는 fetch 를 아예 시도하지 않는다 - 실패한 요청을 콘솔에 남기지 않기
-// 위해서다. data.js 는 report.py 가 data.json 과 함께 쓰는 사본이다.
-if (location.protocol === 'file:') {
-  try { show(window.SITE_DATA); }
-  catch (e) { fail(e.message + ' (data.js 폴백)'); }
-} else {
-  
 // ── 뷰어 배선 ─────────────────────────────────────────────────────────────
 let VIEWER = null;
 const MODE_HINT = {
@@ -302,7 +331,14 @@ function applyMode(mode) {
   if (h) h.textContent = MODE_HINT[mode] || '';
 }
 
-fetch('data.json')
+// file:// 로 열면 브라우저가 fetch 를 막고 콘솔에 오류를 남긴다. 프로토콜을 먼저
+// 보고 그때는 fetch 를 아예 시도하지 않는다 - 실패한 요청을 콘솔에 남기지 않기
+// 위해서다. data.js 는 report.py 가 data.json 과 함께 쓰는 사본이다.
+if (location.protocol === 'file:') {
+  try { show(window.SITE_DATA); }
+  catch (e) { fail(e.message + ' (data.js 폴백)'); }
+} else {
+  fetch('data.json')
     .then(r => { if(!r.ok) throw new Error('data.json 을 읽지 못했다 (HTTP '+r.status+')'); return r.json(); })
     .then(show)
     .catch(e => {

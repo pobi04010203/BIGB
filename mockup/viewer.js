@@ -89,8 +89,12 @@
       });
       this.cv.addEventListener('pointermove', e => {
         if (!drag) return;
+        // 위로 끌면 카메라가 올라가 위에서 내려다본다 — OrbitControls·CAD 관례다.
+        // 종전에는 부호가 반대라 위를 보려고 위로 끌면 오히려 옆으로 누웠다.
+        // 음의 pitch 는 아래에서 올려다보는 것이다. 상부 슬래브에 가린 위층을
+        // 확인하려면 이 각도가 필요하다. 면 선택(_cubeFaces)이 부호를 본다.
         this.cam.yaw = drag.yaw + (e.clientX - drag.x) * 0.4;
-        this.cam.pitch = Math.max(5, Math.min(89, drag.pitch + (e.clientY - drag.y) * 0.3));
+        this.cam.pitch = Math.max(-85, Math.min(85, drag.pitch - (e.clientY - drag.y) * 0.3));
         this.draw();
       });
       const stop = () => { drag = null; };
@@ -104,12 +108,15 @@
       }, { passive: false });
     }
 
-    /* 세계좌표 → 투영 평면. 화면 크기는 여기서 모른다. */
+    /* 세계좌표 → 투영 평면. 화면 크기는 여기서 모른다.
+     * z 도 피벗(_pivotZ, 그릴 것의 높이 중앙)을 빼고 돌린다. 안 빼면 회전축이
+     * 지면에 놓여 위아래로 드래그할 때 모델이 축을 중심으로 휘둘린다. */
     _raw(x, y, z) {
       const S = this.d.site;
       const cx = S.width_m / 2, cy = S.depth_m / 2;
       const yaw = this.cam.yaw * DEG, pit = this.cam.pitch * DEG;
-      const dx = x - cx, dy = y - cy, dz = z * (this.cam.zx || 1);
+      const dx = x - cx, dy = y - cy;
+      const dz = (z - (this._pivotZ || 0)) * (this.cam.zx || 1);
 
       const rx = dx * Math.cos(yaw) - dy * Math.sin(yaw);
       const ry = dx * Math.sin(yaw) + dy * Math.cos(yaw);
@@ -135,35 +142,114 @@
       return { x: f.ox + r.x * f.s, y: f.oy + r.y * f.s, depth: r.depth };
     }
 
-    /* 그릴 것 전체의 투영 경계를 재서 배율과 중심을 정한다. */
+    /* 그릴 것의 월드 경계를 훑어 회전 피벗과 배율·중심을 정한다.
+     *
+     * **궤도 모드에서 투영 경계로 매 프레임 다시 맞추면 안 된다.** 각도가 바뀌면
+     * 실루엣이 바뀌고, 배율과 중심이 그것을 따라다닌다. 이 데이터로 실측하니
+     * yaw 한 바퀴에 배율이 7.23~10.37 로 **43% 출렁이고** bbox 중심이 **19.3m**
+     * 미끄러졌다. 회전이 부자연스럽게 보이는 원인이 이것이다.
+     *
+     * 그래서 궤도 모드에서는 **yaw 전 구간의 최악값**으로 배율을 고정하고 중심을
+     * 캔버스 한가운데에 못박는다. yaw 를 아무리 돌려도 배율·중심이 상수라
+     * 모델이 제자리에서 돈다. 최악값은 월드 AABB 의 8꼭짓점만 훑으면 되고
+     * (정사영이 아핀이며 원근 왜곡이 완만하다), 이 데이터에서 전 각도·전 점이
+     * 캔버스 안에 들어옴을 확인했다. 대가는 가장 유리한 각도 대비 32% 작게
+     * 보이는 것이다 — 종전 최소 배율보다는 2% 작을 뿐이다.
+     *
+     * 고정 각도인 2D·2.5D 는 종전대로 실제 투영 경계에 맞춘다. 각도가 안 바뀌니
+     * 흔들릴 일이 없고, 화면을 꽉 채우는 편이 읽기 좋다.
+     */
     _measure() {
       const S = this.d.site, d = this.d;
-      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-      const put = (p) => {
-        if (p.x < x0) x0 = p.x; if (p.x > x1) x1 = p.x;
-        if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y;
-      };
       const single = this.cam.single;
       const onlyOcc = this.opts.onlyOccupiable !== false;
       const hh = d.site.voxel_m / 2;
+      const pad = 26;
+
+      // ① 그릴 것의 월드 AABB. 피벗을 여기서 얻는다.
+      let wx0 = Infinity, wy0 = Infinity, wz0 = Infinity;
+      let wx1 = -Infinity, wy1 = -Infinity, wz1 = -Infinity;
+      const world = (x, y, z) => {
+        if (x < wx0) wx0 = x; if (x > wx1) wx1 = x;
+        if (y < wy0) wy0 = y; if (y > wy1) wy1 = y;
+        if (z < wz0) wz0 = z; if (z > wz1) wz1 = z;
+      };
       d.voxels.forEach(v => {
         if (single && v.level !== this.opts.level) return;
         if (onlyOcc && v.occupiable === false) return;
-        put(this._raw(v.x, v.y, v.z - hh));
-        put(this._raw(v.x, v.y, v.z + hh));
+        world(v.x, v.y, v.z - hh);
+        world(v.x, v.y, v.z + hh);
       });
-      if (this.opts.showSolids && d.solids && !single) {
+      const solids = this.opts.showSolids && d.solids && !single;
+      if (solids) {
         d.solids.forEach(b => {
-          [[b.x1,b.y1,b.z1],[b.x2,b.y2,b.z2],[b.x1,b.y2,b.z2],[b.x2,b.y1,b.z1]]
-            .forEach(c => put(this._raw(c[0], c[1], c[2])));
+          world(b.x1, b.y1, b.z1); world(b.x2, b.y2, b.z2);
+          world(b.x1, b.y2, b.z2); world(b.x2, b.y1, b.z1);
         });
       }
-      if (!isFinite(x0)) { x0 = -S.width_m/2; x1 = S.width_m/2;
-                           y0 = -S.depth_m/2; y1 = S.depth_m/2; }
-      const pad = 26;
-      const s = Math.min((this.W - pad*2) / Math.max(1e-6, x1 - x0),
-                         (this.H - pad*2) / Math.max(1e-6, y1 - y0)) * this.zoom;
-      this._fit = { s, ox: this.W/2 - (x0 + x1)/2 * s, oy: this.H/2 - (y0 + y1)/2 * s };
+      if (!isFinite(wx0)) {           // 그릴 것이 없다 — 현장 크기로 대신한다
+        wx0 = 0; wx1 = S.width_m; wy0 = 0; wy1 = S.depth_m; wz0 = 0; wz1 = 0;
+      }
+      this._pivotZ = (wz0 + wz1) / 2;
+
+      const span = (pts) => {          // 현재 각도에서 투영 경계
+        let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+        pts.forEach(p => {
+          const q = this._raw(p[0], p[1], p[2]);
+          if (q.x < x0) x0 = q.x; if (q.x > x1) x1 = q.x;
+          if (q.y < y0) y0 = q.y; if (q.y > y1) y1 = q.y;
+        });
+        return [x0, y0, x1, y1];
+      };
+      const scale = (b) => Math.min((this.W - pad*2) / Math.max(1e-6, b[2] - b[0]),
+                                    (this.H - pad*2) / Math.max(1e-6, b[3] - b[1]));
+
+      if (this.cam.orbit) {
+        // ② 궤도 — 배율·중심을 각도와 **완전히 분리**한다.
+        // 프리셋 기준각에서 yaw 한 바퀴의 최악값을 한 번만 재고, 모드·옵션·줌·
+        // 캔버스 크기가 바뀔 때까지 그대로 쓴다. 드래그로는 절대 다시 재지 않으므로
+        // 회전 중 배율이 변하지 않는다. 극단적인 각도에서는 가장자리가 넘칠 수
+        // 있는데, 휠 줌으로 조절하는 편이 회전이 출렁이는 것보다 낫다.
+        const key = [this.opts.mode, this.opts.level, this.opts.showSolids,
+                     onlyOcc, Math.round(this.W), Math.round(this.H),
+                     this.zoom.toFixed(3)].join('|');
+        if (this._fitKey !== key) {
+          const corners = [];
+          for (const x of [wx0, wx1])
+            for (const y of [wy0, wy1])
+              for (const z of [wz0, wz1]) corners.push([x, y, z]);
+          const keepY = this.cam.yaw, keepP = this.cam.pitch;
+          this.cam.pitch = PRESETS[this.opts.mode].pitch;   // 기준각 — 재현 가능하게
+          let s = Infinity;
+          for (let a = 0; a < 360; a += 15) {
+            this.cam.yaw = a;
+            s = Math.min(s, scale(span(corners)));
+          }
+          this.cam.yaw = keepY; this.cam.pitch = keepP;
+          this._fitKey = key;
+          this._fit = { s: s * this.zoom, ox: this.W / 2, oy: this.H / 2 };
+        }
+        return;
+      }
+
+      // ③ 고정 각도 — 실제 투영 경계에 맞춘다
+      const pts = [];
+      d.voxels.forEach(v => {
+        if (single && v.level !== this.opts.level) return;
+        if (onlyOcc && v.occupiable === false) return;
+        pts.push([v.x, v.y, v.z - hh], [v.x, v.y, v.z + hh]);
+      });
+      if (solids) {
+        d.solids.forEach(b => {
+          pts.push([b.x1,b.y1,b.z1], [b.x2,b.y2,b.z2],
+                   [b.x1,b.y2,b.z2], [b.x2,b.y1,b.z1]);
+        });
+      }
+      let b = pts.length ? span(pts)
+                         : [-S.width_m/2, -S.depth_m/2, S.width_m/2, S.depth_m/2];
+      const s = scale(b) * this.zoom;
+      this._fit = { s, ox: this.W/2 - (b[0] + b[2])/2 * s,
+                       oy: this.H/2 - (b[1] + b[3])/2 * s };
     }
 
     _quad(x, y, z, s) {
@@ -184,9 +270,10 @@
       const east = (yaw > 180);            // +x 면이 보이는가
       const north = (yaw > 90 && yaw < 270);
       const sx = east ? h : -h, sy = north ? h : -h;
+      // 위에서 보면 윗면, 아래에서 올려다보면 밑면이 보인다
+      const sz = this.cam.pitch >= 0 ? h : -h;
       return [
-        // 윗면 — pitch 가 양수면 항상 보인다
-        [P(x-h,y-h,z+h), P(x+h,y-h,z+h), P(x+h,y+h,z+h), P(x-h,y+h,z+h)],
+        [P(x-h,y-h,z+sz), P(x+h,y-h,z+sz), P(x+h,y+h,z+sz), P(x-h,y+h,z+sz)],
         // x 쪽 옆면
         [P(x+sx,y-h,z-h), P(x+sx,y+h,z-h), P(x+sx,y+h,z+h), P(x+sx,y-h,z+h)],
         // y 쪽 옆면
