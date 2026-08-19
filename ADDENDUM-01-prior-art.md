@@ -216,3 +216,83 @@
 3. **가정 곡선 vs 실측 곡선 비교(§5.4)를 반드시 구현**한다. 이것이 기여를 증명하는 유일한 그림이다.
 4. "최초·novel" 류 표현 금지. 중첩 반전을 우리 발견으로 서술하지 말 것.
 5. 실증 D→B가 프로젝트의 유일한 병목이다. **Phase 2와 Phase 3이 전부다.**
+
+---
+
+## 9. §6 미확인 리스크 — 확인 결과 (2026-08-19)
+
+세 건 모두 **우리에게 유리한 쪽으로 확정**되었다. 신규항목 #10·#11 이 살아남는다.
+
+### R1. Sensors 14(8) 15525 (2014) — **해소. #11 유지**
+
+원문(PMC4179027) 확인. **인식률을 측정하지 않았다.**
+
+- 감지 확률은 **가정한 시그모이드 멤버십 함수**다 (식 8~10).
+  원문: *"we propose real-valued membership functions that provide a
+  monotonically decreasing membership value over distance and relative angle"*
+- 파라미터 `αd, βd, αp, βp, αt, βt = 30, 1, 60, 1, 30, 1` 의 출처는
+  **"trial and error"** 다 — *"30m 에서 50% 커버리지"* 가 되도록 맞춘 값이다
+- 문제의 문장은 이렇게 이어진다.
+  *"The value of probabilistic coverage at a given position can be interpreted
+  as the probability of detecting objects of interest from the sensed signal
+  with some given pattern recognition system."*
+  → **해석(interpretation)이지 측정이 아니다.**
+- *"These parameters **can be** estimated using experimental observations"* 라고
+  적었으나 **그 실험은 논문에 없다.** 3.3절의 검증은 장애물이 있는 합성
+  시나리오에서 최적화 알고리즘이 제대로 도는지 보는 sanity check 이며,
+  거리·각도별 실제 검출률을 잰 것이 아니다.
+
+**따라서 #11(특정 딥러닝 검출기 응답면 실측 → 파라미터 대입)은 유효하다.**
+오히려 제안서에 쓸 재료가 하나 늘었다 — 문헌의 감쇠 파라미터는 문자 그대로
+**시행착오로 맞춘 값**이다.
+
+### R2. Automation in Construction 166:105604 (2024) — **해소. #10 유지**
+
+Chern, Kim, Asari, Kim. *"Image hashing-based shallow object tracker for
+construction worker monitoring in scaffolding scenes."*
+
+**사전 배치 설계가 아니라 사후 추적이다.** Shallow C-BIoU 트래커로, 색상 해싱을
+객체 연관(association)의 특징 인코더로 쓴다. 성과 지표가 **MOT 정확도 84.41%**,
+**오배정 ID 52.44% 감소**, **연관 성능 7.56% 향상** 이다. 가림은 프레임 간
+연관이 끊기는 문제로 다루며, **가림률을 검출확률의 축으로 모델링하지 않는다.**
+
+**따라서 #10(가림률을 연속 독립축으로 실측)은 유효하다.**
+
+### R3. IEEE TIM 62(2) 293–303 (2013) — **정황상 해소. 직접 확인은 못 함**
+
+Akbarzadeh, Gagné, Parizeau, Argany, Mostafavi.
+*"Probabilistic Sensing Model for Sensor Placement Optimization Based on
+Line-of-Sight Coverage."*
+
+IEEE Xplore 유료라 원문을 직접 읽지 못했다. 다만:
+
+- **R1 과 같은 연구진**(Université Laval)이고 2014년 논문이 이 모델을 이어받는다
+- 2014년 논문이 같은 멤버십 함수 계열을 쓰면서 파라미터를 trial and error 로
+  맞췄다고 명시한다
+- 초록이 *"membership functions for sensing range and sensing angle"* 로,
+  실측이 아니라 함수 가정임을 시사한다
+
+**정황은 충분하나 원문 대조는 아니다.** 제안서에 각도 멤버십 함수의 출처를
+단정해 쓰지 말 것. 필요하면 도서관 접근으로 확인한다.
+
+### 정리
+
+| # | 항목 | 판정 |
+|---|---|---|
+| **#10** | 가림률을 연속 독립축으로 실측 | **유효** (R2 해소) |
+| **#11** | 검출기 응답면 실측 → 파라미터 대입 | **유효** (R1 해소) |
+| #12 | 탐지 항목별 곡선 분리 + 최솟값 집계 | 유효 · **2026-08-19 구현 완료** |
+| #13 | 인증 성능 ≠ 현장 발현율 제도 논증 | 유효 |
+| #14 | 국내 심사 절차 접목 | 유효 |
+
+§3 의 "신규 5개 중 2개 미확인" 은 **"5개 중 4개 확정 + 1개(#11 의 각도축 근거)
+정황 확인"** 으로 갱신된다.
+
+### 출처
+
+- Akbarzadeh, Lévesque, Gagné, Parizeau. *Sensors* 14(8):15525 (2014).
+  https://pmc.ncbi.nlm.nih.gov/articles/PMC4179027/
+- Chern, Kim, Asari, Kim. *Automation in Construction* 166:105604 (2024).
+  https://www.sciencedirect.com/science/article/abs/pii/S0926580524003406
+- Akbarzadeh, Gagné, Parizeau, Argany, Mostafavi. *IEEE TIM* 62(2):293–303 (2013).
+  https://ieeexplore.ieee.org/document/6334453/
