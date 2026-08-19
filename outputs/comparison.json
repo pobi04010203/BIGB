@@ -12,15 +12,15 @@
     "c_b00",
     "c_b09",
     "c_b01",
-    "c_t21",
-    "c_b05",
-    "c_b15",
+    "c_b06",
     "c_b10",
-    "c_t22"
+    "c_b15",
+    "c_b11",
+    "c_b14"
    ],
-   "WDR": 0.6043,
-   "fail_voxel_count": 436,
-   "delta_WDR": 0.0953,
+   "WDR": 0.598,
+   "fail_voxel_count": 565,
+   "delta_WDR": 0.0458,
    "is_default": false
   },
   {
@@ -32,14 +32,14 @@
     "c_b01",
     "c_b02",
     "c_b07",
-    "c_t21",
     "c_b03",
+    "c_b06",
     "c_b10",
-    "c_t22"
+    "c_b15"
    ],
-   "WDR": 0.6306,
+   "WDR": 0.6219,
    "fail_voxel_count": 402,
-   "delta_WDR": 0.069,
+   "delta_WDR": 0.0219,
    "is_default": false
   },
   {
@@ -51,14 +51,14 @@
     "c_b05",
     "c_b09",
     "c_b00",
+    "c_b01",
+    "c_b08",
     "c_b02",
-    "c_b07",
-    "c_b11",
-    "c_b14"
+    "c_b07"
    ],
-   "WDR": 0.6682,
-   "fail_voxel_count": 334,
-   "delta_WDR": 0.0314,
+   "WDR": 0.6263,
+   "fail_voxel_count": 544,
+   "delta_WDR": 0.0175,
    "is_default": true
   },
   {
@@ -70,14 +70,14 @@
     "c_b05",
     "c_b02",
     "c_b07",
+    "c_b03",
+    "c_b06",
     "c_b09",
-    "c_b01",
-    "c_b08",
-    "c_b12"
+    "c_b01"
    ],
-   "WDR": 0.6582,
-   "fail_voxel_count": 334,
-   "delta_WDR": 0.0414,
+   "WDR": 0.6052,
+   "fail_voxel_count": 587,
+   "delta_WDR": 0.0386,
    "is_default": false
   }
  ],
@@ -88,27 +88,27 @@
     "c_b05",
     "c_b09",
     "c_b00",
+    "c_b01",
+    "c_b08",
     "c_b02",
-    "c_b07",
-    "c_b11",
-    "c_b14"
+    "c_b07"
    ],
-   "WDR": 0.6682,
-   "fail_voxel_count": 334
+   "WDR": 0.6263,
+   "fail_voxel_count": 544
   },
   "assumed": {
    "camera_ids": [
+    "c_b04",
+    "c_b05",
     "c_b02",
     "c_b07",
     "c_b09",
     "c_b00",
-    "c_b03",
-    "c_b06",
     "c_b08",
     "c_b01"
    ],
-   "WDR": 0.6979,
-   "fail_voxel_count": 256,
+   "WDR": 0.6263,
+   "fail_voxel_count": 544,
    "curve_source": "DORI_recognise_125ppm"
   },
   "empirical": {
@@ -119,17 +119,17 @@
     "c_b09",
     "c_b02",
     "c_b07",
-    "c_b14",
-    "c_b11"
+    "c_b06",
+    "c_b03"
    ],
-   "WDR": 0.6996,
-   "fail_voxel_count": 168
+   "WDR": 0.6438,
+   "fail_voxel_count": 432
   }
  },
  "delta_WDR": {
-  "empirical_minus_geometric": 0.0314,
-  "empirical_minus_assumed": 0.0017,
-  "assumed_minus_geometric": 0.0297
+  "empirical_minus_geometric": 0.0175,
+  "empirical_minus_assumed": 0.0175,
+  "assumed_minus_geometric": 0.0
  },
  "overlap_camera_count": {
   "empirical_vs_geometric": 6,
@@ -139,13 +139,13 @@
   "_note": "ADDENDUM-01 §5.3 의 4항목 분해(person/helmet/pose-fallen/pose-gesture)는 현재 CLAUDE.md 스펙에 없어 미구현이다. 지금 곡선은 안전모 미착용(recall_nohat) 단일 항목이다.",
   "target": "helmet_nohat",
   "geometric": {
-   "helmet_nohat": 0.6682
+   "helmet_nohat": 0.6263
   },
   "assumed": {
-   "helmet_nohat": 0.6979
+   "helmet_nohat": 0.6263
   },
   "empirical": {
-   "helmet_nohat": 0.6996
+   "helmet_nohat": 0.6438
   }
  },
  "status": "ok"

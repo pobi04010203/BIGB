@@ -69,8 +69,9 @@ def build_payload() -> dict:
 
     voxels = []
     for v in site.voxels:
-        row = {"id": v["id"], "x": v["x"], "y": v["y"], "w": v["w"],
-               "zones": v["zones"]}
+        row = {"id": v["id"], "x": v["x"], "y": v["y"], "z": v["z"],
+               "level": v["level"], "floor_z": v["floor_z"],
+               "w": v["w"], "zones": v["zones"]}
         for key, res in placements.items():
             row[f"P_total_{key}"] = round(res["per_voxel"][v["id"]], 4)
         primary = "empirical" if "empirical" in placements else list(placements)[0]
@@ -85,6 +86,12 @@ def build_payload() -> dict:
         "mode": mode,
         "cameras": [{"id": c.cid, "x": c.x, "y": c.y, "z": c.z, "mount": c.mount,
                      "yaw_deg": yaws[c.cid]} for c in site.cameras],
+        # 3D/2.5D 뷰가 골조를 그리는 데 쓴다. 계산에는 관여하지 않는다.
+        "solids": [{"x1": b.x1, "y1": b.y1, "z1": b.z1,
+                    "x2": b.x2, "y2": b.y2, "z2": b.z2,
+                    "kind": b.kind, "coverage": b.coverage} for b in site.solids],
+        "levels": sorted({v["level"] for v in site.voxels}),
+        "slab_levels_m": config.SLAB_LEVELS_M,
         "aim": {"hfov_deg": config.HFOV_DEG,
                 "yaw_step_deg": geometry.YAW_STEP_DEG,
                 "note": "§5.2 가 지향을 정하지 않아, 카메라마다 자기 위험가중 가시량을 "

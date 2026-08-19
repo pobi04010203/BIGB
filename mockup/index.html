@@ -35,6 +35,11 @@
   label{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center}
   svg{display:block;width:100%;height:auto;background:#fbfcfd;border:1px solid var(--line);border-radius:4px}
   .legend{display:flex;gap:6px;align-items:center;font-size:11.5px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+  .modes{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .mode{border:0;background:#fff;padding:5px 12px;font:inherit;font-size:12.5px;
+    color:var(--muted);cursor:pointer;border-right:1px solid var(--line)}
+  .mode:last-child{border-right:0}
+  .mode.on{background:var(--accent);color:#fff}
   .sw{width:16px;height:11px;border:1px solid rgba(0,0,0,.15);border-radius:2px}
   table{width:100%;border-collapse:collapse;font-size:12.5px}
   th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line)}
@@ -63,6 +68,7 @@
      file:// 로 직접 열면 브라우저가 fetch 를 막으므로 그때 쓰는 폴백이다.
      데이터는 여전히 report.py 가 만든다 - HTML 에 하드코딩하지 않는다. -->
 <script src="data.js"></script>
+<script src="viewer.js"></script>
 <script>
 const fmtPct = v => (v * 100).toFixed(1) + '%';
 let DATA = null, VIEW = 'empirical';
@@ -89,27 +95,8 @@ function render(d){
   const H = S.depth_m * scale, W = S.width_m * scale, vs = S.voxel_m * scale;
   const chosen = new Set(shown.camera_ids);
 
-  const camSvg = d.cameras.map(c => {
-    const on = chosen.has(c.id);
-    const cx = c.x*scale, cy = H - c.y*scale;
-    const ang = (c.yaw_deg || 0) * Math.PI / 180;
-    const half = d.aim.hfov_deg * Math.PI/180 / 2, R = 22*scale/2.2;
-    const p1 = [cx + R*Math.cos(ang-half), cy - R*Math.sin(ang-half)];
-    const p2 = [cx + R*Math.cos(ang+half), cy - R*Math.sin(ang+half)];
-    return `${on ? `<path d="M${cx},${cy} L${p1[0].toFixed(1)},${p1[1].toFixed(1)}
-       A${R},${R} 0 0,1 ${p2[0].toFixed(1)},${p2[1].toFixed(1)} Z"
-       fill="rgba(11,79,138,.10)" stroke="rgba(11,79,138,.35)" stroke-width="1"/>` : ''}
-      <circle cx="${cx}" cy="${cy}" r="${on?6:3.5}"
-        fill="${on?'#0b4f8a':'#b4bcc5'}" stroke="#fff" stroke-width="1.5"><title>${c.id} · ${c.mount} · z=${c.z}m${on?' · 선정':''}</title></circle>`;
-  }).join('');
-
-  const voxSvg = vox.map(v => {
-    const p = v[key];
-    return `<rect x="${(v.x - S.voxel_m/2)*scale}" y="${H-(v.y + S.voxel_m/2)*scale}"
-      width="${vs}" height="${vs}" fill="${heat(p)}" fill-opacity="${0.30+0.60*(1-p)}"
-      stroke="none"><title>${v.id} w=${v.w} P=${p.toFixed(3)}${v.zones.length?' · '+v.zones.join(', '):''}</title></rect>`;
-  }).join('');
-
+  // 히트맵은 viewer.js 가 캔버스에 그린다. SVG 노드로 두면 복셀 2천 개를
+  // 회전시킬 때 버벅인다.
   const fails = ((shown && shown.fail_zones) || d.fail_zones || [])
     .slice().sort((a,b)=> b.w-a.w || a.P_total-b.P_total);
 
@@ -138,7 +125,7 @@ function render(d){
   </div>
 
   <section>
-    <h2>현장 검출확률 히트맵</h2>
+    <h2>현장 검출확률 — 2D / 2.5D / 3D</h2>
     <div class="toolbar">
       <label><input type="radio" name="view" value="geometric"
         ${view==='geometric'?'checked':''} ${geo?'':'disabled'}> 기하 커버리지 배치 (기존)</label>
@@ -148,19 +135,29 @@ function render(d){
         ${view==='empirical'?'checked':''} ${emp?'':'disabled'}> 실측 곡선 배치 (제안)</label>
       <span class="pill">같은 ${d.camera_budget}대 · 같은 자로 측정</span>
     </div>
-    <p class="hint">복셀 ${S.voxel_m}m 격자 · 색이 붉을수록 검출확률이 낮다.
-      파란 점이 선정된 카메라이고 부채꼴은 각 카메라가 고른 방위의 수평 화각(${d.aim.hfov_deg}°)이다.</p>
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="검출확률 히트맵">
-      ${voxSvg}${camSvg}
-      <rect x="0" y="0" width="${W}" height="${H}" fill="none" stroke="#c9d0d8"/>
-    </svg>
+    <div class="toolbar">
+      <span class="modes">
+        <button type="button" class="mode" data-mode="2d">2D 평면</button>
+        <button type="button" class="mode" data-mode="2.5d">2.5D 적층</button>
+        <button type="button" class="mode" data-mode="3d">3D 회전</button>
+      </span>
+      <span id="lvwrap">층
+        <select id="level">${(d.levels||[0]).map(l=>
+          `<option value="${l}">${l===0?'지상층':l+'층'}</option>`).join('')}</select>
+      </span>
+      <label><input type="checkbox" id="showSolids" checked> 골조</label>
+      <span class="pill" id="modehint"></span>
+    </div>
+    <canvas id="view3d" style="width:100%;height:520px;background:#fbfcfd;
+      border:1px solid var(--line);border-radius:4px;touch-action:none"></canvas>
     <div class="legend">
       <span class="sw" style="background:${heat(0)}"></span>0.0
       <span class="sw" style="background:${heat(.25)}"></span>0.25
       <span class="sw" style="background:${heat(.5)}"></span>0.5
       <span class="sw" style="background:${heat(.75)}"></span>0.75
       <span class="sw" style="background:${heat(1)}"></span>1.0
-      <span style="margin-left:10px">기준 임계 ${d.threshold}</span>
+      <span style="margin-left:10px">기준 임계 ${d.threshold} ·
+        복셀 ${S.voxel_m}m · ${(d.levels||[0]).length}개 층 ${vox.length}개</span>
     </div>
   </section>
 
@@ -235,6 +232,7 @@ function render(d){
     설치 조건에 따라 검출률이 변한다는 관계를 보이는 자료다.
   </footer>`;
 
+  mountViewer(d, view);
   root.querySelectorAll('input[name=view]').forEach(el => {
     el.addEventListener('change', () => { VIEW = el.value; render(DATA); });
   });
@@ -261,7 +259,47 @@ if (location.protocol === 'file:') {
   try { show(window.SITE_DATA); }
   catch (e) { fail(e.message + ' (data.js 폴백)'); }
 } else {
-  fetch('data.json')
+  
+// ── 뷰어 배선 ─────────────────────────────────────────────────────────────
+let VIEWER = null;
+const MODE_HINT = {
+  '2d':   '수직 내려보기 · 선택한 층만',
+  '2.5d': '아이소메트릭 · 층을 쌓아 본다',
+  '3d':   '드래그로 회전 · 휠로 확대',
+};
+
+function mountViewer(d, view) {
+  const cv = document.getElementById('view3d');
+  if (!cv) return;
+  const mode = (VIEWER && VIEWER.opts.mode) || '2.5d';
+  const level = (VIEWER && VIEWER.opts.level) || 0;
+  VIEWER = new CoverageViewer.Viewer(cv, d, {
+    mode, level, key: 'P_total_' + view,
+    cameraIds: (d.placements[view] || {}).camera_ids || [],
+  });
+  applyMode(mode);
+
+  document.querySelectorAll('.mode').forEach(b => {
+    b.onclick = () => applyMode(b.dataset.mode);
+  });
+  const sel = document.getElementById('level');
+  if (sel) { sel.value = String(level); sel.onchange = () => VIEWER.set('level', +sel.value); }
+  const sol = document.getElementById('showSolids');
+  if (sol) sol.onchange = () => VIEWER.set('showSolids', sol.checked);
+  addEventListener('resize', () => VIEWER && VIEWER.resize(), { passive: true });
+}
+
+function applyMode(mode) {
+  VIEWER.setMode(mode);
+  document.querySelectorAll('.mode').forEach(b =>
+    b.classList.toggle('on', b.dataset.mode === mode));
+  const w = document.getElementById('lvwrap');
+  if (w) w.style.display = (mode === '2d') ? '' : 'none';
+  const h = document.getElementById('modehint');
+  if (h) h.textContent = MODE_HINT[mode] || '';
+}
+
+fetch('data.json')
     .then(r => { if(!r.ok) throw new Error('data.json 을 읽지 못했다 (HTTP '+r.status+')'); return r.json(); })
     .then(show)
     .catch(e => {
