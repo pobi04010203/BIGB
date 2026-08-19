@@ -8,50 +8,147 @@
      **SVG data URI 를 쓰면 안 된다** - file:// 로 열었을 때 크롬이 SVG 문서를
      고유 출처로 보고 "Unsafe attempt to load URL ..." 오류를 남긴다. PNG 는 그렇지 않다. -->
 <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAIklEQVR42mPg9u8iCTEMTw3/kQBhDf8xwNDTQLKnR0TSAACXXScw+G9yggAAAABJRU5ErkJggg==">
+<link rel="stylesheet" href="tokens.css">
 <style>
-  :root{
-    --ink:#16191d; --muted:#5c6570; --line:#d8dde3; --bg:#f4f6f8; --panel:#fff;
-    --accent:#0b4f8a; --warn:#a62a2a; --ok:#1e7a46;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-       font:14px/1.55 "Malgun Gothic","맑은 고딕",system-ui,sans-serif}
-  header{background:var(--panel);border-bottom:1px solid var(--line);padding:16px 22px}
-  h1{margin:0;font-size:18px;letter-spacing:-.01em}
-  header .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
-  .wrap{max-width:1280px;margin:0 auto;padding:20px 22px 60px}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
-  .card .k{color:var(--muted);font-size:12px;margin-bottom:6px}
-  .card .v{font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-  .card .n{color:var(--muted);font-size:11.5px;margin-top:4px}
-  .card.hi .v{color:var(--accent)}
-  .delta.up{color:var(--ok)} .delta.down{color:var(--warn)}
-  section{background:var(--panel);border:1px solid var(--line);border-radius:6px;
-          padding:16px 18px;margin-bottom:18px}
-  h2{margin:0 0 4px;font-size:14.5px}
-  .hint{color:var(--muted);font-size:12px;margin:0 0 12px}
-  .toolbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-  label{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center}
-  svg{display:block;width:100%;height:auto;background:#fbfcfd;border:1px solid var(--line);border-radius:4px}
-  .legend{display:flex;gap:6px;align-items:center;font-size:11.5px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
-  .modes{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
-  .mode{border:0;background:#fff;padding:5px 12px;font:inherit;font-size:12.5px;
-    color:var(--muted);cursor:pointer;border-right:1px solid var(--line)}
-  .mode:last-child{border-right:0}
-  .mode.on{background:var(--accent);color:#fff}
-  .sw{width:16px;height:11px;border:1px solid rgba(0,0,0,.15);border-radius:2px}
-  table{width:100%;border-collapse:collapse;font-size:12.5px}
-  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line)}
-  th{color:var(--muted);font-weight:600;background:#fafbfc;position:sticky;top:0}
-  td.num{text-align:right;font-variant-numeric:tabular-nums}
-  .scroll{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:4px}
-  .pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;
-        background:#eef2f6;color:var(--muted)}
-  .pill.w5{background:#fbe9e9;color:var(--warn)}
-  .pill.w4{background:#fdf1e5;color:#8a5a1a}
-  .err{color:var(--warn);padding:14px;border:1px solid var(--warn);border-radius:6px;background:#fdf3f3}
-  footer{color:var(--muted);font-size:11.5px;margin-top:26px;line-height:1.7}
+/* Hallmark · genre: modern-minimal · macrostructure: Map / Diagram
+ * theme: Cobalt-adapted (instrument panel) · anchor hue: 248 · designed-as-app
+ * tone: utilitarian · 장식 최소 · 수치 가독성 우선 (CLAUDE.md §7 Phase 4)
+ * pre-emit critique: P5 H5 E4 S5 R5 V4
+ * 토큰은 tokens.css 가 정본이다. 이 파일에서 색·폰트를 새로 만들지 않는다.
+ */
+*{box-sizing:border-box}
+html,body{overflow-x:clip}
+body{margin:0;background:var(--color-paper);color:var(--color-ink);
+     font:var(--text-base)/var(--lh-body) var(--font-body);
+     -webkit-font-smoothing:antialiased}
+
+/* 수치는 전부 mono 로 간다 - 폰트 페어링의 두 번째 면이자
+   "수치 가독성 우선" 요구에 대한 직접적인 답이다. */
+.card .v,td.num,.figure{font-family:var(--font-outlier);
+     font-variant-numeric:tabular-nums}
+
+/* -- 머리말: 도면의 표제란처럼 -------------------------------------- */
+header{border-bottom:var(--rule-hair) solid var(--color-ink);
+       padding:var(--space-md) var(--space-md) var(--space-sm)}
+h1{margin:0;font-size:var(--text-xl);font-weight:650;
+   letter-spacing:var(--track-tight);line-height:var(--lh-tight);
+   overflow-wrap:anywhere;min-width:0}
+header .sub{color:var(--color-muted);font-size:var(--text-sm);
+            letter-spacing:var(--track-snug);margin-top:var(--space-3xs)}
+
+.wrap{max-width:1320px;margin:0 auto;
+      padding:var(--space-lg) var(--space-md) var(--space-2xl)}
+
+/* -- 요약 수치: 카드 액자를 벗기고 종이 위에 직접 앉힌다 --------------
+   넷을 똑같은 카드로 세우면 무엇이 결론인지 안 정해진다.
+   1,2 는 비교 대상이라 물러서고 3 과 미달구역이 앞으로 나온다. */
+.cards{display:grid;gap:0;margin:0 0 var(--space-xl);
+       grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.35fr);
+       border-top:var(--rule-hair) solid var(--color-ink)}
+.card{padding:var(--space-sm) var(--space-md) var(--space-md) 0;
+      border-right:var(--rule-hair) solid var(--color-rule);min-width:0}
+.card:last-child{border-right:0;padding-left:var(--space-md);padding-right:0}
+.card .k{color:var(--color-muted);font-size:var(--text-xs);
+         letter-spacing:var(--track-wide);margin-bottom:var(--space-2xs)}
+.card .v{font-size:var(--text-xl);font-weight:600;
+         letter-spacing:var(--track-tight);line-height:1.05;
+         color:var(--color-ink-2);overflow-wrap:anywhere}
+.card .n{color:var(--color-muted);font-size:var(--text-2xs);
+         margin-top:var(--space-3xs);line-height:1.45}
+.card.hi .v,.card.lead .v{font-size:var(--text-display);color:var(--color-ink)}
+.card.hi{border-right-color:var(--color-ink)}
+.card.lead .k{color:var(--color-ink)}
+
+/* -- 구역: 섹션마다 리듬이 다르다 ------------------------------------ */
+section{background:var(--color-paper-2);
+        border:var(--rule-hair) solid var(--color-rule);
+        border-radius:var(--radius-panel);margin-bottom:var(--space-md)}
+section.map{padding:var(--space-md) var(--space-md) var(--space-sm)}
+section.list{padding:var(--space-sm) var(--space-md) var(--space-md)}
+h2{margin:0 0 var(--space-3xs);font-size:var(--text-md);font-weight:600;
+   letter-spacing:var(--track-snug);overflow-wrap:anywhere;min-width:0}
+.hint{color:var(--color-muted);font-size:var(--text-xs);
+      margin:0 0 var(--space-sm);max-width:78ch;line-height:1.55}
+
+/* -- 컨트롤 ---------------------------------------------------------- */
+.toolbar{display:flex;gap:var(--space-sm);align-items:center;flex-wrap:wrap;
+         margin-bottom:var(--space-xs)}
+label{font-size:var(--text-xs);color:var(--color-ink-2);display:flex;
+      gap:var(--space-3xs);align-items:center;cursor:pointer}
+label:hover{color:var(--color-ink)}
+input[type=radio],input[type=checkbox]{accent-color:var(--color-chrome);margin:0}
+:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px}
+
+.modes{display:inline-flex;border:var(--rule-hair) solid var(--color-muted);
+       border-radius:var(--radius-control);overflow:hidden}
+.mode{border:0;background:var(--color-paper-2);
+      padding:var(--space-3xs) var(--space-xs);
+      font:inherit;font-size:var(--text-xs);color:var(--color-muted);cursor:pointer;
+      border-right:var(--rule-hair) solid var(--color-rule);
+      transition:background var(--dur-short) var(--ease-out),
+                 color var(--dur-short) var(--ease-out)}
+.mode:last-child{border-right:0}
+.mode:hover{background:var(--color-paper-3);color:var(--color-ink)}
+.mode.on{background:var(--color-chrome);color:var(--color-paper-2)}
+
+canvas{display:block;width:100%;background:var(--color-paper);
+       border:var(--rule-hair) solid var(--color-rule);
+       border-radius:var(--radius-chip)}
+
+/* -- 범례: 임계선을 눈에 보이게 -------------------------------------- */
+.legend{display:flex;gap:var(--space-2xs);align-items:center;
+        font-size:var(--text-2xs);color:var(--color-muted);
+        margin-top:var(--space-xs);flex-wrap:wrap}
+.ramp{display:inline-flex;align-items:stretch;height:12px;
+      border:var(--rule-hair) solid var(--color-rule);
+      border-radius:2px;overflow:hidden}
+.ramp i{display:block;width:24px}
+.sw{width:16px;height:11px;border:var(--rule-hair) solid var(--color-rule);
+    border-radius:2px}
+.legend .fail{display:inline-block;width:11px;height:11px;border-radius:2px;
+              background:var(--scale-0);outline:1.5px solid var(--color-ink);
+              outline-offset:-1.5px}
+
+/* -- 표 -------------------------------------------------------------- */
+table{width:100%;border-collapse:collapse;font-size:var(--text-xs)}
+th,td{text-align:left;padding:var(--space-3xs) var(--space-2xs);
+      border-bottom:var(--rule-hair) solid var(--color-rule-2)}
+th{color:var(--color-muted);font-weight:600;background:var(--color-paper-3);
+   position:sticky;top:0;letter-spacing:var(--track-wide);
+   font-size:var(--text-2xs)}
+td.num{text-align:right}
+tbody tr:hover{background:var(--color-paper-3)}
+.scroll{max-height:340px;overflow:auto;
+        border:var(--rule-hair) solid var(--color-rule);
+        border-radius:var(--radius-chip)}
+
+.pill{display:inline-block;padding:1px var(--space-2xs);
+      border-radius:var(--radius-chip);font-size:var(--text-2xs);
+      background:var(--color-paper-3);color:var(--color-muted)}
+.pill.w5{background:var(--color-w5-bg);color:var(--color-w5)}
+.pill.w4{background:var(--color-w4-bg);color:var(--color-w4)}
+.err{color:var(--color-w5);padding:var(--space-sm);
+     border:var(--rule-hair) solid var(--color-w5);
+     border-radius:var(--radius-panel);background:var(--color-w5-bg)}
+footer{color:var(--color-muted);font-size:var(--text-2xs);
+       margin-top:var(--space-lg);line-height:1.75;max-width:92ch;
+       border-top:var(--rule-hair) solid var(--color-rule);
+       padding-top:var(--space-sm)}
+
+@media (max-width:900px){
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card{border-bottom:var(--rule-hair) solid var(--color-rule)}
+  .card:nth-child(2n){border-right:0}
+  .card:last-child{padding-left:0}
+  .card.hi .v,.card.lead .v{font-size:var(--text-2xl)}
+}
+@media (max-width:560px){
+  .cards{grid-template-columns:minmax(0,1fr)}
+  .card{border-right:0}
+  .wrap{padding-left:var(--space-sm);padding-right:var(--space-sm)}
+  header{padding-left:var(--space-sm);padding-right:var(--space-sm)}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:1ms !important}}
 </style>
 </head>
 <body>
@@ -68,17 +165,30 @@
      file:// 로 직접 열면 브라우저가 fetch 를 막으므로 그때 쓰는 폴백이다.
      데이터는 여전히 report.py 가 만든다 - HTML 에 하드코딩하지 않는다. -->
 <script src="data.js"></script>
+<script src="theme.js"></script>
 <script src="viewer.js"></script>
 <script src="plan.js"></script>
 <script>
 const fmtPct = v => (v * 100).toFixed(1) + '%';
 let DATA = null, VIEW = 'empirical';
 
-function heat(p){                       // 0~1 → 적→황→녹
-  const t = p <= .5 ? p/.5 : (p-.5)/.5;
-  const [a,b] = p <= .5 ? [[166,42,42],[196,145,40]] : [[196,145,40],[30,122,70]];
-  return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(',')})`;
+/* 색은 theme.js 한 곳에서만 나온다 - 종전에는 이 함수가 viewer.js 에도
+   복제돼 있어 한쪽만 고치면 조용히 어긋났다. */
+const heat = p => Theme.css(Theme.heat(p));
+
+/* 범례 램프. 임계(threshold)에 세로선을 실제 비율 위치에 그어
+   "어디부터 미달인가" 를 색이 아니라 위치로도 말한다. */
+function rampHTML(thr){
+  const N = 24, out = [];
+  for (let i = 0; i < N; i++) {
+    const p = i / (N - 1);
+    const mark = (thr != null && p < thr && (i + 1) / (N - 1) >= thr)
+      ? ';box-shadow:inset -2px 0 0 0 var(--color-ink)' : '';
+    out.push(`<i style="background:${heat(p)}${mark}"></i>`);
+  }
+  return out.join('');
 }
+
 
 function render(d){
   const root = document.getElementById('root');
@@ -115,17 +225,17 @@ function render(d){
     <div class="card"><div class="k">② 문헌의 가정 곡선 배치</div>
       <div class="v">${asm ? fmtPct(asm.WDR) : '—'}</div>
       <div class="n">${asm && asm.curve_source ? asm.curve_source : '해석적 가정'} · 측정값 아님</div></div>
-    <div class="card hi"><div class="k">③ 실측 곡선 배치</div>
+    <div class="card hi"><div class="k">③ 실측 곡선 배치 — 제안</div>
       <div class="v">${emp ? fmtPct(emp.WDR) : '—'}</div>
       <div class="n">제안 방식</div></div>
-    <div class="card"><div class="k">미달구역</div>
+    <div class="card lead"><div class="k">미달구역 — 줄어든 양</div>
       <div class="v">${geo&&emp ? geo.fail_voxel_count+' → '+emp.fail_voxel_count
                                  : (shown ? shown.fail_voxel_count : '—')}</div>
       <div class="n">P_total &lt; ${d.threshold} · 전체 ${vox.length}개 중
         ${asm ? '(가정 '+asm.fail_voxel_count+')' : ''}</div></div>
   </div>
 
-  <section>
+  <section class="map">
     <h2>현장 평면도 — 무엇을 평가했는가</h2>
     <p class="hint"><b>가상 현장이다. 실제 LH 현장 도면이 아니다.</b>
       LH 아파트 건설현장 1개 공구(${S.width_m}×${S.depth_m} m)를 모사해
@@ -137,12 +247,11 @@ function render(d){
       <span class="pill">선정 ${shown.camera_ids.length}대 —
         ${({geometric:'기하 커버리지 배치',assumed:'가정 곡선 배치',empirical:'실측 곡선 배치'})[view]||view}</span>
     </div>
-    <canvas id="plan" style="width:100%;height:420px;background:#fff;
-      border:1px solid var(--line);border-radius:4px"></canvas>
+    <canvas id="plan" style="height:420px"></canvas>
     <div class="legend" id="planlegend"></div>
   </section>
 
-  <section>
+  <section class="map">
     <h2>현장 검출확률 — 2D / 2.5D / 3D</h2>
     <div class="toolbar">
       <label><input type="radio" name="view" value="geometric"
@@ -167,20 +276,19 @@ function render(d){
       <label><input type="checkbox" id="onlyOcc" checked> 사람이 있을 수 있는 자리만</label>
       <span class="pill" id="modehint"></span>
     </div>
-    <canvas id="view3d" style="width:100%;height:520px;background:#fbfcfd;
-      border:1px solid var(--line);border-radius:4px;touch-action:none"></canvas>
+    <canvas id="view3d" style="height:520px;touch-action:none"></canvas>
     <div class="legend">
-      <span class="sw" style="background:${heat(0)}"></span>0.0
-      <span class="sw" style="background:${heat(.25)}"></span>0.25
-      <span class="sw" style="background:${heat(.5)}"></span>0.5
-      <span class="sw" style="background:${heat(.75)}"></span>0.75
-      <span class="sw" style="background:${heat(1)}"></span>1.0
+      <span>미달</span>
+      <span class="ramp">${rampHTML(d.threshold)}</span>
+      <span>통과</span>
+      <span style="margin-left:6px"><span class="fail"></span>
+        임계 미만은 테두리로도 표시 — 색 하나에만 기대지 않는다</span>
       <span style="margin-left:10px">기준 임계 ${d.threshold} ·
         복셀 ${S.voxel_m}m · ${(d.levels||[0]).length}개 층 ${vox.length}개</span>
     </div>
   </section>
 
-  <section>
+  <section class="list">
     <h2>미달구역 — ${fails.length}개 <span class="pill">${({geometric:'기하 배치',assumed:'가정 곡선 배치',empirical:'실측 배치'})[view]||view}</span></h2>
     <p class="hint">위험가중치가 높은 순. 사유는 세 축 중 가장 크게 깎은 것이다.<br>
       <b>원인 분포 — ${rcTxt}</b></p>
@@ -197,7 +305,7 @@ function render(d){
     </table></div>
   </section>
 
-  <section>
+  <section class="list">
     <h2>배치 비교</h2>
     <p class="hint">세 배치를 <b>같은 자(실측 검출확률)</b>로 쟀다. 가정 곡선은
       설계에만 쓰고 채점에는 쓰지 않는다 — 그래야 “가정으로 설계하면 실제로 어디까지
@@ -219,7 +327,7 @@ function render(d){
       <b>${d.assumed_curve.warning}</b></p>`:''}
   </section>
 
-  ${base&&base.sweep?`  <section>
+  ${base&&base.sweep?`  <section class="list">
     <h2>기하 기준선을 어디에 세워도 결과가 유지되는가</h2>
     <p class="hint">기존 방식의 커버리지 판정에 IEC 62676-4(DORI)의 최소 픽셀밀도를 등급별로
       걸어 다시 최적화했다. 임계 없이 "보이기만 하면 커버"로 세면 기존 방식을 실무보다

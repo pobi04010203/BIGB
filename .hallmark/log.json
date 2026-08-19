@@ -1,0 +1,13 @@
+[
+  {
+    "date": "2026-08-20",
+    "scope": "page",
+    "macrostructure": "Map / Diagram",
+    "genre": "modern-minimal",
+    "theme": "Cobalt-adapted (instrument panel)",
+    "theme_axes": "light / grotesk-sans(system) / cool-248",
+    "enrichment": "none",
+    "brief": "AI CCTV 배치 적정성 평가 - LH 심사 화면. 색을 데이터에만 쓰도록 재편",
+    "notes": "웹폰트 CDN 금지(외부 의존 0 · file:// 동작)로 시스템 스택 + mono outlier"
+  }
+]

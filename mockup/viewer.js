@@ -25,12 +25,9 @@
     '3d':   { yaw: 35, pitch: 25, persp: true,  orbit: true,  single: false, zx: 1.0 },
   };
 
-  function heat(p) {
-    const t = p <= .5 ? p / .5 : (p - .5) / .5;
-    const a = p <= .5 ? [166, 42, 42] : [196, 145, 40];
-    const b = p <= .5 ? [196, 145, 40] : [30, 122, 70];
-    return a.map((v, i) => Math.round(v + (b[i] - v) * t));
-  }
+  /* 색은 theme.js 한 곳에서만 나온다. 종전에는 이 함수가 index.html 에도
+   * 복제돼 있어 한쪽만 고치면 조용히 어긋났다. */
+  const heat = (p) => Theme.heat(p);
 
   function rgba(c, alpha) {
     return `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
@@ -323,6 +320,7 @@
       // 큐브를 꽉 채우면 안쪽이 안 보인다. 살짝 줄여 사이가 비게 둔다.
       const cs = s * 0.86;
       const shade = [1.0, 0.82, 0.66];        // 윗면 / 옆면 둘 — 입체감
+      const failInk = Theme.ui('--color-ink');   // 미달 윤곽 — 무채색
 
       d.voxels.forEach(v => {
         if (single && v.level !== this.opts.level) return;
@@ -335,13 +333,19 @@
         if (flat) {
           const pts = this._quad(v.x, v.y, v.z, s);
           items.push({ depth: pts.reduce((a,q)=>a+q.depth,0)/pts.length, pts,
-                       fill: rgba(base, alpha), stroke: null });
+                       fill: rgba(base, alpha),
+                       stroke: Theme.isFail(p, this.d.threshold)
+                               ? rgba(failInk, 0.65) : null, lw: 0.8 });
           return;
         }
+        // **미달은 테두리로도 표시한다.** 색 하나로만 판정을 전달하면 적록색약
+        // 사용자에게는 신호가 없다. 임계 미달 복셀만 윤곽을 얹는다.
+        const fail = Theme.isFail(p, this.d.threshold);
         this._cubeFaces(v.x, v.y, v.z, cs).forEach((f, fi) => {
           const dep = f.reduce((a, q) => a + q.depth, 0) / f.length;
           const c = base.map(ch => Math.round(ch * shade[fi]));
-          items.push({ depth: dep, pts: f, fill: rgba(c, alpha), stroke: null });
+          items.push({ depth: dep, pts: f, fill: rgba(c, alpha),
+                       stroke: fail ? rgba(failInk, 0.55) : null, lw: 0.8 });
         });
       });
 
@@ -354,6 +358,8 @@
         ctx.fillStyle = it.fill; ctx.fill();
         if (it.stroke) { ctx.strokeStyle = it.stroke; ctx.lineWidth = it.lw || 1; ctx.stroke(); }
       });
+
+      const chromeInk = Theme.ui('--color-chrome');
 
       // ── 카메라 (항상 맨 위) ──
       if (this.opts.showCams && d.cameras) {
@@ -372,17 +378,20 @@
               ctx.lineTo(q.x, q.y);
             }
             ctx.closePath();
-            ctx.fillStyle = 'rgba(11,79,138,.13)'; ctx.fill();
-            ctx.strokeStyle = 'rgba(11,79,138,.42)'; ctx.lineWidth = 1; ctx.stroke();
+            // 카메라는 **데이터가 아니라 주석**이다. 램프의 파랑을 쓰면 통과극과
+            // 섞인다(검증기 ΔE 4.9). UI 크롬은 전부 무채색으로 내린다.
+            ctx.fillStyle = rgba(chromeInk, 0.10); ctx.fill();
+            ctx.strokeStyle = rgba(chromeInk, 0.38); ctx.lineWidth = 1; ctx.stroke();
             // 설치 높이를 기둥으로 — 3D 에서 카메라가 떠 있는 게 보여야 한다
             ctx.beginPath(); ctx.moveTo(g.x, g.y); ctx.lineTo(p.x, p.y);
-            ctx.strokeStyle = 'rgba(11,79,138,.45)'; ctx.stroke();
+            ctx.strokeStyle = rgba(chromeInk, 0.42); ctx.stroke();
           }
           ctx.beginPath();
           ctx.arc(p.x, p.y, on ? 5 : 3, 0, Math.PI * 2);
-          ctx.fillStyle = on ? '#0b4f8a' : '#b4bcc5';
+          ctx.fillStyle = on ? Theme.css(chromeInk) : Theme.css(Theme.ui('--color-rule'));
           ctx.fill();
-          ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.strokeStyle = Theme.css(Theme.ui('--color-paper-2'));
+          ctx.lineWidth = 1.5; ctx.stroke();
         });
       }
     }

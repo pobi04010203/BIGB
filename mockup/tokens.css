@@ -1,0 +1,73 @@
+/* Hallmark · genre: modern-minimal · macrostructure: Map / Diagram
+ * theme: Cobalt-adapted (instrument panel) · anchor hue: 248 (cool)
+ * pre-emit critique: P5 H5 E4 S5 R5 V4
+ *
+ * 색의 규칙 하나 — **색은 데이터에만 쓴다.** UI 크롬(탭·카메라·경계·표)은 전부
+ * 무채색이다. 지도에 색이 보이면 그것은 검출확률이지 장식이 아니다.
+ * 종전에는 카메라·활성탭·링크가 전부 파랑이라 데이터 램프의 파랑과 충돌했다
+ * (검증기: accent #0b4f8a ↔ 램프 통과극 #1f5e8a, ΔE 4.9 — 구분 불가).
+ */
+:root{
+  /* ── 표면 · 잉크 (쿨 248° 로 틴트. 순백·순흑 없음) ─────────────────── */
+  --color-paper:     oklch(97.6% 0.003 248);
+  --color-paper-2:   oklch(99.2% 0.002 248);   /* 카드·패널 — 순백 대신 */
+  --color-paper-3:   oklch(95.2% 0.005 248);   /* 표 헤더·눌린 상태 */
+  --color-rule:      oklch(89.5% 0.010 253);
+  --color-rule-2:    oklch(93.5% 0.007 250);   /* 더 옅은 구분선 */
+  --color-ink:       oklch(21.2% 0.009 256);
+  --color-ink-2:     oklch(38.0% 0.016 254);
+  --color-muted:     oklch(50.3% 0.021 253);
+
+  /* ── UI 크롬 (무채색 — 데이터가 아니다) ───────────────────────────── */
+  --color-chrome:      oklch(38.0% 0.016 254);  /* 카메라·활성 탭 */
+  --color-chrome-soft: oklch(38.0% 0.016 254 / 0.12);
+  --color-focus:       oklch(55% 0.19 250);     /* 유일한 채도 높은 UI 색 */
+
+  /* ── 데이터 발산 램프 — P_total, 임계 0.5 ────────────────────────────
+   * 발산형이므로 두 색상 + **중성 회색 중점**이다. 종전 적→황→녹은
+   * ① 중점에 색상(앰버)이 있었고 ② 적록이 유일한 신호였다.
+   * dataviz validate_palette.js 실측:
+   *   종전  미달↔통과 deutan ΔE  4.1  (적록색약에겐 같은 색)
+   *   현재  미달↔통과 deutan ΔE 17.9  · 전체 쌍 CVD PASS 13.8 · 정상시각 PASS 17.0
+   * 중점(--scale-mid)은 대비 1.57:1 로 3:1 미만이다. 이는 발산 중점의 구조적
+   * 성질이며, 검증기가 요구하는 relief 를 표(미달구역 목록) + 범례 수치로 댄다.
+   */
+  --scale-0:   oklch(42.3% 0.145  29);   /* P 0.00  미달극 */
+  --scale-25:  oklch(59.3% 0.137  32);   /* P 0.25 */
+  --scale-mid: oklch(84.4% 0.008 261);   /* P 0.50  임계 — 중성 */
+  --scale-75:  oklch(64.4% 0.084 244);   /* P 0.75 */
+  --scale-1:   oklch(46.4% 0.095 243);   /* P 1.00  통과극 */
+
+  /* 위험가중치 배지 — 상태색은 예약이며 램프와 겹치지 않는다 */
+  --color-w5:      oklch(42.3% 0.145 29);
+  --color-w5-bg:   oklch(95.5% 0.020 29);
+  --color-w4:      oklch(47.0% 0.090 62);
+  --color-w4-bg:   oklch(96.0% 0.020 70);
+
+  /* ── 타이포 ────────────────────────────────────────────────────────
+   * 폰트 CDN 을 쓸 수 없다 — CLAUDE.md §7 이 외부 의존 0 을 요구하고
+   * file:// 로도 열려야 한다. 그래서 웹폰트 페어링 대신 **시스템 스택 +
+   * mono outlier** 로 2면을 만든다. 수치는 전부 mono 로 간다 —
+   * §7 의 "수치 가독성 우선" 이 그대로 이 선택의 근거다.
+   */
+  --font-body:    "Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",system-ui,sans-serif;
+  --font-outlier: ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,"D2Coding",monospace;
+
+  --text-2xs: 0.6875rem;  --text-xs: 0.75rem;   --text-sm: 0.8125rem;
+  --text-base:0.9375rem;  --text-md: 1.0625rem; --text-lg: 1.375rem;
+  --text-xl:  1.75rem;    --text-2xl:2.25rem;   --text-display:3rem;
+
+  --lh-tight: 1.15;  --lh-snug: 1.35;  --lh-body: 1.6;
+  --track-tight:-0.022em; --track-snug:-0.012em; --track-wide:0.06em;
+
+  /* ── 간격 (4pt) ──────────────────────────────────────────────────── */
+  --space-3xs:0.25rem; --space-2xs:0.5rem;  --space-xs:0.75rem;
+  --space-sm: 1rem;    --space-md: 1.5rem;  --space-lg: 2rem;
+  --space-xl: 3rem;    --space-2xl:4.5rem;
+
+  /* ── 형태 · 모션 ─────────────────────────────────────────────────── */
+  --radius-panel:8px; --radius-control:6px; --radius-chip:4px;
+  --rule-hair:1px;
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+  --dur-short:160ms;
+}

@@ -17,19 +17,27 @@
   const DEG = Math.PI / 180;
 
   // 골조 종류별 표기. 도면이므로 채우기보다 선으로 구분한다.
+  /* **골조는 무채색으로 내렸다.** 종전 비계 파랑·적치물 황토는 히트맵 판정
+   * 램프(적↔회색↔청)와 겹쳐, 방금 히트맵을 본 사람에게 도면의 파랑이
+   * "통과"로 읽혔다. 도면은 원래 선 두께·파선·해칭으로 구분한다 — 색은
+   * 위험구역에만 남긴다. */
   const KINDS = {
-    core:     { label: '코어 벽체',   line: '#16191d', fill: 'rgba(22,25,29,.16)',  w: 1.6, hatch: true },
-    slab:     { label: '슬래브',      line: '#5c6570', fill: 'rgba(92,101,112,.06)', w: 1.0, dash: [6, 4] },
-    scaffold: { label: '외곽 비계',   line: '#0b4f8a', fill: 'rgba(11,79,138,.14)',  w: 1.2 },
-    stack:    { label: '적치물',      line: '#8a6a12', fill: 'rgba(196,145,40,.16)', w: 1.0 },
+    core:     { label: '코어 벽체',   line: '#16191d', fill: 'rgba(22,25,29,.14)',  w: 1.6, hatch: true },
+    slab:     { label: '슬래브',      line: '#5c6570', fill: 'rgba(92,101,112,.05)', w: 1.0, dash: [6, 4] },
+    scaffold: { label: '외곽 비계',   line: '#3b424b', fill: 'rgba(59,66,75,.07)',   w: 1.2, dash: [2, 3] },
+    stack:    { label: '적치물',      line: '#6b7280', fill: 'rgba(107,114,128,.10)', w: 1.0 },
   };
 
+  /* 위험구역은 **황토 70° 한 색상의 명도 계단**이다. 가중치 5 가 가장 진하다.
+   * 종전의 적·주·청·녹·황토 다섯 색상은 두 가지가 틀렸다 — 램프와 색이 겹쳤고,
+   * 가중치가 1~5 순서형인데 임의 색상이라 순서가 사라졌다. 램프가 쓰지 않는
+   * 색상 하나에 순서를 명도로 싣는다. */
   const ZONES = {
-    gangform_workface:  { label: '갱폼 작업면',      c: '#a62a2a' },
-    opening_perimeter:  { label: '개구부 주변',      c: '#b5561f' },
-    lift_landing:       { label: '리프트 승강구',    c: '#0b4f8a' },
-    tower_crane_radius: { label: '타워크레인 반경',  c: '#1e7a46' },
-    material_yard:      { label: '자재 야적장',      c: '#8a6a12' },
+    gangform_workface:  { label: '갱폼 작업면 (5)',     c: '#6d4a06' },
+    opening_perimeter:  { label: '개구부 주변 (5)',     c: '#6d4a06' },
+    lift_landing:       { label: '리프트 승강구 (4)',   c: '#8a6212' },
+    tower_crane_radius: { label: '타워크레인 반경 (3)', c: '#a67f2c' },
+    material_yard:      { label: '자재 야적장 (2)',     c: '#c2a05c' },
   };
 
   const MOUNTS = {
@@ -222,13 +230,13 @@
             ctx.lineTo(q.x, q.y);
           }
           ctx.closePath();
-          ctx.fillStyle = 'rgba(11,79,138,.16)'; ctx.fill();
-          ctx.strokeStyle = 'rgba(11,79,138,.45)'; ctx.lineWidth = 0.8; ctx.stroke();
+          ctx.fillStyle = 'rgba(59,66,75,.10)'; ctx.fill();
+          ctx.strokeStyle = 'rgba(59,66,75,.38)'; ctx.lineWidth = 0.8; ctx.stroke();
           ctx.restore();
         }
         ctx.save();
         ctx.beginPath(); ctx.arc(p.x, p.y, on ? 5 : 3, 0, Math.PI * 2);
-        ctx.fillStyle = on ? '#0b4f8a' : '#c3cad2';
+        ctx.fillStyle = on ? '#3b424b' : '#c3cad2';
         ctx.fill();
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
         ctx.restore();
