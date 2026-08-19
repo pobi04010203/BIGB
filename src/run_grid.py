@@ -151,6 +151,9 @@ def run_condition(model, records: list, rho: float, theta: float, occ: float,
     n_gt = sum(per_cls_gt.values())
     n_tp = sum(per_cls_tp.values())
     return {
+        # 어느 검출기로 잰 값인지 행마다 남긴다. 검출기를 바꿔 재실행할 때
+        # 이전 결과를 그대로 재사용하면 곡선에 엉뚱한 이름이 붙는다.
+        "detector": config.DETECTOR_ARCH,
         "rho_px": rho,
         "theta_deg": theta,
         "occ_pct_target": occ,
@@ -203,10 +206,19 @@ def main(smoke: bool, limit: int | None,
     done: dict[tuple, dict] = {}
     if out_csv.exists() and not limit:
         with out_csv.open(encoding="utf-8") as f:
+            stale = 0
             for row in csv.DictReader(f):
+                # **다른 검출기로 잰 행은 버린다.** 조건만 맞다고 가져다 쓰면
+                # v8n 수치에 yolo26s 라는 이름이 붙는다.
+                if row.get("detector", "") != config.DETECTOR_ARCH:
+                    stale += 1
+                    continue
                 key = (float(row["rho_px"]), float(row["theta_deg"]),
                        float(row["occ_pct_target"]))
                 done[key] = row
+        if stale:
+            print(f"다른 검출기의 기존 행 {stale}개를 버린다 "
+                  f"(현재 {config.DETECTOR_ARCH})")
         if done:
             print(f"기존 결과 {len(done)}조건을 재사용한다")
 

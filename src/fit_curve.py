@@ -29,7 +29,19 @@ from scipy.optimize import curve_fit
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config
 
-TARGET = "recall_nohat"          # 주 지표 (§4.4)
+# ── 탐지 항목 (ADDENDUM-01 §5.3) ──────────────────────────────────────────
+# **항목마다 곡선을 따로 뽑고 종합은 최솟값으로 낸다.** 평균으로 바꾸지 않는다 —
+# 안전모 실패가 사람 검출 성공에 가려지면 이 프로젝트의 논지가 사라진다.
+#
+# 부록은 4항목(person/helmet/pose-fallen/pose-gesture)을 요구하나 SHWD 에는
+# 자세 라벨이 없다. 지금 데이터로 가능한 2항목을 구현한다. 항목을 늘리는 것은
+# **곡선을 더 얹는 것뿐**이므로 구조는 그대로 확장된다.
+TARGETS = {
+    "helmet_nohat": "recall_nohat",   # 미착용 검출 — 주 지표 (§4.4)
+    "helmet_worn":  "recall_hat",     # 착용 검출
+}
+PRIMARY = "helmet_nohat"
+TARGET = TARGETS[PRIMARY]         # 하위 호환
 BASE_RHO, BASE_THETA, BASE_OCC = 48.0, 0.0, 0.0
 
 
@@ -67,14 +79,14 @@ def h_exp_decay(x, lam):
     return np.exp(-lam * x)
 
 
-def load_rows() -> tuple[list[dict], str]:
+def load_rows(target_col: str = TARGET) -> tuple[list[dict], str]:
     """행 목록과, 가림 축으로 쓴 컬럼 이름을 돌려준다.
 
     `occ_pct_box`(인스턴스 평균 가림률)가 있으면 그것을 쓴다. §5.2 의 현장 `o` 가
     개체 단위 값이라 정의가 맞기 때문이다. 없으면 화면 전체 실측치로 물러난다.
     """
     with config.GRID_RESULTS_CSV.open(encoding="utf-8") as f:
-        rows = [r for r in csv.DictReader(f) if r[TARGET] not in ("", "None")]
+        rows = [r for r in csv.DictReader(f) if r[target_col] not in ("", "None")]
 
     col = ("occ_pct_box"
            if rows and rows[0].get("occ_pct_box") not in (None, "")
@@ -83,16 +95,16 @@ def load_rows() -> tuple[list[dict], str]:
         r["rho"] = float(r["rho_px"])
         r["theta"] = float(r["theta_deg"])
         r["occ"] = float(r[col]) / 100.0
-        r["y"] = float(r[TARGET])
+        r["y"] = float(r[target_col])
     return rows, col
 
 
-def main() -> dict:
+def fit_one(target_col: str = TARGET) -> tuple:
     if not config.GRID_RESULTS_CSV.exists():
         raise FileNotFoundError(
             f"{config.GRID_RESULTS_CSV} 가 없다. 먼저 `python src/run_grid.py` 를 돌릴 것."
         )
-    rows, occ_col = load_rows()
+    rows, occ_col = load_rows(target_col)
 
     def section(fix: dict) -> list[dict]:
         out = [r for r in rows
@@ -154,9 +166,12 @@ def main() -> dict:
 
     params = {
         "model": "separable_multiplicative",
-        "target": TARGET,
-        "detector": config.DETECTOR_ARCH,
-        "detector_weights": str(config.DETECTOR_BEST.relative_to(config.ROOT)).replace("\\", "/"),
+        "target": target_col,
+        # **config 가 아니라 데이터에서 읽는다.** 격자를 돌린 검출기와 지금
+        # config 에 적힌 검출기가 다를 수 있고, 그러면 곡선에 엉뚱한 이름이 붙는다.
+        "detector": rows[0].get("detector") or "unknown",
+        "detector_weights": str(config.DETECTOR_BEST.relative_to(config.ROOT)).replace("\\", "/")
+                            if (rows[0].get("detector") == config.DETECTOR_ARCH) else None,
         "detector_note": "COCO 사전학습본이 아니라 SHWD train 분할로 파인튜닝한 가중치다",
         "f_rho": {"form": "logistic", "L": float(p_f[0]), "k": float(p_f[1]),
                   "x0": float(p_f[2]), "r2_section": round(r2_f, 4),
@@ -190,23 +205,67 @@ def main() -> dict:
     return params, rows, yhat, y_all
 
 
+def main() -> dict:
+    """항목마다 곡선을 뽑아 하나의 계약으로 묶는다 (ADDENDUM-01 §5.3).
+
+    종합은 **최솟값**이다. 평균이 아니다 — 안전모 실패가 사람 검출 성공에
+    가려지면 이 프로젝트의 논지가 사라진다.
+    """
+    per_target, worst = {}, None
+    for name, col in TARGETS.items():
+        params, rows, yhat, y_all = fit_one(col)
+        per_target[name] = params
+        if worst is None or params["r2_full_grid"] < worst:
+            worst = params["r2_full_grid"]
+
+    primary = per_target[PRIMARY]
+    return {
+        "model": "separable_multiplicative",
+        "aggregate": "min",
+        "aggregate_note": "항목별 곡선의 **최솟값**을 종합 검출확률로 쓴다. "
+                          "평균으로 바꾸지 말 것 (ADDENDUM-01 §5.3)",
+        "targets": list(TARGETS),
+        "primary": PRIMARY,
+        "per_target": per_target,
+        "targets_note": "부록 §5.3 은 4항목(person/helmet/pose-fallen/"
+                        "pose-gesture)을 요구하나 SHWD 에 자세 라벨이 없다. "
+                        "지금 데이터로 가능한 2항목을 구현했다. 항목을 늘리는 "
+                        "것은 곡선을 더 얹는 것뿐이므로 구조는 그대로 확장된다",
+        "detector": primary["detector"],
+        "detector_weights": primary["detector_weights"],
+        "detector_note": primary["detector_note"],
+        "r2_full_grid": worst,          # 가장 나쁜 항목으로 대표한다
+        "r2_acceptance": config.R2_ACCEPTANCE,
+        "acceptance_passed": bool(worst >= config.R2_ACCEPTANCE),
+        "n_conditions": primary["n_conditions"],
+        "n_images": None,
+        "iou_thr": config.IOU_THR,
+        "conf_thr": config.CONF_THR,
+        "status": "ok",
+        "generated_at": None,
+    }
+
+
 if __name__ == "__main__":
     import datetime
-    params, rows, yhat, y_all = main()
-    manifest = json.loads((config.DATA_FILTERED / "manifest.json").read_text(encoding="utf-8"))
+    params = main()
+    manifest = json.loads(
+        (config.DATA_FILTERED / "manifest.json").read_text(encoding="utf-8"))
     params["n_images"] = manifest["n_selected"]
     params["generated_at"] = datetime.datetime.now().isoformat(timespec="seconds")
     config.CURVE_PARAMS_JSON.write_text(
         json.dumps(params, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print(f"f(ρ) 로지스틱  L={params['f_rho']['L']:.4f} k={params['f_rho']['k']:.4f} "
-          f"x0={params['f_rho']['x0']:.4f}   단면 R²={params['f_rho']['r2_section']}")
-    print(f"g(θ) {params['g_theta']['form']:<12} {params['g_theta']['params']}"
-          f"   단면 R²={params['g_theta']['r2_section']}")
-    print(f"     후보별 R² {params['g_theta']['r2_candidates']}")
-    print(f"h(o) 지수감쇠  λ={params['h_occ']['lambda']:.4f}"
-          f"                       단면 R²={params['h_occ']['r2_section']}")
+    for name, q in params["per_target"].items():
+        star = " ←주 지표" if name == params["primary"] else ""
+        print(f"[{name}] {q['target']}{star}")
+        print(f"   f(ρ) L={q['f_rho']['L']:.4f} k={q['f_rho']['k']:.4f} "
+              f"x0={q['f_rho']['x0']:.4f}  R²={q['f_rho']['r2_section']}")
+        print(f"   g(θ) {q['g_theta']['form']:<10} R²={q['g_theta']['r2_section']}"
+              f"   h(o) λ={q['h_occ']['lambda']:.4f}  R²={q['h_occ']['r2_section']}")
+        print(f"   전체 {q['n_conditions']}점 R² = {q['r2_full_grid']}")
     print()
-    print(f"전체 {params['n_conditions']}점 R² = {params['r2_full_grid']}   "
-          f"(기준 {config.R2_ACCEPTANCE} → {'통과' if params['acceptance_passed'] else '미달'})")
+    print(f"종합 = 항목별 최솟값 · 대표 R² {params['r2_full_grid']} "
+          f"(기준 {config.R2_ACCEPTANCE} → "
+          f"{'통과' if params['acceptance_passed'] else '미달'})")
     print(f"→ {config.CURVE_PARAMS_JSON}")

@@ -19,9 +19,65 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config
 
 
-class Curve:
+class MultiCurve:
+    """항목별 곡선의 **최솟값**을 종합 검출확률로 낸다 (ADDENDUM-01 §5.3).
+
+    평균으로 바꾸지 않는다. 안전모 미착용 검출이 무너져도 사람 검출이 잘 되면
+    평균은 멀쩡해 보인다. 그러면 이 프로젝트의 논지가 사라진다.
+    """
+
     def __init__(self, params: dict):
         if params.get("status") != "ok":
+            raise RuntimeError(
+                f"curve_params.json 의 status 가 'ok' 가 아니다: {params.get('status')!r}")
+        self.primary = params.get("primary")
+        self.sub = {name: Curve(q) for name, q in params["per_target"].items()}
+        # 소비자가 curve.p["f_rho"] 처럼 읽는다. 주 지표의 항을 얹어 호환을 지킨다.
+        self.p = dict(params)
+        self.p.update({k: v for k, v in params["per_target"][self.primary].items()
+                       if k in ("f_rho", "g_theta", "h_occ", "target", "baseline_P")})
+
+    def per_target(self, geo: dict) -> dict:
+        return {n: c.p_detect(geo) for n, c in self.sub.items()}
+
+    def p_detect(self, geo: dict) -> float:
+        return min(c.p_detect(geo) for c in self.sub.values())
+
+    def reason(self, geo: dict) -> str:
+        """가장 낮은 항목의 사유를 쓴다 — 종합을 결정한 항목이 그것이다."""
+        worst = min(self.sub.items(), key=lambda kv: kv[1].p_detect(geo))
+        label = {"helmet_nohat": "미착용", "helmet_worn": "착용"}.get(worst[0], worst[0])
+        r = worst[1].reason(geo)
+        return r if r == "-" else f"{r} ({label})"
+
+    def __getattr__(self, name):
+        """rho_min·theta_max 같은 범위 속성은 주 지표 곡선 것을 쓴다.
+
+        항목마다 측정 범위가 같다(같은 격자에서 나왔다). 소비자가 범위를 물으면
+        주 지표 것을 돌려주면 된다.
+        """
+        if name in ("rho_min", "rho_max", "theta_min", "theta_max",
+                    "occ_min", "occ_max", "L", "k", "x0", "lam",
+                    "g_form", "g_params"):
+            return getattr(self.sub[self.primary], name)
+        raise AttributeError(name)
+
+    def __getitem__(self, k):
+        """`curve.p["f_rho"]` 처럼 주 지표의 항을 바로 읽는 소비자와 맞춘다."""
+        return self.sub[self.primary].p[k]
+
+    @property
+    def out_of_range(self):
+        agg = {"rho": 0, "theta": 0, "occ": 0}
+        for c in self.sub.values():
+            for k in agg:
+                agg[k] += c.out_of_range[k]
+        return agg
+
+
+class Curve:
+    def __init__(self, params: dict):
+        if params.get("status") not in ("ok", None):
             raise RuntimeError(
                 f"curve_params.json 의 status 가 'ok' 가 아니다: {params.get('status')!r}. "
                 "먼저 `python src/fit_curve.py` 를 돌릴 것."
@@ -106,11 +162,13 @@ class Curve:
         return name if deficit > 0.01 else "-"
 
 
-def load() -> Curve:
+def load():
+    """항목별 곡선이 있으면 MultiCurve, 없으면 종전 단일 Curve."""
     path = config.CURVE_PARAMS_JSON
     if not path.exists():
         raise FileNotFoundError(f"{path} 가 없다. 먼저 `python src/fit_curve.py` 를 돌릴 것.")
-    return Curve(json.loads(path.read_text(encoding="utf-8")))
+    params = json.loads(path.read_text(encoding="utf-8"))
+    return MultiCurve(params) if "per_target" in params else Curve(params)
 
 
 if __name__ == "__main__":
