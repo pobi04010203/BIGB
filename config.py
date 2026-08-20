@@ -148,14 +148,9 @@ CAMERA_BUDGET = 8             # 실제 좌표 생성은 Phase 3 의 site.py 담�
 # 입력으로 받는 구조로 두고, MVP 에서는 아래 하드코딩 값을 쓴다.
 # ▶ 아래 1~5 는 상대 순위를 표현한 **잠정값**이며 원자료에서 확인된 수치가 아니다.
 #    LH 7대 유형 20개 위험공종 지수를 확보하면 이 표만 교체한다.
-RISK_WEIGHT_SOURCE = "hardcoded_provisional"   # 확보 시 "lh_index" 로 교체
-RISK_WEIGHTS = {
-    "gangform_workface": 5,      # 갱폼 작업면
-    "opening_perimeter": 5,      # 개구부 주변
-    "lift_landing": 4,           # 리프트 승강구
-    "tower_crane_radius": 3,     # 타워크레인 인양반경
-    "material_yard": 2,          # 자재 야적장
-}
+# ▶ 위험구역과 가중치는 **data/zones.json 이 출처다.** 여기 있던 표는 옮겼다.
+#    우리는 위험을 판단하지 않는다 — 현장이 정하고 우리는 받는다.
+RISK_WEIGHT_SOURCE = "data/zones.json"
 RISK_WEIGHT_DEFAULT = 1          # 위 구역에 속하지 않는 복셀
 
 # 판정 임계. 0.5 는 잠정값이다(§5.3).

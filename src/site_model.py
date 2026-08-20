@@ -6,9 +6,10 @@ LH 아파트 건설현장 1개 공구를 100×60m 로 모사한다. BIM 을 쓰�
 
 골조는 **진행 중인 상태**다 — 코어 벽체 + 슬래브 + 외곽 비계.
 위험 가중치는 자체 산정하지 않는다(§5.1). LH·국토안전관리원 지수를 입력으로 받는
-구조로 두고, MVP 에서는 `config.RISK_WEIGHTS` 의 하드코딩 값을 쓴다.
+구조로 두고, 실제 값은 `data/zones.json` 에서 읽는다.
 """
 from pathlib import Path
+import json
 import sys
 from dataclasses import dataclass, field
 
@@ -36,13 +37,48 @@ class Box:
 
 @dataclass(frozen=True)
 class Zone:
-    """위험구역. 평면상 사각형이며 그 안의 복셀에 가중치를 준다."""
-    name: str
-    x1: float; y1: float; x2: float; y2: float
-    weight: int
+    """위험구역. **사용자 입력이다** — `data/zones.json` 에서 온다.
 
-    def contains(self, x: float, y: float) -> bool:
-        return self.x1 <= x <= self.x2 and self.y1 <= y <= self.y2
+    우리는 위험을 판단하지 않는다. 어디가 위험한지는 현장이 정하고, 그 정보는
+    안전관리계획서에 이미 있다. 자동 도출은 4D BIM 안전계획 연구가 확립했으며
+    그 출력을 이 형식으로 받으면 된다.
+
+    사각형과 다각형을 받는다. z 범위는 선택이며, 타설처럼 특정 층에서만
+    일어나는 작업을 자를 때 쓴다.
+    """
+    name: str
+    label: str
+    weight: int
+    hazard: str
+    kind: str                      # rect | poly
+    areas: tuple                   # rect: (x1,y1,x2,y2) / poly: ((x,y), ...)
+    z_min: float = float("-inf")
+    z_max: float = float("inf")
+
+    def contains(self, x: float, y: float, z: float = None) -> bool:
+        if z is not None and not (self.z_min <= z <= self.z_max):
+            return False
+        for a in self.areas:
+            if self.kind == "rect":
+                if a[0] <= x <= a[2] and a[1] <= y <= a[3]:
+                    return True
+            elif _point_in_poly(x, y, a):
+                return True
+        return False
+
+
+def _point_in_poly(x: float, y: float, pts) -> bool:
+    """레이 캐스팅. 다각형 구역을 받기 위한 것이다."""
+    inside = False
+    n = len(pts)
+    for i in range(n):
+        x1, y1 = pts[i]
+        x2, y2 = pts[(i + 1) % n]
+        if (y1 > y) != (y2 > y):
+            xi = (x2 - x1) * (y - y1) / (y2 - y1) + x1
+            if x < xi:
+                inside = not inside
+    return inside
 
 
 @dataclass(frozen=True)
@@ -97,19 +133,37 @@ def _solids(scaffold_coverage: float = None) -> list:
 
 # ── 위험구역 ──────────────────────────────────────────────────────────────
 
-def _zones() -> list:
-    """§5.1 이 지정한 5종. 가중치는 config 에서 가져온다 — 여기서 만들지 않는다."""
-    w = config.RISK_WEIGHTS
-    return [
-        Zone("gangform_workface", 16.0, 12.0, 84.0, 16.0, w["gangform_workface"]),
-        Zone("gangform_workface", 16.0, 44.0, 84.0, 48.0, w["gangform_workface"]),
-        Zone("opening_perimeter", 24.0, 20.0, 36.0, 40.0, w["opening_perimeter"]),
-        Zone("opening_perimeter", 64.0, 20.0, 76.0, 40.0, w["opening_perimeter"]),
-        Zone("lift_landing", 46.0, 22.0, 54.0, 30.0, w["lift_landing"]),
-        Zone("tower_crane_radius", 40.0, 8.0, 60.0, 52.0, w["tower_crane_radius"]),
-        Zone("material_yard", 4.0, 4.0, 16.0, 20.0, w["material_yard"]),
-        Zone("material_yard", 86.0, 40.0, 98.0, 56.0, w["material_yard"]),
-    ]
+ZONES_JSON = config.ROOT / "data" / "zones.json"
+
+
+def _zones(path: Path = None) -> list:
+    """`data/zones.json` 에서 읽는다. 코드에 좌표를 박지 않는다.
+
+    파일이 없으면 위험구역 없이(전부 가중치 1) 진행한다 — 멈추지 않는다.
+    위험구역은 있으면 좋은 정보지 필수 입력이 아니다.
+    """
+    path = Path(path or ZONES_JSON)
+    if not path.exists():
+        return []
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    out = []
+    for z in doc["zones"]:
+        kind = z.get("kind", "rect")
+        areas = tuple(tuple(a) if kind == "rect" else tuple(map(tuple, a))
+                      for a in z["areas"])
+        out.append(Zone(
+            name=z["name"], label=z.get("label", z["name"]),
+            weight=int(z["weight"]), hazard=z.get("hazard", ""),
+            kind=kind, areas=areas,
+            z_min=float(z.get("z_min", float("-inf"))),
+            z_max=float(z.get("z_max", float("inf"))),
+        ))
+    return out
+
+
+def zone_weights(zones: list = None) -> dict:
+    """이름 → 가중치. schedule 이 시간대별 가중치를 만들 때 쓴다."""
+    return {z.name: z.weight for z in (zones if zones is not None else _zones())}
 
 
 # ── 카메라 후보 ───────────────────────────────────────────────────────────
@@ -275,7 +329,7 @@ def _voxels(solids: list, zones: list) -> list:
                 w = config.RISK_WEIGHT_DEFAULT
                 names = []
                 for zn in zones:
-                    if zn.contains(x, y):
+                    if zn.contains(x, y, z):
                         w = max(w, zn.weight)
                         names.append(zn.name)
 

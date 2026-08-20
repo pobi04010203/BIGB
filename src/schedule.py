@@ -23,9 +23,9 @@
 
   1) 구역마다 **요구 커버리지**가 다르다. 위험가중치가 높을수록 더 많이 요구한다.
   2) 요구에 못 미치면 **가중치 × 미달폭** 에 비례해 감점한다. 같은 10%p 미달도
-     가중치 5 구역이 가중치 2 구역보다 2.5배 아프다.
-  3) **치명 구역(가중치 5)이 요건 미달이면 전체를 미달로 확정한다.** 다른 구역이
-     아무리 좋아도 뒤집지 못한다. 안전기준은 평균으로 면제되지 않는다.
+     가중치 8 구역이 가중치 3 구역보다 2.7배 아프다.
+  3) **치명 구역(가중치 7 이상)이 요건 미달이면 전체를 미달로 확정한다.** 다른
+     구역이 아무리 좋아도 뒤집지 못한다. 안전기준은 평균으로 면제되지 않는다.
 
 3)이 핵심이다. 이것이 없으면 넓은 저위험 구역을 잘 덮어 치명 구역 실패를 가릴 수
 있다. 탐지 항목을 최솟값으로 종합한 것(ADDENDUM-01 §5.3)과 같은 이유다.
@@ -42,15 +42,23 @@ import config
 
 SCHEDULE = config.ROOT / "data" / "schedule.json"
 
-# 위험가중치별 요구 커버리지. 위험한 곳일수록 더 많이 요구한다.
-# **잠정값이다.** LH 가 구역별 기준을 게시하면 이 표를 교체한다.
-REQUIRED_BY_WEIGHT = {5: 0.95, 4: 0.90, 3: 0.85, 2: 0.80, 1: 0.70}
+def required_for(weight: int) -> float:
+    """가중치 → 요구 커버리지. 위험할수록 더 많이 요구한다.
+
+    1 → 70% 에서 10 → 99% 까지 선형으로 올린다. **잠정값이다.**
+    LH 가 구역별 기준을 게시하면 이 함수를 교체한다.
+    """
+    w = max(1, min(10, int(weight)))
+    return round(0.70 + (0.99 - 0.70) * (w - 1) / 9, 3)
+
+
+REQUIRED_BY_WEIGHT = {w: required_for(w) for w in range(1, 11)}
 
 # 감점 계수. 미달폭 1.0(=100%p) 에 가중치 1 이면 이만큼 깎는다.
 PENALTY_K = 1.0
 
 # 이 가중치 이상인 구역이 요건 미달이면 전체를 미달로 확정한다.
-CRITICAL_WEIGHT = 5
+CRITICAL_WEIGHT = 7   # 이 이상이면 치명 구역
 
 
 def load(path: Path = None) -> dict:
@@ -69,7 +77,8 @@ def window_weights(site, window: dict) -> np.ndarray:
     """
     active = set(window["active_zones"])
     override = window.get("weight_override", {})
-    base = config.RISK_WEIGHTS
+    # 가중치의 출처는 data/zones.json 이다. config 가 아니다.
+    base = {z.name: z.weight for z in site.zones}
     out = np.zeros(len(site.voxels), dtype=float)
     for i, v in enumerate(site.voxels):
         if not v.get("occupiable", True):
@@ -94,9 +103,9 @@ def zone_scores(site, pt: np.ndarray, window: dict,
                if name in v["zones"] and v.get("occupiable", True)]
         if not idx:
             continue
-        w = override.get(name, config.RISK_WEIGHTS[name])
+        w = override.get(name, {z.name: z.weight for z in site.zones}.get(name, 1))
         cov = float(sum(1 for i in idx if pt[i] >= thr) / len(idx))
-        req = REQUIRED_BY_WEIGHT.get(w, 0.70)
+        req = required_for(w)
         short = max(0.0, req - cov)
         rows.append({
             "zone": name, "weight": w, "voxels": len(idx),
@@ -163,7 +172,7 @@ def evaluate_all(site, P, plan_idx, sched: dict = None,
             "required_by_weight": REQUIRED_BY_WEIGHT,
             "penalty_k": PENALTY_K,
             "critical_weight": CRITICAL_WEIGHT,
-            "note": "감점 = k × 가중치 × 미달폭. 가중치 5 구역이 미달이면 "
+            "note": f"감점 = k × 가중치 × 미달폭. 가중치 {CRITICAL_WEIGHT} 이상 구역이 미달이면 "
                     "점수와 무관하게 전체 미달로 확정한다",
         },
     }
