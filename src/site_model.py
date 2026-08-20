@@ -100,34 +100,44 @@ class Site:
 
 # ── 골조 ──────────────────────────────────────────────────────────────────
 
+BUILDING = config.ROOT / "data" / "building.json"
+
+
 def _solids(scaffold_coverage: float = None) -> list:
-    """코어 벽체 + 슬래브 + 외곽 비계. 전부 직육면체 조합이다."""
+    """골조 직육면체. **`data/building.json` 에서 온다.**
+
+    BIM 을 직접 읽지 않는다. 이 모델이 골조에서 필요로 하는 것은 광선을 막는
+    축정렬 직육면체 목록뿐이고, IFC 를 파싱해도 얻는 것은 벽·슬래브다. 정작
+    가림의 주범인 비계·동바리는 설계 BIM 에 들어 있지 않아 어차피 손으로
+    넣어야 한다. 그래서 형상을 계약으로 받고, IFC·DWG·실측은 그 계약을 채우는
+    어댑터 자리에 둔다.
+
+    `coverage` 는 세 가지로 갈린다. **키가 없으면 1.0**(속이 찬 것), **명시적
+    null 이면 `config.SCAFFOLD_COVERAGE`**(민감도 스윕 대상이라 파일에 고정하지
+    않는다), 숫자면 그 값이다. 둘을 뭉개면 코어·슬래브까지 비계 점유율을 갖는다.
+    """
     if scaffold_coverage is None:
         scaffold_coverage = config.SCAFFOLD_COVERAGE
+    doc = json.loads(BUILDING.read_text(encoding="utf-8"))
+
+    levels = [float(z) for z in doc["storey_levels_m"]]
+    if levels != [float(z) for z in config.SLAB_LEVELS_M]:
+        raise ValueError(
+            f"{BUILDING.name} 의 storey_levels_m {levels} 가 "
+            f"config.SLAB_LEVELS_M {config.SLAB_LEVELS_M} 과 다르다. "
+            "복셀화가 층 높이를 config 에서 읽으므로 둘이 어긋나면 "
+            "슬래브 판과 작업면이 따로 논다. 한쪽을 맞춰라.")
+
     s = []
-    # 코어 2개 — 엘리베이터·계단 코어. 시공 중이라 높이 12m
-    for cx in (30.0, 70.0):
-        s.append(Box(cx - 6, 22.0, 0.0, cx + 6, 38.0, 12.0, "core"))
-
-    # 슬래브 — 층마다 판 하나. 두께 0.3m. config.SLAB_LEVELS_M 과 짝을 이룬다.
-    # 지상(0.0)은 지면이므로 판을 두지 않는다.
-    for top in config.SLAB_LEVELS_M[1:]:
-        s.append(Box(18.0, 14.0, top - 0.3, 82.0, 46.0, top, "slab"))
-
-    # 외곽 비계 — 건물 둘레를 두께 1.2m 로 감싼다. 수직 부재가 가림원이다
-    # 점유율은 config.SCAFFOLD_COVERAGE. 지주·띠장이 시야의 얼마를 막는지는
-    # 비계 사양에 달렸고 공개 통계가 없어 잠정값이며, 민감도 스윕 대상이다.
-    ox1, oy1, ox2, oy2 = 16.0, 12.0, 84.0, 48.0
-    t = 1.2
-    SC = scaffold_coverage
-    s.append(Box(ox1, oy1, 0.0, ox2, oy1 + t, 14.0, "scaffold", SC))
-    s.append(Box(ox1, oy2 - t, 0.0, ox2, oy2, 14.0, "scaffold", SC))
-    s.append(Box(ox1, oy1, 0.0, ox1 + t, oy2, 14.0, "scaffold", SC))
-    s.append(Box(ox2 - t, oy1, 0.0, ox2, oy2, 14.0, "scaffold", SC))
-
-    # 자재 야적 적재물 — 시야를 막는 낮은 덩어리
-    s.append(Box(6.0, 6.0, 0.0, 14.0, 18.0, 2.5, "stack"))
-    s.append(Box(88.0, 42.0, 0.0, 96.0, 54.0, 2.5, "stack"))
+    for item in doc["solids"]:
+        b = item["box"]
+        if "coverage" not in item:
+            cov = 1.0                       # 키 없음 = 속이 찬 것
+        elif item["coverage"] is None:
+            cov = scaffold_coverage         # 명시적 null = 스윕 대상
+        else:
+            cov = float(item["coverage"])
+        s.append(Box(*[float(v) for v in b], item.get("kind", "solid"), cov))
     return s
 
 
