@@ -2,7 +2,7 @@
   "_about": "시간대별 위험구역 — 4D 안전계획의 진단용 입력",
   "_basis": "Zhang, Teizer, Pradhananga, Eastman, 'BIM and Safety: Automatic Safety Checking of Construction Models and Schedules', Automation in Construction 29 (2013). 공정·일정에서 위험구역을 도출한다는 발상을 따른다. 다만 그 연구가 위험을 '찾아내는' 것이라면, 여기서는 찾아진 위험구역을 **카메라가 보고 있는지 판정**하는 데 쓴다.",
   "_note": "**예시 데이터다.** 실제 현장의 작업일보·공정표에서 채워야 한다. 구역 이름은 data/zones.json 의 name 과 일치해야 한다.",
-  "_units": "시각은 24시간 표기. weight_override 가 있으면 그 시간대에만 data/zones.json 의 가중치를 덮어쓴다",
+  "_units": "시각은 24시간 표기. weight_override 가 있으면 그 시간대에만 data/zones.json 의 가중치를 덮어쓴다. **override 는 올리는 방향으로만 쓴다** — 그 시간대에 그 구역의 노출이 실제로 커지는 경우다",
   "windows": [
     {
       "id": "W1",
@@ -18,7 +18,7 @@
       "weight_override": {
         "tower_crane_radius": 8
       },
-      "note": "인양물 아래가 이 시간대의 최대 위험이다. 크레인 반경을 5→8 로 올린다. 굴착면 반출도 이 시간대다"
+      "note": "인양물 아래가 이 시간대의 최대 위험이다. 크레인 반경을 기본 4 에서 8 로 올린다 — '물체에 맞음'의 전업종 가중치는 4 이나 그 통계는 양중이 없는 시간대까지 평균한 값이다. 굴착면 반출도 이 시간대다"
     },
     {
       "id": "W2",
@@ -30,10 +30,7 @@
         "opening_perimeter",
         "tower_crane_radius"
       ],
-      "weight_override": {
-        "gangform_workface": 9
-      },
-      "note": "갱폼 작업면과 개구부가 동시에 열린다. 추락 위험이 가장 큰 시간대라 갱폼을 8→9 로 올린다"
+      "note": "갱폼 작업면과 개구부가 동시에 열린다. 둘 다 '떨어짐'으로 이미 최댓값 10 이라 올릴 여지가 없다. override 를 두지 않는다"
     },
     {
       "id": "W3",
@@ -57,7 +54,7 @@
         "opening_perimeter",
         "lift_landing"
       ],
-      "note": "타설 중에는 거푸집·동바리 붕괴가 최대 위험이다. 타설 구역을 7→9 로 올린다",
+      "note": "타설 중에는 거푸집·동바리 붕괴가 최대 위험이다. 기본 2(전국 무너짐 통계) 에서 9 로 올린다. **이 상향은 통계가 아니라 판단이다** — docs/reference/위험가중치_근거.md §4 ② 의 노출면적 미보정 한계를 시간축에서 메운다. severity_adj 프로파일의 타설 가중치와 같은 값이다",
       "weight_override": {
         "concrete_pour": 9
       }

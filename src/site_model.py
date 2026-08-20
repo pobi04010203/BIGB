@@ -136,7 +136,10 @@ def _solids(scaffold_coverage: float = None) -> list:
 ZONES_JSON = config.ROOT / "data" / "zones.json"
 
 
-def _zones(path: Path = None) -> list:
+WEIGHT_PROFILE = "weight"        # "weight"(통계) | "weight_severity_adj"(심각도 보정)
+
+
+def _zones(path: Path = None, profile: str = None) -> list:
     """`data/zones.json` 에서 읽는다. 코드에 좌표를 박지 않는다.
 
     파일이 없으면 위험구역 없이(전부 가중치 1) 진행한다 — 멈추지 않는다.
@@ -147,13 +150,14 @@ def _zones(path: Path = None) -> list:
         return []
     doc = json.loads(path.read_text(encoding="utf-8"))
     out = []
+    prof = profile or WEIGHT_PROFILE
     for z in doc["zones"]:
         kind = z.get("kind", "rect")
         areas = tuple(tuple(a) if kind == "rect" else tuple(map(tuple, a))
                       for a in z["areas"])
         out.append(Zone(
             name=z["name"], label=z.get("label", z["name"]),
-            weight=int(z["weight"]), hazard=z.get("hazard", ""),
+            weight=int(z.get(prof, z["weight"])), hazard=z.get("hazard", ""),
             kind=kind, areas=areas,
             z_min=float(z.get("z_min", float("-inf"))),
             z_max=float(z.get("z_max", float("inf"))),
@@ -342,9 +346,9 @@ def _voxels(solids: list, zones: list) -> list:
 
 
 
-def build(scaffold_coverage: float = None) -> Site:
+def build(scaffold_coverage: float = None, weight_profile: str = None) -> Site:
     solids = _solids(scaffold_coverage)
-    zones = _zones()
+    zones = _zones(profile=weight_profile)
     return Site(
         width=config.SITE_WIDTH_M,
         depth=config.SITE_DEPTH_M,

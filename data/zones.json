@@ -1,51 +1,152 @@
 {
   "_about": "위험구역 정의 — 사용자 입력",
   "_why": "**우리는 위험을 판단하지 않는다.** 어디가 위험한지는 현장이 정한다. 안전관리계획서·유해위험방지계획서에 위험공종과 그 위치가 이미 적혀 있으므로, 새로 만들라는 것이 아니라 이미 쓰고 있는 것을 옮겨 적는 것이다. 자동 도출은 4D BIM 안전계획 연구(Zhang·Teizer·Pradhananga·Eastman, Automation in Construction 29, 2013)가 확립했고 그 출력을 이 형식으로 받으면 된다.",
-  "_weights": "가중치 1~10. **아래 값은 잠정값이며 재해 통계에서 확인된 수치가 아니다.** 공종별 사망사고 분포를 확보하면 이 숫자만 교체한다. 클수록 같은 면적이라도 감시 가치가 크다 — 탐욕의 이득식 Σ w·miss·P 에 그대로 곱해진다.",
+  "_weights": "가중치 1~10. **재해통계에서 유도했다** — 산식과 한계는 docs/reference/위험가중치_근거.md 참조. 출처는 고용노동부 「2025년 3분기 재해조사 대상 사망사고 발생 현황」이다. 탐욕의 이득식 Σ w·miss·P 에 그대로 곱해진다.",
   "_shape": "kind 는 rect(x1,y1,x2,y2) 또는 poly(points). z_min/z_max 는 선택 — 없으면 전 높이에 적용된다. 타설처럼 특정 층에서만 일어나는 작업은 z 를 잘라 쓴다.",
   "_units": "미터. 현장 좌표계 원점은 좌하단",
-
   "zones": [
     {
-      "name": "gangform_workface", "label": "갱폼 작업면", "weight": 8,
-      "hazard": "추락", "kind": "rect",
-      "areas": [[16.0, 12.0, 84.0, 16.0], [16.0, 44.0, 84.0, 48.0]]
-    },
-    {
-      "name": "opening_perimeter", "label": "개구부·단부", "weight": 8,
-      "hazard": "추락", "kind": "rect",
-      "areas": [[24.0, 20.0, 36.0, 40.0], [64.0, 20.0, 76.0, 40.0]]
-    },
-    {
-      "name": "concrete_pour", "label": "콘크리트 타설", "weight": 7,
-      "hazard": "거푸집·동바리 붕괴, 매몰",
+      "name": "gangform_workface",
+      "label": "갱폼 작업면",
+      "weight": 10,
+      "hazard": "떨어짐",
       "kind": "rect",
-      "areas": [[20.0, 18.0, 50.0, 42.0]],
-      "z_min": 4.3, "z_max": 9.3,
-      "note": "슬래브 위에서만 일어난다. 지상층에는 적용하지 않는다"
+      "areas": [
+        [
+          16.0,
+          12.0,
+          84.0,
+          16.0
+        ],
+        [
+          16.0,
+          44.0,
+          84.0,
+          48.0
+        ]
+      ],
+      "weight_severity_adj": 10,
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
     },
     {
-      "name": "excavation_face", "label": "굴착면", "weight": 7,
-      "hazard": "토사 붕괴, 매몰",
+      "name": "opening_perimeter",
+      "label": "개구부·단부",
+      "weight": 10,
+      "hazard": "떨어짐",
       "kind": "rect",
-      "areas": [[86.0, 4.0, 98.0, 34.0]],
+      "areas": [
+        [
+          24.0,
+          20.0,
+          36.0,
+          40.0
+        ],
+        [
+          64.0,
+          20.0,
+          76.0,
+          40.0
+        ]
+      ],
+      "weight_severity_adj": 10,
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
+    },
+    {
+      "name": "concrete_pour",
+      "label": "콘크리트 타설",
+      "weight": 2,
+      "hazard": "무너짐",
+      "kind": "rect",
+      "areas": [
+        [
+          20.0,
+          18.0,
+          50.0,
+          42.0
+        ]
+      ],
+      "z_min": 4.3,
+      "z_max": 9.3,
+      "note": "슬래브 위에서만 일어난다. 지상층에는 적용하지 않는다",
+      "weight_severity_adj": 9,
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
+    },
+    {
+      "name": "excavation_face",
+      "label": "굴착면",
+      "weight": 2,
+      "hazard": "무너짐",
+      "kind": "rect",
+      "areas": [
+        [
+          86.0,
+          4.0,
+          98.0,
+          34.0
+        ]
+      ],
       "z_max": 4.0,
-      "note": "굴착 저면과 그 가장자리. 상부층에는 적용하지 않는다"
+      "note": "굴착 저면과 그 가장자리. 상부층에는 적용하지 않는다",
+      "weight_severity_adj": 8,
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
     },
     {
-      "name": "lift_landing", "label": "리프트 승강구", "weight": 6,
-      "hazard": "추락, 협착", "kind": "rect",
-      "areas": [[46.0, 22.0, 54.0, 30.0]]
+      "name": "lift_landing",
+      "label": "리프트 승강구",
+      "weight": 10,
+      "hazard": "떨어짐 · 끼임",
+      "kind": "rect",
+      "areas": [
+        [
+          46.0,
+          22.0,
+          54.0,
+          30.0
+        ]
+      ],
+      "weight_severity_adj": 9,
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
     },
     {
-      "name": "tower_crane_radius", "label": "타워크레인 인양반경", "weight": 5,
-      "hazard": "낙하물, 협착", "kind": "rect",
-      "areas": [[40.0, 8.0, 60.0, 52.0]]
+      "name": "tower_crane_radius",
+      "label": "타워크레인 인양반경",
+      "weight": 4,
+      "hazard": "물체에 맞음",
+      "kind": "rect",
+      "areas": [
+        [
+          40.0,
+          8.0,
+          60.0,
+          52.0
+        ]
+      ],
+      "weight_severity_adj": 5,
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
     },
     {
-      "name": "material_yard", "label": "자재 야적장", "weight": 3,
-      "hazard": "협착, 전도", "kind": "rect",
-      "areas": [[4.0, 4.0, 16.0, 20.0], [86.0, 40.0, 98.0, 56.0]]
+      "name": "material_yard",
+      "label": "자재 야적장",
+      "weight": 3,
+      "hazard": "부딪힘 · 깔림",
+      "kind": "rect",
+      "areas": [
+        [
+          4.0,
+          4.0,
+          16.0,
+          20.0
+        ],
+        [
+          86.0,
+          40.0,
+          98.0,
+          56.0
+        ]
+      ],
+      "weight_severity_adj": 3,
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
     }
-  ]
+  ],
+  "_profiles": "weight = statistical(통계 유도, 기본). weight_severity_adj = 붕괴 계열을 올린 판단값. 전국 통계가 구역별 노출면적을 보정하지 못하고 무너짐 건수가 비공개라 두 프로파일로 민감도를 본다."
 }
