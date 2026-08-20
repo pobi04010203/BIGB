@@ -278,7 +278,7 @@ def main() -> None:
     if config.COMPARISON_JSON.exists():
         c = json.loads(config.COMPARISON_JSON.read_text(encoding="utf-8"))
         d = c["delta_WDR"]
-        print(f"  ΔWDR  실측−기하 {d['empirical_minus_geometric']:+.4f}"
+        print(f"  ΔWDR  실측-기하 {d['empirical_minus_geometric']:+.4f}"
               f" · 실측−가정 {d['empirical_minus_assumed']:+.4f}"
               f" · 가정−기하 {d['assumed_minus_geometric']:+.4f}")
         o = c["overlap_camera_count"]

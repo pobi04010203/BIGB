@@ -60,6 +60,63 @@ def write(rep: dict, path: Path) -> Path:
 
     lim = "".join(f"<li>{E(x)}</li>" for x in rep["basis"]["limits"])
 
+    # 시간대별 위험구역 진단
+    tp = rep.get("time_phased")
+    if tp:
+        win_rows = "".join(
+            "<tr class='{}'><td>{}</td><td>{}</td><td class=n>{}–{}</td>"
+            "<td>{}</td><td class=n>{}</td><td class=n>−{:.3f}</td>"
+            "<td class=n><b>{}</b></td><td>{}</td></tr>".format(
+                "bad" if not r["passes"] else "",
+                E(r["window"]["id"]), E(r["window"]["label"]),
+                E(r["window"]["from"]), E(r["window"]["to"]),
+                E(", ".join(r["active_zones"])), _pct(r["base_score"]),
+                r["penalty_total"], _pct(r["scored"]), E(r["verdict"]))
+            for r in tp["windows"])
+        worst = next(r for r in tp["windows"]
+                     if r["window"]["id"] == tp["worst_window"])
+        zone_rows = "".join(
+            "<tr class='{}'><td>{}</td><td class=n>{}</td><td class=n>{}</td>"
+            "<td class=n>{}</td><td class=n>{}</td><td class=n>−{:.3f}</td>"
+            "<td>{}</td></tr>".format(
+                "bad" if z["critical_fail"] else "",
+                E(z["zone"]), z["weight"], z["voxels"], _pct(z["coverage"]),
+                _pct(z["required"]), z["penalty"],
+                "치명 미달" if z["critical_fail"] else
+                ("미달" if not z["meets"] else "충족"))
+            for z in worst["zones"])
+        pr = tp["penalty_rule"]
+        req = " · ".join(f"가중치 {k}→{v:.0%}" for k, v in
+                         sorted(pr["required_by_weight"].items(), reverse=True))
+        time_html = f"""
+<h2>7. 시간대별 위험구역 진단</h2>
+<p class="note">위험구역은 하루 내내 같지 않다. 시간대마다 열려 있는 구역이 다르므로,
+ 고정된 카메라 배치가 <b>그때그때 위험한 곳을 보고 있는지</b>를 따로 판정한다.
+ <b>종합은 최악의 시간대로 대표한다</b> — 평균을 쓰면 위험 시간대의 실패가
+ 한가한 시간대에 가려진다.</p>
+<div class="warn"><b>감점 규칙.</b> 구역마다 요구 커버리지가 다르다 ({E(req)}).
+ 못 미치면 <b>감점 = {pr['penalty_k']} × 가중치 × 미달폭</b> 이다. 같은 미달폭이라도
+ 가중치가 높은 구역이 더 아프다. 그리고 <b>가중치 {pr['critical_weight']} 구역이
+ 요건에 미달하면 점수와 무관하게 전체를 미달로 확정한다</b> — 안전기준은 평균으로
+ 면제되지 않는다.</div>
+<table>
+ <thead><tr><th>구간</th><th>작업</th><th class=n>시각</th><th>열린 위험구역</th>
+  <th class=n>기본</th><th class=n>감점</th><th class=n>최종</th><th>판정</th></tr></thead>
+ <tbody>{win_rows}</tbody>
+</table>
+<p class="note"><b>최악 시간대 {E(worst['window']['id'])}
+ ({E(worst['window']['label'])})</b> 의 구역별 내역</p>
+<table>
+ <thead><tr><th>위험구역</th><th class=n>가중치</th><th class=n>복셀</th>
+  <th class=n>커버리지</th><th class=n>요구</th><th class=n>감점</th>
+  <th>판정</th></tr></thead>
+ <tbody>{zone_rows}</tbody>
+</table>
+<p class="note">근거: {E(tp['basis'][:300])}</p>
+"""
+    else:
+        time_html = ""
+
     gap_txt = "" if ok else f"&nbsp;(부족 {rep['verdict']['gap'] * 100:.1f}%p)"
     v_bg = "#eff7f2" if ok else "#fbf0f0"
     v_bd = "#1e7a46" if ok else "#a62a2a"
@@ -86,6 +143,7 @@ def write(rep: dict, path: Path) -> Path:
  th{{background:#f6f8fa;color:#5c6570;font-weight:600}}
  td.n,th.n{{text-align:right;font-variant-numeric:tabular-nums}}
  tr.hit td{{background:#f2f9f5}}
+ tr.bad td{{background:#fdf3f3}}
  .bar{{position:relative;height:9px;background:#eceff3;border-radius:5px;min-width:120px}}
  .fill{{height:100%;border-radius:5px}}
  .tick{{position:absolute;top:-2px;width:2px;height:13px;background:#16191d}}
@@ -171,6 +229,7 @@ def write(rep: dict, path: Path) -> Path:
   수평화각 {spec['hfov_deg']:.0f}°</td></tr>
 </table>
 <p class="note"><b>한계</b></p><ul>{lim}</ul>
+{time_html}
 
 <footer>BIGB — AI CCTV 배치 적정성 평가 모델 · 제17회 LH 국토기술대전<br>
  이 보고서의 수치는 전부 계산 결과이며 문서에서 임의로 만들지 않는다.</footer>

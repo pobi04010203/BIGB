@@ -9,18 +9,18 @@
    "ppm": null,
    "min_rho_px": 0.0,
    "camera_ids": [
-    "c_b00",
-    "c_b09",
+    "c_b08",
     "c_b01",
-    "c_b06",
     "c_b10",
     "c_b15",
-    "c_b11",
-    "c_b14"
+    "c_b05",
+    "c_b04",
+    "c_b14",
+    "c_b11"
    ],
-   "WDR": 0.6492,
-   "fail_voxel_count": 572,
-   "delta_WDR": 0.0115,
+   "WDR": 0.6108,
+   "fail_voxel_count": 10548,
+   "delta_WDR": 0.0389,
    "is_default": false
   },
   {
@@ -32,14 +32,14 @@
     "c_b01",
     "c_b02",
     "c_b07",
+    "c_b10",
     "c_b03",
     "c_b06",
-    "c_b10",
     "c_b15"
    ],
-   "WDR": 0.6368,
-   "fail_voxel_count": 659,
-   "delta_WDR": 0.0239,
+   "WDR": 0.6339,
+   "fail_voxel_count": 6885,
+   "delta_WDR": 0.0158,
    "is_default": false
   },
   {
@@ -49,16 +49,16 @@
    "camera_ids": [
     "c_b04",
     "c_b05",
-    "c_b00",
     "c_b09",
+    "c_b00",
     "c_b02",
     "c_b07",
     "c_b11",
     "c_b14"
    ],
-   "WDR": 0.6151,
-   "fail_voxel_count": 1186,
-   "delta_WDR": 0.0456,
+   "WDR": 0.6122,
+   "fail_voxel_count": 11437,
+   "delta_WDR": 0.0375,
    "is_default": true
   },
   {
@@ -72,12 +72,12 @@
     "c_b07",
     "c_b03",
     "c_b06",
-    "c_b00",
-    "c_b09"
+    "c_b09",
+    "c_b01"
    ],
-   "WDR": 0.5978,
-   "fail_voxel_count": 1028,
-   "delta_WDR": 0.0629,
+   "WDR": 0.5982,
+   "fail_voxel_count": 11166,
+   "delta_WDR": 0.0515,
    "is_default": false
   }
  ],
@@ -86,15 +86,15 @@
    "camera_ids": [
     "c_b04",
     "c_b05",
-    "c_b00",
     "c_b09",
+    "c_b00",
     "c_b02",
     "c_b07",
     "c_b11",
     "c_b14"
    ],
-   "WDR": 0.6151,
-   "fail_voxel_count": 1186
+   "WDR": 0.6122,
+   "fail_voxel_count": 11437
   },
   "assumed": {
    "camera_ids": [
@@ -103,12 +103,12 @@
     "c_b09",
     "c_b00",
     "c_b04",
-    "c_b01",
+    "c_b05",
     "c_b08",
-    "c_b03"
+    "c_b01"
    ],
-   "WDR": 0.6404,
-   "fail_voxel_count": 788,
+   "WDR": 0.6258,
+   "fail_voxel_count": 9651,
    "curve_source": "DORI_recognise_125ppm"
   },
   "empirical": {
@@ -117,35 +117,35 @@
     "c_b01",
     "c_b00",
     "c_b09",
-    "c_b14",
     "c_b11",
-    "c_b02",
+    "c_b14",
+    "c_b10",
     "c_b07"
    ],
-   "WDR": 0.6607,
-   "fail_voxel_count": 284
+   "WDR": 0.6497,
+   "fail_voxel_count": 5169
   }
  },
  "delta_WDR": {
-  "empirical_minus_geometric": 0.0456,
-  "empirical_minus_assumed": 0.0203,
-  "assumed_minus_geometric": 0.0253
+  "empirical_minus_geometric": 0.0375,
+  "empirical_minus_assumed": 0.0239,
+  "assumed_minus_geometric": 0.0136
  },
  "overlap_camera_count": {
-  "empirical_vs_geometric": 6,
-  "empirical_vs_assumed": 6
+  "empirical_vs_geometric": 5,
+  "empirical_vs_assumed": 5
  },
  "per_target_WDR": {
   "_note": "ADDENDUM-01 §5.3 의 4항목 분해(person/helmet/pose-fallen/pose-gesture)는 현재 CLAUDE.md 스펙에 없어 미구현이다. 지금 곡선은 안전모 미착용(recall_nohat) 단일 항목이다.",
   "target": "helmet_nohat",
   "geometric": {
-   "helmet_nohat": 0.6151
+   "helmet_nohat": 0.6122
   },
   "assumed": {
-   "helmet_nohat": 0.6404
+   "helmet_nohat": 0.6258
   },
   "empirical": {
-   "helmet_nohat": 0.6607
+   "helmet_nohat": 0.6497
   }
  },
  "status": "ok"

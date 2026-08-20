@@ -1,0 +1,51 @@
+{
+  "_about": "시간대별 위험구역 — 4D 안전계획의 진단용 입력",
+  "_basis": "Zhang, Teizer, Pradhananga, Eastman, 'BIM and Safety: Automatic Safety Checking of Construction Models and Schedules', Automation in Construction 29 (2013). 공정·일정에서 위험구역을 도출한다는 발상을 따른다. 다만 그 연구가 위험을 '찾아내는' 것이라면, 여기서는 찾아진 위험구역을 **카메라가 보고 있는지 판정**하는 데 쓴다.",
+  "_note": "**예시 데이터다.** 실제 현장의 작업일보·공정표에서 채워야 한다. 구역 이름은 site_model._zones() 의 이름과 일치해야 한다.",
+  "_units": "시각은 24시간 표기. weight_override 가 있으면 그 시간대에만 config.RISK_WEIGHTS 를 덮어쓴다",
+
+  "windows": [
+    {
+      "id": "W1",
+      "label": "자재 반입·양중",
+      "from": "07:00",
+      "to": "09:00",
+      "active_zones": ["material_yard", "lift_landing", "tower_crane_radius"],
+      "weight_override": { "tower_crane_radius": 5 },
+      "note": "인양물 아래가 이 시간대의 최대 위험이다. 크레인 반경 가중치를 3→5 로 올린다"
+    },
+    {
+      "id": "W2",
+      "label": "갱폼 인양·설치",
+      "from": "09:00",
+      "to": "12:00",
+      "active_zones": ["gangform_workface", "opening_perimeter", "tower_crane_radius"],
+      "weight_override": { "gangform_workface": 5 },
+      "note": "갱폼 작업면과 개구부가 동시에 열린다. 추락 위험이 가장 큰 시간대"
+    },
+    {
+      "id": "W3",
+      "label": "휴게",
+      "from": "12:00",
+      "to": "13:00",
+      "active_zones": ["opening_perimeter"],
+      "note": "작업이 멈춰도 개구부는 남는다. 상시 위험이다"
+    },
+    {
+      "id": "W4",
+      "label": "타설·마감",
+      "from": "13:00",
+      "to": "17:00",
+      "active_zones": ["gangform_workface", "opening_perimeter", "lift_landing"],
+      "note": "양중이 줄고 작업면 활동이 늘어난다"
+    },
+    {
+      "id": "W5",
+      "label": "정리·반출",
+      "from": "17:00",
+      "to": "18:00",
+      "active_zones": ["material_yard", "lift_landing"],
+      "note": "조도가 떨어지는 시간대이나 조도는 모델에 없다 — 한계로 명시할 것"
+    }
+  ]
+}

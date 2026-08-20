@@ -96,7 +96,7 @@ def load() -> AssumedCurve:
 if __name__ == "__main__":
     import detect_model
     a, e = load(), detect_model.load()
-    print(f"가정 곡선 — 50% at {a.rho_half:.2f}px · k={a.k:.4f}")
+    print(f"가정 곡선 - 50% at {a.rho_half:.2f}px · k={a.k:.4f}")
     print(f"\n{'ρ':>5} {'θ':>5} {'o':>6} | {'가정':>7} {'실측':>7}  차이")
     for rho, th, occ in [(48, 0, 0.0), (31.25, 0, 0.0), (16, 15, 0.0),
                          (12, 30, 0.3), (8, 45, 0.5), (6, 60, 0.7)]:

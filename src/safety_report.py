@@ -28,6 +28,7 @@ import site_model
 import geometry
 import detect_model
 import prescribe
+import schedule
 import plan_io
 
 REPORT_JSON = config.OUTPUTS / "safety_report.json"
@@ -99,6 +100,12 @@ def build(plan_path: Path) -> dict:
          for i in range(len(site.voxels)) if pt[i] < d["threshold"]],
         key=lambda r: (-r["w"], r["P_total"]))
 
+    # 시간대별 위험구역 진단 (2026-08-20). 위험구역은 하루 내내 같지 않다.
+    try:
+        timed = schedule.evaluate_all(site, P, plan_idx)
+    except FileNotFoundError:
+        timed = None
+
     return {
         "plan": {"path": _shown_path(plan_path),
                  "note": doc.get("_note", ""), "cameras": len(cams_plan)},
@@ -116,6 +123,7 @@ def build(plan_path: Path) -> dict:
         "coverage": {"overall": d["current"], "by_level": levels, "by_zone": zones},
         "blind_spots": blind,
         "prescription": d["prescription"],
+        "time_phased": timed,
         "options": {"reallocate": d["reallocated_same_count"],
                     "ceiling": d["ceiling"], "add_curve": d["add_curve"],
                     "full_curve": d["full_curve"]},
