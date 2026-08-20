@@ -79,15 +79,68 @@ def in_fov(bearing: float, yaw: float) -> bool:
     return diff <= HALF_HFOV_DEG
 
 
-def choose_yaw(cam, voxels: list, solids: list) -> float:
+def occlusion_row(cam, voxels: list, solids: list) -> list:
+    """카메라 하나에서 전 복셀까지의 가림률. **한 번만 계산해 돌려쓴다.**
+
+    종전에는 choose_yaw 와 pair 가 각각 계산해 같은 광선을 두 번 쐈다.
+    후보를 24개에서 100개 이상으로 늘리면 그 낭비가 그대로 두 배가 된다.
+
+    복셀이 8만 개를 넘어 파이썬 반복으로는 카메라 하나에 8초가 걸린다.
+    **전 복셀 × 전 샘플점을 numpy 로 한 번에 민다.** 슬랩 방식은 그대로다.
+    """
+    import numpy as np
+    n = config.OCCLUSION_SAMPLE_POINTS
+    top = config.OCCLUSION_BAR_HEIGHT_M
+
+    vx = np.fromiter((v["x"] for v in voxels), float, len(voxels))
+    vy = np.fromiter((v["y"] for v in voxels), float, len(voxels))
+    zs = np.linspace(0.0, top, n)
+
+    # (복셀, 샘플점) 격자로 편다
+    ox = vx[:, None]                      # 광선 시점
+    oy = vy[:, None]
+    oz = np.broadcast_to(zs, (len(voxels), n))
+    dx = cam.x - ox
+    dy = cam.y - oy
+    dz = cam.z - oz
+
+    worst = np.zeros((len(voxels), n))
+    for s in solids:
+        t_min = np.zeros_like(worst)
+        t_max = np.ones_like(worst)
+        ok = np.ones_like(worst, dtype=bool)
+        for o, d, lo, hi in ((ox, dx, s.x1, s.x2),
+                             (oy, dy, s.y1, s.y2),
+                             (oz, dz, s.z1, s.z2)):
+            par = np.abs(d) < 1e-12
+            with np.errstate(divide="ignore", invalid="ignore"):
+                t1 = (lo - o) / d
+                t2 = (hi - o) / d
+            lo_t = np.minimum(t1, t2)
+            hi_t = np.maximum(t1, t2)
+            # 축에 평행한 광선은 그 축 구간 안에 있어야 통과한다
+            inside = (o >= lo) & (o <= hi)
+            lo_t = np.where(par, np.where(inside, t_min, 1.0), lo_t)
+            hi_t = np.where(par, np.where(inside, t_max, 0.0), hi_t)
+            t_min = np.maximum(t_min, np.broadcast_to(lo_t, worst.shape))
+            t_max = np.minimum(t_max, np.broadcast_to(hi_t, worst.shape))
+            ok &= (t_min <= t_max)
+        # 여러 겹을 지나면 가장 많이 막는 것을 쓴다 (곱으로 누적하지 않는다)
+        worst = np.where(ok, np.maximum(worst, s.coverage), worst)
+
+    return worst.mean(axis=1).tolist()
+
+
+def choose_yaw(cam, voxels: list, solids: list, occ_row: list = None) -> float:
     """이 카메라가 볼 수 있는 위험가중량을 최대로 만드는 방위를 고른다.
 
     가림·거리는 방위와 무관하므로 화각 판정만 방위별로 다시 한다.
     동점이면 작은 각도로 끊어 재현성을 지킨다.
     """
+    if occ_row is None:
+        occ_row = occlusion_row(cam, voxels, solids)
     seen = []
-    for v in voxels:
-        occ = occlusion_ratio(v["x"], v["y"], cam, solids)
+    for v, occ in zip(voxels, occ_row):
         if occ >= 1.0:
             continue
         seen.append((bearing_deg(cam, v["x"], v["y"]), v["w"]))
@@ -101,7 +154,8 @@ def choose_yaw(cam, voxels: list, solids: list) -> float:
     return best_yaw
 
 
-def pair(voxel: dict, cam, solids: list, yaw: float) -> dict:
+def pair(voxel: dict, cam, solids: list, yaw: float,
+         occ: float = None) -> dict:
     """복셀-카메라 한 쌍의 기하량."""
     dx, dy, dz = voxel["x"] - cam.x, voxel["y"] - cam.y, voxel["z"] - cam.z
     d = math.sqrt(dx * dx + dy * dy + dz * dz)
@@ -114,7 +168,8 @@ def pair(voxel: dict, cam, solids: list, yaw: float) -> dict:
                 "rho_px": 0.0, "theta_deg": 0.0, "occ_ratio": 1.0,
                 "visible": False, "reason": "화각 밖"}
 
-    occ = occlusion_ratio(voxel["x"], voxel["y"], cam, solids)
+    if occ is None:
+        occ = occlusion_ratio(voxel["x"], voxel["y"], cam, solids)
     visible = occ < 1.0
     return {
         "voxel_id": voxel["id"],
@@ -139,14 +194,15 @@ def all_pairs(site, cameras=None, fixed_yaws: dict = None) -> tuple[dict, dict]:
     """
     cams = list(cameras if cameras is not None else site.cameras)
     fixed_yaws = fixed_yaws or {}
-    yaws = {}
-    for c in cams:
-        yaws[c.cid] = (fixed_yaws[c.cid] if c.cid in fixed_yaws
-                       else choose_yaw(c, site.voxels, site.solids))
-    out = {}
+    yaws, out = {}, {}
     for cam in cams:
-        for v in site.voxels:
-            out[(cam.cid, v["id"])] = pair(v, cam, site.solids, yaws[cam.cid])
+        # 가림률은 방위와 무관하다. 카메라당 한 번만 쏘고 두 곳에서 쓴다.
+        row = occlusion_row(cam, site.voxels, site.solids)
+        yaws[cam.cid] = (fixed_yaws[cam.cid] if cam.cid in fixed_yaws
+                         else choose_yaw(cam, site.voxels, site.solids, row))
+        for v, occ in zip(site.voxels, row):
+            out[(cam.cid, v["id"])] = pair(v, cam, site.solids,
+                                           yaws[cam.cid], occ)
     return out, yaws
 
 

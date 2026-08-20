@@ -114,31 +114,76 @@ def _zones() -> list:
 
 # ── 카메라 후보 ───────────────────────────────────────────────────────────
 
-def _cameras() -> list:
-    """24개 (§5.1). 경계 폴 16 + 코어 상부 4 + 타워크레인 4."""
-    cams = []
+def _cameras(spacing_m: float = None) -> list:
+    """설치 가능한 자리에 후보를 **격자로 깐다** (2026-08-20).
+
+    종전에는 24개를 손으로 찍었다. 그러면 재배치 처방이 그 24곳 안에서만
+    나와 *"(37.4m, 22.8m, z 8m) 에 달아라"* 같은 답을 못 한다. 현장에 폴을
+    세울 수 있는 자리가 딱 24곳일 리 없으니 실무적으로 약했다.
+
+    연속 최적화(좌표를 실수 변수로 두고 경사하강) 대신 **후보를 촘촘히 까는**
+    쪽을 골랐다. 구조를 바꾸지 않고, 탐욕의 (1−1/e) 보장이 그대로 유지되며,
+    "후보 안에서 불가능" 판정이 실제 물리적 한계에 가까워진다.
+
+    설치 가능 영역 넷:
+      경계 폴    현장 둘레. 높이 6m
+      코어 상부  코어 슬래브 위. 높이 13m
+      비계       외곽 비계 상단 난간. 높이 8·12m — 실제로 카메라를 다는 자리다
+      타워크레인 중앙 마스트 주변. 높이 25m
+
+    간격은 `config.CAMERA_SPACING_M`. 좁힐수록 임의 위치에 가까워지지만
+    광선투사가 후보 수에 비례해 늘어난다.
+    """
+    sp = spacing_m or config.CAMERA_SPACING_M
     W, D = config.SITE_WIDTH_M, config.SITE_DEPTH_M
+    cams, seen = [], set()
 
-    # 경계 폴 16개 — 높이 6m. 네 변에 균등 배치
-    for i in range(5):
-        x = W * (i + 0.5) / 5
-        cams.append(Camera(f"c_b{len(cams):02d}", x, 1.0, 6.0, "boundary_pole"))
-        cams.append(Camera(f"c_b{len(cams):02d}", x, D - 1.0, 6.0, "boundary_pole"))
-    for j in range(3):
-        y = D * (j + 0.5) / 3
-        cams.append(Camera(f"c_b{len(cams):02d}", 1.0, y, 6.0, "boundary_pole"))
-        cams.append(Camera(f"c_b{len(cams):02d}", W - 1.0, y, 6.0, "boundary_pole"))
+    def add(x, y, z, mount, tag):
+        key = (round(x, 1), round(y, 1), round(z, 1))
+        if key in seen:
+            return
+        seen.add(key)
+        cams.append(Camera(f"c_{tag}{len(cams):03d}", x, y, z, mount))
 
-    # 코어 상부 4개 — 높이 13m. 코어 두 개의 대각 모서리
+    # ① 경계 폴 — 네 변을 spacing 간격으로
+    n_x = max(2, int(round(W / sp)))
+    n_y = max(2, int(round(D / sp)))
+    for i in range(n_x):
+        x = W * (i + 0.5) / n_x
+        add(x, 1.0, 6.0, "boundary_pole", "b")
+        add(x, D - 1.0, 6.0, "boundary_pole", "b")
+    for j in range(n_y):
+        y = D * (j + 0.5) / n_y
+        add(1.0, y, 6.0, "boundary_pole", "b")
+        add(W - 1.0, y, 6.0, "boundary_pole", "b")
+
+    # ② 코어 상부 — 코어 윗면 둘레
     for cx in (30.0, 70.0):
-        for cy in (22.0, 38.0):
-            cams.append(Camera(f"c_k{len(cams):02d}", cx, cy, 13.0, "core_top"))
+        for dx in (-6.0, 0.0, 6.0):
+            for dy in (-8.0, 0.0, 8.0):
+                if dx == 0.0 and dy == 0.0:
+                    continue
+                add(cx + dx, 30.0 + dy, 13.0, "core_top", "k")
 
-    # 타워크레인 4개 — 높이 25m. 현장 중앙 마스트 주변
-    for dx, dy in ((-8.0, -8.0), (8.0, -8.0), (-8.0, 8.0), (8.0, 8.0)):
-        cams.append(Camera(f"c_t{len(cams):02d}", 50.0 + dx, 30.0 + dy, 25.0, "tower_crane"))
+    # ③ 비계 상단 난간 — 실제로 카메라를 다는 자리다
+    ox1, oy1, ox2, oy2 = 16.0, 12.0, 84.0, 48.0
+    for z in (8.0, 12.0):
+        for i in range(max(2, int(round((ox2 - ox1) / sp)))):
+            x = ox1 + (ox2 - ox1) * (i + 0.5) / max(2, int(round((ox2 - ox1) / sp)))
+            add(x, oy1, z, "scaffold_rail", "s")
+            add(x, oy2, z, "scaffold_rail", "s")
+        for j in range(max(2, int(round((oy2 - oy1) / sp)))):
+            y = oy1 + (oy2 - oy1) * (j + 0.5) / max(2, int(round((oy2 - oy1) / sp)))
+            add(ox1, y, z, "scaffold_rail", "s")
+            add(ox2, y, z, "scaffold_rail", "s")
 
-    assert len(cams) == config.CAMERA_CANDIDATE_COUNT, len(cams)
+    # ④ 타워크레인 마스트 주변
+    for dx in (-8.0, 0.0, 8.0):
+        for dy in (-8.0, 0.0, 8.0):
+            if dx == 0.0 and dy == 0.0:
+                continue
+            add(50.0 + dx, 30.0 + dy, 25.0, "tower_crane", "t")
+
     return cams
 
 

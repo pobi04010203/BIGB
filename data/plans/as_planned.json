@@ -7,8 +7,8 @@
  },
  "cameras": [
   {
-   "id": "c_b00",
-   "x": 10.0,
+   "id": "c_b000",
+   "x": 5.0,
    "y": 1.0,
    "z": 6.0,
    "yaw_deg": 45.0,
@@ -18,19 +18,8 @@
    "mount": "boundary_pole"
   },
   {
-   "id": "c_b01",
-   "x": 10.0,
-   "y": 59.0,
-   "z": 6.0,
-   "yaw_deg": 315.0,
-   "hfov_deg": 90.0,
-   "img_w": 3840,
-   "img_h": 2160,
-   "mount": "boundary_pole"
-  },
-  {
-   "id": "c_b02",
-   "x": 30.0,
+   "id": "c_b004",
+   "x": 25.0,
    "y": 1.0,
    "z": 6.0,
    "yaw_deg": 45.0,
@@ -40,41 +29,30 @@
    "mount": "boundary_pole"
   },
   {
-   "id": "c_b03",
-   "x": 30.0,
+   "id": "c_b009",
+   "x": 45.0,
    "y": 59.0,
    "z": 6.0,
-   "yaw_deg": 315.0,
+   "yaw_deg": 300.0,
    "hfov_deg": 90.0,
    "img_w": 3840,
    "img_h": 2160,
    "mount": "boundary_pole"
   },
   {
-   "id": "c_b04",
-   "x": 50.0,
-   "y": 1.0,
-   "z": 6.0,
-   "yaw_deg": 75.0,
-   "hfov_deg": 90.0,
-   "img_w": 3840,
-   "img_h": 2160,
-   "mount": "boundary_pole"
-  },
-  {
-   "id": "c_b05",
-   "x": 50.0,
+   "id": "c_b013",
+   "x": 65.0,
    "y": 59.0,
    "z": 6.0,
-   "yaw_deg": 255.0,
+   "yaw_deg": 225.0,
    "hfov_deg": 90.0,
    "img_w": 3840,
    "img_h": 2160,
    "mount": "boundary_pole"
   },
   {
-   "id": "c_b06",
-   "x": 70.0,
+   "id": "c_b018",
+   "x": 95.0,
    "y": 1.0,
    "z": 6.0,
    "yaw_deg": 135.0,
@@ -84,11 +62,33 @@
    "mount": "boundary_pole"
   },
   {
-   "id": "c_b07",
-   "x": 70.0,
-   "y": 59.0,
+   "id": "c_b022",
+   "x": 1.0,
+   "y": 15.0,
    "z": 6.0,
-   "yaw_deg": 225.0,
+   "yaw_deg": 30.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  },
+  {
+   "id": "c_b027",
+   "x": 99.0,
+   "y": 35.0,
+   "z": 6.0,
+   "yaw_deg": 195.0,
+   "hfov_deg": 90.0,
+   "img_w": 3840,
+   "img_h": 2160,
+   "mount": "boundary_pole"
+  },
+  {
+   "id": "c_b031",
+   "x": 99.0,
+   "y": 55.0,
+   "z": 6.0,
+   "yaw_deg": 210.0,
    "hfov_deg": 90.0,
    "img_w": 3840,
    "img_h": 2160,

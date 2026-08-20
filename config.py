@@ -137,7 +137,10 @@ VOXEL_Z_MAX_M = 14.0                      # 비계 상단까지
 OCCUPIABLE_BAND_M = (0.0, 2.5)            # 바닥 위 이 높이대
 OCCUPIABLE_NEAR_SCAFFOLD_M = 2.0          # 비계에서 이 거리 안
 
-CAMERA_CANDIDATE_COUNT = 24   # 현장 경계 폴 + 코어 상부 + 타워크레인
+# 후보 위치 간격 (2026-08-20). 종전에는 24개를 손으로 찍었고, 그러면 재배치
+# 처방이 그 24곳 안에서만 나왔다. 격자로 깔아 임의 위치에 가깝게 만든다.
+# 좁힐수록 처방이 정밀해지지만 광선투사가 후보 수에 비례해 늘어난다.
+CAMERA_SPACING_M = 10.0
 CAMERA_BUDGET = 8             # 실제 좌표 생성은 Phase 3 의 site.py 담당
 
 # 위험 가중치 w(v).
