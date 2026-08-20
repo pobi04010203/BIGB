@@ -1,0 +1,115 @@
+/* 시안 — 소프트 엘리베이션 (A안)
+ *
+ * 뉴모피즘의 "부드럽게 솟은 느낌" 만 가져오고 그 대가는 치르지 않는다.
+ *
+ * 뉴모피즘 정석은 **요소와 배경을 같은 색으로 두고 그림자로만 구분**한다.
+ * 그러면 UI 경계 대비가 정의상 1.0:1 이 되어 기준(3:1)을 못 맞춘다. 이 화면은
+ * 적록색약 문제를 잡느라 색 스케일을 갈아엎은 직후라 그 방향으로 되돌릴 수 없다.
+ *
+ * 그래서 규칙 셋을 지킨다.
+ *   ① **경계선을 지운 곳이 없다.** 그림자는 경계선에 더해지는 것이지 대체가 아니다.
+ *   ② **데이터 영역에 그림자를 얹지 않는다.** 히트맵·평면도·램프·스와치는 그대로다.
+ *      셀 위에 그림자가 깔리면 P=0.62 와 P=0.55 의 색 차이를 그림자가 먹는다.
+ *   ③ **채도를 넣지 않는다.** 그림자는 잉크 색의 알파이고 새 색상을 만들지 않는다.
+ *      "색은 데이터에만" 규칙이 유지된다.
+ *
+ * 적용 대상은 크롬뿐이다 — 패널·컨트롤·표 컨테이너·배지.
+ */
+
+:root{
+  /* 잉크 계열의 알파로만 만든다. 새 색상 없음. */
+  --soft-dark: oklch(21.2% 0.009 256 / 0.10);
+  --soft-dark-2: oklch(21.2% 0.009 256 / 0.06);
+  --soft-light: oklch(100% 0 0 / 0.85);
+
+  --soft-raise:
+      6px 6px 14px -6px var(--soft-dark),
+     -5px -5px 12px -6px var(--soft-light);
+  --soft-raise-sm:
+      3px 3px 8px -4px var(--soft-dark-2),
+     -3px -3px 7px -4px var(--soft-light);
+  --soft-inset:
+      inset 3px 3px 7px -4px var(--soft-dark-2),
+      inset -2px -2px 6px -4px var(--soft-light);
+}
+
+/* ── 패널 — 종이에서 살짝 떠오른다. 경계선은 그대로 둔다 ───────────── */
+section{
+  box-shadow: var(--soft-raise);
+}
+
+/* ── 요약 수치 — 결론 두 칸만 솟게 한다 ────────────────────────────────
+ * 넷을 다 띄우면 위계가 다시 평평해진다. ③ 실측과 미달구역만 판으로 올린다. */
+.cards{
+  gap: var(--space-2xs);
+  border-top: 0;
+}
+.card{
+  border-right: 0;
+  border-radius: var(--radius-panel);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule);
+}
+.card.hi,
+.card.lead{
+  box-shadow: var(--soft-raise);
+  border-color: var(--color-ink-2);
+}
+.card:not(.hi):not(.lead){
+  background: transparent;
+  border-color: var(--color-rule-2);
+}
+.card:last-child{ padding-left: var(--space-md); }
+
+/* ── 컨트롤 — 눌린 상태를 안으로 들어간 것으로 표현한다 ──────────────
+ * 뉴모피즘에서 유일하게 기능적으로 값어치 있는 부분이다. 활성 탭이
+ * "눌려 있다" 는 것이 색뿐 아니라 형태로도 읽힌다. */
+.modes{
+  box-shadow: var(--soft-raise-sm);
+  border-color: var(--color-muted);
+}
+.mode{
+  background: var(--color-paper-2);
+}
+.mode:hover{
+  background: var(--color-paper-3);
+}
+.mode.on{
+  background: var(--color-chrome);
+  color: var(--color-paper-2);
+  box-shadow: var(--soft-inset);
+}
+.mode:active{
+  box-shadow: var(--soft-inset);
+  transform: none;              /* 그림자가 눌림을 말하므로 이동은 뺀다 */
+}
+
+/* ── 표 — 안으로 들어간 우물 ──────────────────────────────────────── */
+.scroll{
+  box-shadow: var(--soft-inset);
+}
+
+/* ── 배지 ──────────────────────────────────────────────────────────── */
+.pill{
+  box-shadow: var(--soft-raise-sm);
+}
+.pill.w5, .pill.w4{
+  box-shadow: none;             /* 상태색 배지는 그대로 — 색이 신호다 */
+}
+
+/* ── 머리말 ────────────────────────────────────────────────────────── */
+header{
+  background: var(--color-paper-2);
+  box-shadow: 0 2px 10px -6px var(--soft-dark);
+}
+
+/* ── 손대지 않는 것 (명시) ──────────────────────────────────────────
+ * canvas · .ramp · .sw · .legend .chip · table 셀 · .err
+ * 데이터를 나르는 표면이라 그림자를 얹지 않는다. */
+canvas{ box-shadow: none; }
+.ramp, .sw, .legend .chip{ box-shadow: none; }
+
+@media (prefers-reduced-motion: reduce){
+  .mode{ transition: none; }
+}

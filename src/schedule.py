@@ -54,7 +54,19 @@ def required_for(weight: int) -> float:
 
 REQUIRED_BY_WEIGHT = {w: required_for(w) for w in range(1, 11)}
 
-# 감점 계수. 미달폭 1.0(=100%p) 에 가중치 1 이면 이만큼 깎는다.
+# 감점 계수. 정규화한 가중평균 미달폭에 곱한다.
+#
+# **정규화하는 이유.** 종전에는 감점을 Σ(k·w·미달폭) 으로 그냥 합산했다. 가중치가
+# 최대 10 이라 구역 둘만 크게 미달해도 감점이 1.0 을 넘고, 점수가 0 에서 잘려
+# 시간대끼리 구별되지 않았다(W1·W3·W5 가 모두 0.000). 판정은 맞지만 크기를
+# 읽을 수 없다.
+#
+# 그래서 **활성 구역 가중치 합으로 나눈다** — 감점이 "가중평균 미달폭"이 되어
+# [0, 1] 에 들어가고 커버리지와 같은 눈금에서 읽힌다.
+#
+# 평균으로 상쇄될 걱정은 없다. 상쇄를 막는 것은 감점의 크기가 아니라 **치명 구역
+# 게이트**다(아래 CRITICAL_WEIGHT). 게이트가 그 일을 하므로 감점은 크기를
+# 나타내는 데만 쓴다.
 PENALTY_K = 1.0
 
 # 이 가중치 이상인 구역이 요건 미달이면 전체를 미달로 확정한다.
@@ -126,7 +138,10 @@ def evaluate_window(site, P, plan_idx, window: dict, threshold: float = None) ->
     m = prescribe.metrics(pt, w, threshold)
     zones = zone_scores(site, pt, window, threshold)
 
-    penalty = sum(z["penalty"] for z in zones)
+    # 가중평균 미달폭. 분모는 활성 구역의 가중치 합이다
+    wsum = sum(z["weight"] for z in zones)
+    penalty_raw = sum(z["penalty"] for z in zones)
+    penalty = round(penalty_raw / wsum, 4) if wsum else 0.0
     critical = [z["zone"] for z in zones if z["critical_fail"]]
     base = m[config.LH_TARGET_METRIC]
     scored = max(0.0, base - penalty)
@@ -137,6 +152,9 @@ def evaluate_window(site, P, plan_idx, window: dict, threshold: float = None) ->
         "metrics": m,
         "zones": zones,
         "penalty_total": round(penalty, 4),
+        "penalty_raw": round(penalty_raw, 4),
+        "penalty_note": "감점 = Σ(k·가중치·미달폭) / Σ가중치. 가중평균 미달폭이라 "
+                        "[0,1] 이며 커버리지와 같은 눈금이다",
         "base_score": round(base, 4),
         "scored": round(scored, 4),
         "critical_failures": critical,
@@ -172,7 +190,9 @@ def evaluate_all(site, P, plan_idx, sched: dict = None,
             "required_by_weight": REQUIRED_BY_WEIGHT,
             "penalty_k": PENALTY_K,
             "critical_weight": CRITICAL_WEIGHT,
-            "note": f"감점 = k × 가중치 × 미달폭. 가중치 {CRITICAL_WEIGHT} 이상 구역이 미달이면 "
-                    "점수와 무관하게 전체 미달로 확정한다",
+            "note": f"감점 = Σ(k × 가중치 × 미달폭) / Σ가중치 — 활성 구역 가중치로 정규화한 "
+                    f"가중평균 미달폭이다. 가중치 {CRITICAL_WEIGHT} 이상 구역이 미달이면 "
+                    "점수와 무관하게 전체 미달로 확정한다. 상쇄를 막는 것은 감점 크기가 "
+                    "아니라 이 게이트다",
         },
     }
