@@ -79,6 +79,42 @@
    * 색 하나로만 판정을 전달하면 색약 사용자에게는 신호가 없다. */
   function isFail(p, threshold) { return p < (threshold == null ? 0.5 : threshold); }
 
+  /* 표현 구간. **어느 복셀을 그릴지가 아니라 얼마나 진하게 그릴지의 정책이다.**
+   *
+   * 3D 로 9,876개를 전부 같은 세기로 칠하면 서로 겹쳐 아무것도 안 읽힌다.
+   * 실측 분포가 위쪽에 몰려 있어서 더 그렇다 —
+   *   P >= 0.9  1,279개 (33.6%)  이미 충분히 보이는 곳
+   *   0.5~0.9   2,241개 (58.9%)  통과지만 여유가 없는 곳
+   *   P <  0.5    284개 ( 7.5%)  **메시지는 여기 있다**
+   *
+   * 그래서 잘 보이는 쪽은 잉크를 빼고 못 보는 쪽에 잉크를 몰아준다.
+   *   clear  칠하지 않는다. 윤곽만 남겨 현장 형상은 유지한다
+   *   mid    옅게. 맥락은 주되 앞으로 나오지 않는다
+   *   fail   진하게 + 무채색 테두리 (색약 대비 이중 부호화)
+   */
+  var CLEAR_AT = 0.9;
+
+  function band(p, threshold) {
+    var t = (threshold == null ? 0.5 : threshold);
+    if (p < t) return 'fail';
+    if (p >= CLEAR_AT) return 'clear';
+    return 'mid';
+  }
+
+  /* 구간별 채우기 투명도. clear 는 0 (안 칠한다). */
+  function fillAlpha(p, threshold) {
+    var t = (threshold == null ? 0.5 : threshold);
+    var b = band(p, threshold);
+    if (b === 'clear') return 0;
+    if (b === 'fail') {
+      var k = t > 0 ? (t - p) / t : 1;          // 임계에서 0, 0 에서 1
+      return 0.60 + 0.28 * k;
+    }
+    var m = (CLEAR_AT - p) / Math.max(1e-6, CLEAR_AT - t);   // 0.9 에서 0, t 에서 1
+    return 0.08 + 0.22 * m;
+  }
+
+
   var uiCache = {};
   function ui(name) {                       // 무채색 UI 색 (카메라·경계 등)
     if (!(name in uiCache)) uiCache[name] = resolve(token(name));
@@ -86,5 +122,6 @@
   }
 
   global.Theme = { heat: heat, rgba: rgba, css: css, token: token,
-                   ui: ui, isFail: isFail, stops: stops };
+                   ui: ui, isFail: isFail, stops: stops,
+                   band: band, fillAlpha: fillAlpha, CLEAR_AT: CLEAR_AT };
 })(window);

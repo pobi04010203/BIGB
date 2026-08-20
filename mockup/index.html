@@ -108,9 +108,12 @@ canvas{display:block;width:100%;background:var(--color-paper);
 .ramp i{display:block;width:24px}
 .sw{width:16px;height:11px;border:var(--rule-hair) solid var(--color-rule);
     border-radius:2px}
-.legend .fail{display:inline-block;width:11px;height:11px;border-radius:2px;
-              background:var(--scale-0);outline:1.5px solid var(--color-ink);
+.legend .chip{display:inline-block;width:11px;height:11px;border-radius:2px;
+              vertical-align:-1px;margin-right:3px}
+.legend .fail{background:var(--scale-0);outline:1.5px solid var(--color-ink);
               outline-offset:-1.5px}
+.legend .mid{background:var(--scale-75);opacity:.30}
+.legend .clear{background:transparent;border:1px solid var(--color-rule)}
 
 /* -- 표 -------------------------------------------------------------- */
 table{width:100%;border-collapse:collapse;font-size:var(--text-xs)}
@@ -257,6 +260,12 @@ function render(d){
 
   <section class="map">
     <h2>현장 검출확률 — 2D / 2.5D / 3D</h2>
+    <p class="hint"><b>잉크를 못 보는 곳에 몰아준다.</b> 9,876개를 같은 세기로 칠하면
+      서로 겹쳐 아무것도 안 읽힌다. 검출확률이 높은 구역(${Theme.CLEAR_AT} 이상, 전체의
+      ${Math.round(vox.filter(v=>v.occupiable!==false&&v[key]>=Theme.CLEAR_AT).length
+        /vox.filter(v=>v.occupiable!==false).length*100)}%)은 칠하지 않고 윤곽만 남겨
+      현장 형상만 유지하고, 임계 미만에 색과 테두리를 준다. 색 스케일은 그대로이고
+      달라지는 것은 진하기다.</p>
     <div class="toolbar">
       <label><input type="radio" name="view" value="geometric"
         ${view==='geometric'?'checked':''} ${geo?'':'disabled'}> 기하 커버리지 배치 (기존)</label>
@@ -286,8 +295,10 @@ function render(d){
       <span>미달</span>
       <span class="ramp">${rampHTML(d.threshold)}</span>
       <span>통과</span>
-      <span style="margin-left:6px"><span class="fail"></span>
-        임계 미만은 테두리로도 표시 — 색 하나에만 기대지 않는다</span>
+      <span style="margin-left:10px"><span class="chip fail"></span>P &lt; ${d.threshold}
+        진하게 + 테두리</span>
+      <span><span class="chip mid"></span>${d.threshold} ~ ${Theme.CLEAR_AT} 옅게</span>
+      <span><span class="chip clear"></span>${Theme.CLEAR_AT} 이상 윤곽만</span>
       <span style="margin-left:10px">기준 임계 ${d.threshold} ·
         복셀 ${S.voxel_m}m · ${(d.levels||[0]).length}개 층 ${vox.length}개</span>
     </div>

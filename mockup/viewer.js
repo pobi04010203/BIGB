@@ -320,7 +320,8 @@
       // 큐브를 꽉 채우면 안쪽이 안 보인다. 살짝 줄여 사이가 비게 둔다.
       const cs = s * 0.86;
       const shade = [1.0, 0.82, 0.66];        // 윗면 / 옆면 둘 — 입체감
-      const failInk = Theme.ui('--color-ink');   // 미달 윤곽 — 무채색
+      const failInk  = Theme.ui('--color-ink');    // 미달 윤곽 — 무채색
+      const clearInk = Theme.ui('--color-rule');  // 통과 구간 윤곽 — 아주 옅게
 
       d.voxels.forEach(v => {
         if (single && v.level !== this.opts.level) return;
@@ -329,23 +330,31 @@
         if (p === undefined || p === null) return;
 
         const base = heat(p);
-        const alpha = 0.30 + 0.55 * (1 - p);
+        const bnd = Theme.band(p, this.d.threshold);
+        const alpha = Theme.fillAlpha(p, this.d.threshold);
+        // clear(P>=0.9) 는 채우지 않는다. 윤곽만 남겨 형상은 유지한다.
+        const edge = bnd === 'fail'  ? rgba(failInk, 0.55)
+                   : bnd === 'clear' ? rgba(clearInk, 0.55) : null;
         if (flat) {
           const pts = this._quad(v.x, v.y, v.z, s);
           items.push({ depth: pts.reduce((a,q)=>a+q.depth,0)/pts.length, pts,
-                       fill: rgba(base, alpha),
-                       stroke: Theme.isFail(p, this.d.threshold)
-                               ? rgba(failInk, 0.65) : null, lw: 0.8 });
+                       fill: alpha > 0 ? rgba(base, alpha) : null,
+                       stroke: bnd === 'fail' ? rgba(failInk, 0.65) : edge,
+                       lw: bnd === 'fail' ? 0.8 : 0.6 });
           return;
         }
         // **미달은 테두리로도 표시한다.** 색 하나로만 판정을 전달하면 적록색약
-        // 사용자에게는 신호가 없다. 임계 미달 복셀만 윤곽을 얹는다.
-        const fail = Theme.isFail(p, this.d.threshold);
-        this._cubeFaces(v.x, v.y, v.z, cs).forEach((f, fi) => {
+        // 사용자에게는 신호가 없다.
+        // clear 구간은 윗면 윤곽 하나만 그린다 — 세 면을 다 그으면 선이
+        // 1,279 x 3 개가 되어 격자 노이즈가 된다. 한 면이면 형상만 남는다.
+        const faces = this._cubeFaces(v.x, v.y, v.z, cs);
+        const use = bnd === 'clear' ? faces.slice(0, 1) : faces;
+        use.forEach((f, fi) => {
           const dep = f.reduce((a, q) => a + q.depth, 0) / f.length;
           const c = base.map(ch => Math.round(ch * shade[fi]));
-          items.push({ depth: dep, pts: f, fill: rgba(c, alpha),
-                       stroke: fail ? rgba(failInk, 0.55) : null, lw: 0.8 });
+          items.push({ depth: dep, pts: f,
+                       fill: alpha > 0 ? rgba(c, alpha) : null,
+                       stroke: edge, lw: bnd === 'fail' ? 0.8 : 0.5 });
         });
       });
 
@@ -355,7 +364,7 @@
         ctx.beginPath();
         it.pts.forEach((q, i) => i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y));
         ctx.closePath();
-        ctx.fillStyle = it.fill; ctx.fill();
+        if (it.fill) { ctx.fillStyle = it.fill; ctx.fill(); }
         if (it.stroke) { ctx.strokeStyle = it.stroke; ctx.lineWidth = it.lw || 1; ctx.stroke(); }
       });
 
