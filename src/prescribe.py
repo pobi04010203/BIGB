@@ -60,13 +60,30 @@ def p_total(P: np.ndarray, idx) -> np.ndarray:
     return 1.0 - np.prod(1.0 - P[list(idx)], axis=0)
 
 
-def metrics(pt: np.ndarray, w: np.ndarray, threshold: float = None) -> dict:
-    """분모는 사람이 있을 수 있는 복셀(w > 0)뿐이다."""
+def metrics(pt: np.ndarray, w: np.ndarray, threshold: float = None,
+            site=None, zidx: dict = None) -> dict:
+    """분모는 사람이 있을 수 있는 복셀(w > 0)뿐이다.
+
+    `site`(또는 미리 만든 `zidx`)를 주면 **100점 만점 점수**를 함께 낸다.
+    `score` 는 0~1 로 정규화한 값이라 다른 지표와 같은 눈금에서 비교되고,
+    `score_100` 이 화면에 쓰는 값이다. 구역별 분해는 `score_detail` 이다.
+    """
     thr = config.P_DETECT_THRESHOLD if threshold is None else threshold
     live = w > 0
     ok = (pt >= thr) & live
     n = int(live.sum())
+    extra = {}
+    if site is not None or zidx is not None:
+        import score as score_mod
+        s = score_mod.evaluate(site, pt, thr, zidx)
+        extra = {"score": round(s["total"] / 100.0, 4),
+                 "score_100": s["total"], "grade": s["grade"],
+                 # 치명 구역 미달은 곡선을 따라가며 봐야 하므로 상세를 버려도
+                 # 이 목록만은 남긴다. 목표 충족 판정이 여기에 걸린다.
+                 "critical_failures": s["critical_failures"],
+                 "score_detail": s}
     return {
+        **extra,
         "spatial_coverage": round(float(ok.sum() / n), 4) if n else None,
         "WDR": round(float((w * pt).sum() / w.sum()), 4),
         "risk_coverage": round(float(w[ok].sum() / w.sum()), 4),
@@ -110,20 +127,47 @@ def greedy_order(P: np.ndarray, w: np.ndarray, budget: int = None,
 
 
 def coverage_curve(P: np.ndarray, w: np.ndarray, order: list,
-                   threshold: float = None) -> list:
-    """대수를 1대씩 늘려가며 커버리지를 기록한다. 처방의 근거가 된다."""
+                   threshold: float = None, site=None, zidx: dict = None,
+                   keep_detail: bool = False) -> list:
+    """대수를 1대씩 늘려가며 커버리지를 기록한다. 처방의 근거가 된다.
+
+    `site`/`zidx` 를 주면 점수도 함께 기록해 **점수를 목표로 한 처방**이
+    가능해진다. 구역별 분해는 곡선 길이만큼 불어나므로 기본으로 버린다.
+    """
     out = []
     for k in range(1, len(order) + 1):
-        m = metrics(p_total(P, order[:k]), w, threshold)
+        m = metrics(p_total(P, order[:k]), w, threshold, site, zidx)
         m["n_cameras"] = k
+        if not keep_detail:
+            m.pop("score_detail", None)
         out.append(m)
     return out
 
 
-def first_meeting_at(curve: list, metric: str, target: float):
-    """이 곡선에서 목표를 처음 넘는 지점. 못 넘으면 None."""
+def meets(row: dict, metric: str, target: float,
+          require_no_critical: bool = True) -> bool:
+    """이 지점이 목표를 충족하는가.
+
+    **점수만으로 판정하지 않는다.** 치명 구역(가중치 CRITICAL_WEIGHT 이상)이
+    하나라도 요구에 못 미치면 점수와 무관하게 미충족이다. 실제로 8대 재배치가
+    95.6점을 내면서 갱폼·단부·개구부를 미달로 남긴 적이 있다. 그것을 "충족"
+    이라 부르면 이 도구가 하려던 말을 스스로 뒤집는다.
+
+    `critical_failures` 가 없는 지표(risk_coverage 등)에는 게이트가 걸리지
+    않는다 — 그 지표는 구역을 보지 않기 때문이다.
+    """
+    if row.get(metric) is None or row[metric] < target:
+        return False
+    if require_no_critical and row.get("critical_failures"):
+        return False
+    return True
+
+
+def first_meeting_at(curve: list, metric: str, target: float,
+                     require_no_critical: bool = True):
+    """이 곡선에서 목표를 처음 충족하는 지점. 못 넘으면 None."""
     for row in curve:
-        if row[metric] >= target:
+        if meets(row, metric, target, require_no_critical):
             return row
     return None
 
@@ -139,22 +183,26 @@ def diagnose(site, pairs, curve, plan_idx: list, cams: list, P, w,
     target = config.LH_COVERAGE_TARGET if target is None else target
     metric = config.LH_TARGET_METRIC if metric is None else metric
 
-    current = metrics(p_total(P, plan_idx), w, threshold)
+    # 구역 인덱스는 한 번만 만든다. 곡선을 따라 수십 번 채점하기 때문이다.
+    import score as score_mod
+    zidx = score_mod.zone_index(site)
+
+    current = metrics(p_total(P, plan_idx), w, threshold, site, zidx)
     current["n_cameras"] = len(plan_idx)
 
     # ① 같은 대수 재배치
     re_order = greedy_order(P, w, budget=len(plan_idx))
-    realloc = metrics(p_total(P, re_order), w, threshold)
+    realloc = metrics(p_total(P, re_order), w, threshold, site, zidx)
     realloc["n_cameras"] = len(re_order)
     realloc["camera_ids"] = [cams[i] for i in re_order]
 
     # ② 기존 배치를 두고 증설
     add_order = greedy_order(P, w, fixed=plan_idx)
-    add_curve = coverage_curve(P, w, add_order, threshold)
+    add_curve = coverage_curve(P, w, add_order, threshold, site, zidx)
 
     # ③ 전 후보 재배치 상한
     full_order = greedy_order(P, w)
-    full_curve = coverage_curve(P, w, full_order, threshold)
+    full_curve = coverage_curve(P, w, full_order, threshold, site, zidx)
     ceiling = full_curve[-1]
 
     add_hit = first_meeting_at(add_curve, metric, target)
@@ -170,11 +218,11 @@ def diagnose(site, pairs, curve, plan_idx: list, cams: list, P, w,
         r = first_meeting_at(full_curve, metric, tgt)
         sweep.append({
             "target": tgt,
-            "passes_current": bool(current[metric] >= tgt),
-            "passes_realloc": bool(realloc[metric] >= tgt),
+            "passes_current": meets(current, metric, tgt),
+            "passes_realloc": meets(realloc, metric, tgt),
             "add_cameras_needed": (a["n_cameras"] - len(plan_idx)) if a else None,
             "realloc_cameras_needed": r["n_cameras"] if r else None,
-            "reachable": bool(ceiling[metric] >= tgt),
+            "reachable": meets(ceiling, metric, tgt),
             "is_default": tgt == target,
         })
 
@@ -188,7 +236,8 @@ def diagnose(site, pairs, curve, plan_idx: list, cams: list, P, w,
                        "docs/reference/커버리지_기준_조사.md",
         "threshold": config.P_DETECT_THRESHOLD if threshold is None else threshold,
         "current": current,
-        "passes": bool(current[metric] >= target),
+        "passes": meets(current, metric, target),
+        "critical_failures": current.get("critical_failures", []),
         "reallocated_same_count": realloc,
         "ceiling": {**ceiling, "camera_ids": [cams[i] for i in full_order]},
         "add_curve": add_curve,
@@ -200,29 +249,51 @@ def diagnose(site, pairs, curve, plan_idx: list, cams: list, P, w,
 
 def _prescribe(cams, plan_idx, current, realloc, add_order, add_hit, re_hit,
                ceiling, target, metric) -> dict:
-    """사람이 읽을 처방문. 숫자는 전부 위에서 계산된 것이다."""
+    """사람이 읽을 처방문. 숫자는 전부 위에서 계산된 것이다.
+
+    **점수만 보고 충족이라 하지 않는다.** 치명 구역이 남아 있으면 점수가
+    목표를 넘어도 미충족이다 — `meets()` 를 그대로 쓴다.
+    """
     cur, tgt = current[metric], target
-    if cur >= tgt:
+
+    labels = {r["zone"]: r["label"]
+              for r in (current.get("score_detail") or {}).get("rows", [])}
+
+    def crit(row, lead="치명 구역"):
+        c = row.get("critical_failures") or []
+        if not c:
+            return ""
+        names = ", ".join(labels.get(z, z) for z in c)
+        head = f"{lead} " if lead else ""
+        return f" {head}{len(c)}곳({names})이 요구 커버리지에 못 미친다."
+
+    if meets(current, metric, tgt):
         return {"verdict": "충족",
                 "text": f"현 계획서가 목표 {tgt:.0%}를 이미 넘는다 ({cur:.1%})."}
 
-    lines = [f"현 계획서는 {cur:.1%}로 목표 {tgt:.0%}에 미달한다."]
+    if cur >= tgt:
+        # 점수는 넘겼는데 치명 구역이 남은 경우다. 이것을 충족이라 부르면
+        # 이 도구가 하려던 말을 스스로 뒤집는다.
+        lines = [f"현 계획서는 {cur:.1%}로 목표 {tgt:.0%}를 넘지만 "
+                 f"**치명 구역 미달로 충족이 아니다** —{crit(current, '')}"]
+    else:
+        lines = [f"현 계획서는 {cur:.1%}로 목표 {tgt:.0%}에 미달한다.{crit(current)}"]
 
-    if realloc[metric] >= tgt:
+    if meets(realloc, metric, tgt):
         lines.append(f"**대수를 늘릴 필요가 없다.** 같은 {realloc['n_cameras']}대를 "
                      f"재배치하면 {realloc[metric]:.1%}가 된다.")
         return {"verdict": "재배치로 충족", "text": " ".join(lines),
                 "add_cameras": 0,
                 "reallocate_to": realloc["camera_ids"]}
 
-    lines.append(f"같은 {realloc['n_cameras']}대를 재배치해도 {realloc[metric]:.1%}에 "
-                 f"그친다.")
+    lines.append(f"같은 {realloc['n_cameras']}대를 재배치하면 {realloc[metric]:.1%}까지 "
+                 f"오르나 아직{crit(realloc, '')}".replace('아직 ', '아직 '))
 
     if add_hit is None:
         lines.append(f"**후보 위치를 전부 써도 목표에 도달하지 못한다** — "
                      f"{ceiling['n_cameras']}대 전량 투입 시 상한이 "
-                     f"{ceiling[metric]:.1%}다. 후보 위치를 늘리거나 카메라 사양을 "
-                     f"올려야 한다.")
+                     f"{ceiling[metric]:.1%}다.{crit(ceiling)} 후보 위치를 늘리거나 "
+                     f"카메라 사양을 올려야 한다.")
         return {"verdict": "후보 내 달성 불가", "text": " ".join(lines),
                 "add_cameras": None, "ceiling": ceiling[metric]}
 

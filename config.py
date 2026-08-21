@@ -177,10 +177,16 @@ LH_COVERAGE_TARGET_SOURCE = "proposed_provisional"   # 게시 시 "lh_published"
 LH_COVERAGE_TARGET_SWEEP = [0.80, 0.85, 0.90, 0.95]
 
 # 목표를 재는 잣대. 분모가 다르면 다른 숫자가 나오므로 무엇을 쓰는지 밝힌다.
+#   score             **100점 만점 배치 점수** (src/score.py). 기본값
 #   spatial_coverage  임계 넘는 복셀 수 / 전체 복셀 수
 #   risk_coverage     임계 넘는 복셀의 가중치 합 / 전체 가중치 합
 #   WDR               Σw·P_total / Σw  (임계 없이 기대값)
-LH_TARGET_METRIC = "risk_coverage"
+#
+# **score 를 기본으로 쓰는 이유.** 단일 커버리지 %는 어디를 놓쳤는지를 지운다.
+# 넓은 저위험 구역을 잘 덮으면 갱폼 작업면을 통째로 놓치고도 90%가 나온다.
+# score 는 구역마다 배점(가중치 비례)과 요구 커버리지를 두고 달성률로 채점하며,
+# 치명 구역이 미달이면 점수와 무관하게 충족으로 보지 않는다.
+LH_TARGET_METRIC = "score"
 
 # 외곽 비계가 시선을 막는 비율. 지주·띠장 사이가 비어 있어 1.0 이 아니다.
 # **근거 없는 자유 파라미터다.** 건설현장 실측 가림률 통계는 공개된 것이 없다(§9).

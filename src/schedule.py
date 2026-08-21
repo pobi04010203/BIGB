@@ -140,12 +140,18 @@ def zone_scores(site, pt: np.ndarray, window: dict,
     return rows
 
 
-def evaluate_window(site, P, plan_idx, window: dict, threshold: float = None) -> dict:
-    """시간대 하나를 진단한다."""
+def evaluate_window(site, P, plan_idx, window: dict, threshold: float = None,
+                    zidx: dict = None) -> dict:
+    """시간대 하나를 진단한다.
+
+    `zidx` 는 점수 채점용 구역 인덱스다. 시간대마다 다시 만들 필요가 없어
+    `evaluate_all` 이 한 번 만들어 돌려준다.
+    """
     import prescribe
     w = window_weights(site, window)
     pt = prescribe.p_total(P, plan_idx)
-    m = prescribe.metrics(pt, w, threshold)
+    m = prescribe.metrics(pt, w, threshold, site, zidx)
+    m.pop("score_detail", None)
     zones = zone_scores(site, pt, window, threshold)
 
     # 가중평균 미달폭. 분모는 활성 구역의 가중치 합이다
@@ -182,7 +188,9 @@ def evaluate_all(site, P, plan_idx, sched: dict = None,
     평균을 쓰면 위험한 시간대의 실패가 한가한 시간대에 가려진다.
     """
     sched = sched or load()
-    rows = [evaluate_window(site, P, plan_idx, w, threshold)
+    import score as score_mod
+    zidx = score_mod.zone_index(site)
+    rows = [evaluate_window(site, P, plan_idx, w, threshold, zidx)
             for w in sched["windows"]]
     worst = min(rows, key=lambda r: r["scored"])
     crit = sorted({z for r in rows for z in r["critical_failures"]})

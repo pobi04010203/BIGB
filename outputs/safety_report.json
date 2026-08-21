@@ -13,18 +13,209 @@
  },
  "standard": {
   "target": 0.9,
-  "metric": "risk_coverage",
+  "metric": "score",
   "source": "proposed_provisional",
   "threshold": 0.5,
   "note": "LH 가 게시한 커버리지 기준은 아직 없다. 이 값은 우리가 제안하는 잠정 임계이며 고시값이 아니다"
  },
  "verdict": {
   "passes": false,
-  "value": 0.7108,
-  "gap": 0.1892
+  "value": 0.7548,
+  "gap": 0.1452
  },
  "coverage": {
   "overall": {
+   "score": 0.7548,
+   "score_100": 75.48,
+   "grade": "C",
+   "critical_failures": [
+    "gangform_workface",
+    "lift_landing",
+    "opening_perimeter",
+    "slab_edge"
+   ],
+   "score_detail": {
+    "total": 75.48,
+    "grade": "C",
+    "grade_capped_by_critical": false,
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
+    "rows": [
+     {
+      "zone": "gangform_workface",
+      "label": "갱폼 작업면 (2개 층)",
+      "weight": 10,
+      "voxels": 2304,
+      "allocated": 19.23,
+      "coverage": 0.7526,
+      "required": 0.99,
+      "attainment": 0.7602,
+      "earned": 14.62,
+      "shortfall": 0.2374,
+      "meets": false,
+      "critical_fail": true
+     },
+     {
+      "zone": "lift_landing",
+      "label": "리프트 승강구",
+      "weight": 10,
+      "voxels": 576,
+      "allocated": 19.23,
+      "coverage": 0.967,
+      "required": 0.99,
+      "attainment": 0.9768,
+      "earned": 18.78,
+      "shortfall": 0.023,
+      "meets": false,
+      "critical_fail": true
+     },
+     {
+      "zone": "opening_perimeter",
+      "label": "개구부 주변 (4개 층)",
+      "weight": 10,
+      "voxels": 1536,
+      "allocated": 19.23,
+      "coverage": 0.3828,
+      "required": 0.99,
+      "attainment": 0.3867,
+      "earned": 7.44,
+      "shortfall": 0.6072,
+      "meets": false,
+      "critical_fail": true
+     },
+     {
+      "zone": "slab_edge",
+      "label": "슬래브 단부 (2개 층)",
+      "weight": 10,
+      "voxels": 2208,
+      "allocated": 19.23,
+      "coverage": 0.7446,
+      "required": 0.99,
+      "attainment": 0.7521,
+      "earned": 14.46,
+      "shortfall": 0.2454,
+      "meets": false,
+      "critical_fail": true
+     },
+     {
+      "zone": "tower_crane_radius",
+      "label": "타워크레인 인양반경",
+      "weight": 4,
+      "voxels": 8440,
+      "allocated": 7.69,
+      "coverage": 0.8005,
+      "required": 0.797,
+      "attainment": 1.0,
+      "earned": 7.69,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     },
+     {
+      "zone": "material_yard",
+      "label": "자재 야적장",
+      "weight": 3,
+      "voxels": 796,
+      "allocated": 5.77,
+      "coverage": 0.4611,
+      "required": 0.764,
+      "attainment": 0.6035,
+      "earned": 3.48,
+      "shortfall": 0.3029,
+      "meets": false,
+      "critical_fail": false
+     },
+     {
+      "zone": "concrete_pour",
+      "label": "타설·거푸집 설치면",
+      "weight": 2,
+      "voxels": 4992,
+      "allocated": 3.85,
+      "coverage": 0.6148,
+      "required": 0.732,
+      "attainment": 0.8399,
+      "earned": 3.23,
+      "shortfall": 0.1172,
+      "meets": false,
+      "critical_fail": false
+     },
+     {
+      "zone": "excavation_face",
+      "label": "굴착면",
+      "weight": 2,
+      "voxels": 1080,
+      "allocated": 3.85,
+      "coverage": 0.862,
+      "required": 0.732,
+      "attainment": 1.0,
+      "earned": 3.85,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     },
+     {
+      "zone": "_background",
+      "label": "배경(구역 밖)",
+      "weight": 1,
+      "voxels": 20392,
+      "allocated": 1.92,
+      "coverage": 0.7755,
+      "required": 0.7,
+      "attainment": 1.0,
+      "earned": 1.92,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     }
+    ],
+    "lost": 24.52,
+    "biggest_loss": "opening_perimeter",
+    "rule": {
+     "allocation": "배점 = 100 × 가중치 / Σ가중치. 면적과 무관하다",
+     "attainment": "달성률 = min(1, 커버리지 / 요구). 초과 달성은 더 주지 않는다",
+     "required_by_weight": {
+      "1": 0.7,
+      "2": 0.732,
+      "3": 0.764,
+      "4": 0.797,
+      "5": 0.829,
+      "6": 0.861,
+      "7": 0.893,
+      "8": 0.926,
+      "9": 0.958,
+      "10": 0.99
+     },
+     "critical_weight": 7,
+     "critical_grade_cap": "C",
+     "grades": [
+      {
+       "min": 90,
+       "grade": "A"
+      },
+      {
+       "min": 80,
+       "grade": "B"
+      },
+      {
+       "min": 70,
+       "grade": "C"
+      },
+      {
+       "min": 60,
+       "grade": "D"
+      },
+      {
+       "min": 0,
+       "grade": "E"
+      }
+     ],
+     "basis": "배점표와 요구곡선은 우리가 정한 것이며 게시된 근거가 없다. docs/reference/커버리지_기준_조사.md"
+    }
+   },
    "spatial_coverage": 0.7455,
    "WDR": 0.5715,
    "risk_coverage": 0.7108,
@@ -225621,19 +225812,21 @@
   }
  ],
  "prescription": {
-  "verdict": "재배치로 충족",
-  "text": "현 계획서는 71.1%로 목표 90%에 미달한다. **대수를 늘릴 필요가 없다.** 같은 8대를 재배치하면 92.8%가 된다.",
-  "add_cameras": 0,
-  "reallocate_to": [
-   "c_b018",
+  "verdict": "증설 필요",
+  "text": "현 계획서는 75.5%로 목표 90%에 미달한다. 치명 구역 4곳(갱폼 작업면 (2개 층), 리프트 승강구, 개구부 주변 (4개 층), 슬래브 단부 (2개 층))이 요구 커버리지에 못 미친다. 같은 8대를 재배치하면 95.6%까지 오르나 아직 1곳(개구부 주변 (4개 층))이 요구 커버리지에 못 미친다. **9대를 증설**해 c_b001, c_b016, c_b003, c_b002, c_b017, c_b021, c_b030, c_b014, c_b019 위치에 달면 100.0%가 되어 목표를 넘는다.",
+  "add_cameras": 9,
+  "add_at": [
    "c_b001",
-   "c_b002",
-   "c_b017",
    "c_b016",
    "c_b003",
-   "c_b000",
+   "c_b002",
+   "c_b017",
+   "c_b021",
+   "c_b030",
+   "c_b014",
    "c_b019"
-  ]
+  ],
+  "resulting": 1.0
  },
  "time_phased": {
   "basis": "Zhang, Teizer, Pradhananga, Eastman, 'BIM and Safety: Automatic Safety Checking of Construction Models and Schedules', Automation in Construction 29 (2013). 공정·일정에서 위험구역을 도출한다는 발상을 따른다. 다만 그 연구가 위험을 '찾아내는' 것이라면, 여기서는 찾아진 위험구역을 **카메라가 보고 있는지 판정**하는 데 쓴다.",
@@ -225653,6 +225846,15 @@
      "slab_edge"
     ],
     "metrics": {
+     "score": 0.7548,
+     "score_100": 75.48,
+     "grade": "C",
+     "critical_failures": [
+      "gangform_workface",
+      "lift_landing",
+      "opening_perimeter",
+      "slab_edge"
+     ],
      "spatial_coverage": 0.7455,
      "WDR": 0.5984,
      "risk_coverage": 0.7669,
@@ -225720,8 +225922,8 @@
     "penalty_total": 0.1393,
     "penalty_raw": 4.5972,
     "penalty_note": "감점 = Σ(k·가중치·미달폭) / Σ가중치. 가중평균 미달폭이라 [0,1] 이며 커버리지와 같은 눈금이다",
-    "base_score": 0.7669,
-    "scored": 0.6276,
+    "base_score": 0.7548,
+    "scored": 0.6155,
     "critical_failures": [
      "lift_landing",
      "slab_edge",
@@ -225744,6 +225946,15 @@
      "slab_edge"
     ],
     "metrics": {
+     "score": 0.7548,
+     "score_100": 75.48,
+     "grade": "C",
+     "critical_failures": [
+      "gangform_workface",
+      "lift_landing",
+      "opening_perimeter",
+      "slab_edge"
+     ],
      "spatial_coverage": 0.7455,
      "WDR": 0.5717,
      "risk_coverage": 0.7066,
@@ -225800,8 +226011,8 @@
     "penalty_total": 0.3206,
     "penalty_raw": 10.9002,
     "penalty_note": "감점 = Σ(k·가중치·미달폭) / Σ가중치. 가중평균 미달폭이라 [0,1] 이며 커버리지와 같은 눈금이다",
-    "base_score": 0.7066,
-    "scored": 0.386,
+    "base_score": 0.7548,
+    "scored": 0.4342,
     "critical_failures": [
      "gangform_workface",
      "opening_perimeter",
@@ -225823,6 +226034,15 @@
      "slab_edge"
     ],
     "metrics": {
+     "score": 0.7548,
+     "score_100": 75.48,
+     "grade": "C",
+     "critical_failures": [
+      "gangform_workface",
+      "lift_landing",
+      "opening_perimeter",
+      "slab_edge"
+     ],
      "spatial_coverage": 0.7455,
      "WDR": 0.5773,
      "risk_coverage": 0.6765,
@@ -225868,8 +226088,8 @@
     "penalty_total": 0.3876,
     "penalty_raw": 8.5262,
     "penalty_note": "감점 = Σ(k·가중치·미달폭) / Σ가중치. 가중평균 미달폭이라 [0,1] 이며 커버리지와 같은 눈금이다",
-    "base_score": 0.6765,
-    "scored": 0.2889,
+    "base_score": 0.7548,
+    "scored": 0.3672,
     "critical_failures": [
      "opening_perimeter",
      "slab_edge"
@@ -225892,6 +226112,15 @@
      "slab_edge"
     ],
     "metrics": {
+     "score": 0.7548,
+     "score_100": 75.48,
+     "grade": "C",
+     "critical_failures": [
+      "gangform_workface",
+      "lift_landing",
+      "opening_perimeter",
+      "slab_edge"
+     ],
      "spatial_coverage": 0.7455,
      "WDR": 0.5512,
      "risk_coverage": 0.6799,
@@ -225959,8 +226188,8 @@
     "penalty_total": 0.2902,
     "penalty_raw": 14.219,
     "penalty_note": "감점 = Σ(k·가중치·미달폭) / Σ가중치. 가중평균 미달폭이라 [0,1] 이며 커버리지와 같은 눈금이다",
-    "base_score": 0.6799,
-    "scored": 0.3897,
+    "base_score": 0.7548,
+    "scored": 0.4646,
     "critical_failures": [
      "concrete_pour",
      "gangform_workface",
@@ -225985,6 +226214,15 @@
      "slab_edge"
     ],
     "metrics": {
+     "score": 0.7548,
+     "score_100": 75.48,
+     "grade": "C",
+     "critical_failures": [
+      "gangform_workface",
+      "lift_landing",
+      "opening_perimeter",
+      "slab_edge"
+     ],
      "spatial_coverage": 0.7455,
      "WDR": 0.5994,
      "risk_coverage": 0.7581,
@@ -226041,8 +226279,8 @@
     "penalty_total": 0.1437,
     "penalty_raw": 3.593,
     "penalty_note": "감점 = Σ(k·가중치·미달폭) / Σ가중치. 가중평균 미달폭이라 [0,1] 이며 커버리지와 같은 눈금이다",
-    "base_score": 0.7581,
-    "scored": 0.6144,
+    "base_score": 0.7548,
+    "scored": 0.6111,
     "critical_failures": [
      "lift_landing",
      "slab_edge"
@@ -226052,7 +226290,7 @@
    }
   ],
   "worst_window": "W3",
-  "worst_scored": 0.2889,
+  "worst_scored": 0.3672,
   "critical_failures": [
    "concrete_pour",
    "gangform_workface",
@@ -226084,6 +226322,191 @@
  },
  "options": {
   "reallocate": {
+   "score": 0.9558,
+   "score_100": 95.58,
+   "grade": "C",
+   "critical_failures": [
+    "opening_perimeter"
+   ],
+   "score_detail": {
+    "total": 95.58,
+    "grade": "C",
+    "grade_capped_by_critical": true,
+    "critical_failures": [
+     "opening_perimeter"
+    ],
+    "rows": [
+     {
+      "zone": "gangform_workface",
+      "label": "갱폼 작업면 (2개 층)",
+      "weight": 10,
+      "voxels": 2304,
+      "allocated": 19.23,
+      "coverage": 1.0,
+      "required": 0.99,
+      "attainment": 1.0,
+      "earned": 19.23,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     },
+     {
+      "zone": "lift_landing",
+      "label": "리프트 승강구",
+      "weight": 10,
+      "voxels": 576,
+      "allocated": 19.23,
+      "coverage": 1.0,
+      "required": 0.99,
+      "attainment": 1.0,
+      "earned": 19.23,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     },
+     {
+      "zone": "opening_perimeter",
+      "label": "개구부 주변 (4개 층)",
+      "weight": 10,
+      "voxels": 1536,
+      "allocated": 19.23,
+      "coverage": 0.7656,
+      "required": 0.99,
+      "attainment": 0.7734,
+      "earned": 14.87,
+      "shortfall": 0.2244,
+      "meets": false,
+      "critical_fail": true
+     },
+     {
+      "zone": "slab_edge",
+      "label": "슬래브 단부 (2개 층)",
+      "weight": 10,
+      "voxels": 2208,
+      "allocated": 19.23,
+      "coverage": 1.0,
+      "required": 0.99,
+      "attainment": 1.0,
+      "earned": 19.23,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     },
+     {
+      "zone": "tower_crane_radius",
+      "label": "타워크레인 인양반경",
+      "weight": 4,
+      "voxels": 8440,
+      "allocated": 7.69,
+      "coverage": 0.9573,
+      "required": 0.797,
+      "attainment": 1.0,
+      "earned": 7.69,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     },
+     {
+      "zone": "material_yard",
+      "label": "자재 야적장",
+      "weight": 3,
+      "voxels": 796,
+      "allocated": 5.77,
+      "coverage": 0.7563,
+      "required": 0.764,
+      "attainment": 0.9899,
+      "earned": 5.71,
+      "shortfall": 0.0077,
+      "meets": false,
+      "critical_fail": false
+     },
+     {
+      "zone": "concrete_pour",
+      "label": "타설·거푸집 설치면",
+      "weight": 2,
+      "voxels": 4992,
+      "allocated": 3.85,
+      "coverage": 0.9135,
+      "required": 0.732,
+      "attainment": 1.0,
+      "earned": 3.85,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     },
+     {
+      "zone": "excavation_face",
+      "label": "굴착면",
+      "weight": 2,
+      "voxels": 1080,
+      "allocated": 3.85,
+      "coverage": 0.8333,
+      "required": 0.732,
+      "attainment": 1.0,
+      "earned": 3.85,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     },
+     {
+      "zone": "_background",
+      "label": "배경(구역 밖)",
+      "weight": 1,
+      "voxels": 20392,
+      "allocated": 1.92,
+      "coverage": 0.9122,
+      "required": 0.7,
+      "attainment": 1.0,
+      "earned": 1.92,
+      "shortfall": 0.0,
+      "meets": true,
+      "critical_fail": false
+     }
+    ],
+    "lost": 4.42,
+    "biggest_loss": "opening_perimeter",
+    "rule": {
+     "allocation": "배점 = 100 × 가중치 / Σ가중치. 면적과 무관하다",
+     "attainment": "달성률 = min(1, 커버리지 / 요구). 초과 달성은 더 주지 않는다",
+     "required_by_weight": {
+      "1": 0.7,
+      "2": 0.732,
+      "3": 0.764,
+      "4": 0.797,
+      "5": 0.829,
+      "6": 0.861,
+      "7": 0.893,
+      "8": 0.926,
+      "9": 0.958,
+      "10": 0.99
+     },
+     "critical_weight": 7,
+     "critical_grade_cap": "C",
+     "grades": [
+      {
+       "min": 90,
+       "grade": "A"
+      },
+      {
+       "min": 80,
+       "grade": "B"
+      },
+      {
+       "min": 70,
+       "grade": "C"
+      },
+      {
+       "min": 60,
+       "grade": "D"
+      },
+      {
+       "min": 0,
+       "grade": "E"
+      }
+     ],
+     "basis": "배점표와 요구곡선은 우리가 정한 것이며 게시된 근거가 없다. docs/reference/커버리지_기준_조사.md"
+    }
+   },
    "spatial_coverage": 0.917,
    "WDR": 0.6609,
    "risk_coverage": 0.9278,
@@ -226103,6 +226526,10 @@
    ]
   },
   "ceiling": {
+   "score": 1.0,
+   "score_100": 100.0,
+   "grade": "A",
+   "critical_failures": [],
    "spatial_coverage": 0.998,
    "WDR": 0.9619,
    "risk_coverage": 0.9989,
@@ -226213,6 +226640,15 @@
   },
   "add_curve": [
    {
+    "score": 0.0245,
+    "score_100": 2.45,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.1493,
     "WDR": 0.147,
     "risk_coverage": 0.069,
@@ -226222,6 +226658,15 @@
     "n_cameras": 1
    },
    {
+    "score": 0.0415,
+    "score_100": 4.15,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.1654,
     "WDR": 0.22,
     "risk_coverage": 0.0774,
@@ -226231,6 +226676,15 @@
     "n_cameras": 2
    },
    {
+    "score": 0.0503,
+    "score_100": 5.03,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.2093,
     "WDR": 0.3067,
     "risk_coverage": 0.1081,
@@ -226240,6 +226694,15 @@
     "n_cameras": 3
    },
    {
+    "score": 0.0535,
+    "score_100": 5.35,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.2591,
     "WDR": 0.3759,
     "risk_coverage": 0.1264,
@@ -226249,6 +226712,15 @@
     "n_cameras": 4
    },
    {
+    "score": 0.3596,
+    "score_100": 35.96,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.397,
     "WDR": 0.462,
     "risk_coverage": 0.3047,
@@ -226258,6 +226730,15 @@
     "n_cameras": 5
    },
    {
+    "score": 0.4673,
+    "score_100": 46.73,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.499,
     "WDR": 0.4929,
     "risk_coverage": 0.4088,
@@ -226267,6 +226748,15 @@
     "n_cameras": 6
    },
    {
+    "score": 0.5905,
+    "score_100": 59.05,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.5989,
     "WDR": 0.5209,
     "risk_coverage": 0.5228,
@@ -226276,6 +226766,15 @@
     "n_cameras": 7
    },
    {
+    "score": 0.7548,
+    "score_100": 75.48,
+    "grade": "C",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.7455,
     "WDR": 0.5715,
     "risk_coverage": 0.7108,
@@ -226285,6 +226784,15 @@
     "n_cameras": 8
    },
    {
+    "score": 0.8544,
+    "score_100": 85.44,
+    "grade": "C",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.8301,
     "WDR": 0.6224,
     "risk_coverage": 0.8169,
@@ -226294,6 +226802,14 @@
     "n_cameras": 9
    },
    {
+    "score": 0.9028,
+    "score_100": 90.28,
+    "grade": "C",
+    "critical_failures": [
+     "gangform_workface",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.8873,
     "WDR": 0.6649,
     "risk_coverage": 0.8844,
@@ -226303,6 +226819,12 @@
     "n_cameras": 10
    },
    {
+    "score": 0.9723,
+    "score_100": 97.23,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9486,
     "WDR": 0.7013,
     "risk_coverage": 0.959,
@@ -226312,6 +226834,12 @@
     "n_cameras": 11
    },
    {
+    "score": 0.9777,
+    "score_100": 97.77,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9518,
     "WDR": 0.734,
     "risk_coverage": 0.9638,
@@ -226321,6 +226849,12 @@
     "n_cameras": 12
    },
    {
+    "score": 0.9799,
+    "score_100": 97.99,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9561,
     "WDR": 0.7615,
     "risk_coverage": 0.9677,
@@ -226330,6 +226864,12 @@
     "n_cameras": 13
    },
    {
+    "score": 0.9815,
+    "score_100": 98.15,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9607,
     "WDR": 0.7849,
     "risk_coverage": 0.9703,
@@ -226339,6 +226879,12 @@
     "n_cameras": 14
    },
    {
+    "score": 0.9815,
+    "score_100": 98.15,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.961,
     "WDR": 0.805,
     "risk_coverage": 0.9704,
@@ -226348,6 +226894,12 @@
     "n_cameras": 15
    },
    {
+    "score": 0.9981,
+    "score_100": 99.81,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9667,
     "WDR": 0.823,
     "risk_coverage": 0.9829,
@@ -226357,6 +226909,10 @@
     "n_cameras": 16
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9685,
     "WDR": 0.8401,
     "risk_coverage": 0.9855,
@@ -226366,6 +226922,10 @@
     "n_cameras": 17
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9704,
     "WDR": 0.8546,
     "risk_coverage": 0.987,
@@ -226375,6 +226935,10 @@
     "n_cameras": 18
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9719,
     "WDR": 0.8668,
     "risk_coverage": 0.9885,
@@ -226384,6 +226948,10 @@
     "n_cameras": 19
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9721,
     "WDR": 0.8784,
     "risk_coverage": 0.9887,
@@ -226393,6 +226961,10 @@
     "n_cameras": 20
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9722,
     "WDR": 0.8881,
     "risk_coverage": 0.9887,
@@ -226402,6 +226974,10 @@
     "n_cameras": 21
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9722,
     "WDR": 0.8974,
     "risk_coverage": 0.9887,
@@ -226411,6 +226987,10 @@
     "n_cameras": 22
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9739,
     "WDR": 0.9046,
     "risk_coverage": 0.9893,
@@ -226420,6 +227000,10 @@
     "n_cameras": 23
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9758,
     "WDR": 0.9114,
     "risk_coverage": 0.9899,
@@ -226429,6 +227013,10 @@
     "n_cameras": 24
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9816,
     "WDR": 0.9172,
     "risk_coverage": 0.9929,
@@ -226438,6 +227026,10 @@
     "n_cameras": 25
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9875,
     "WDR": 0.9226,
     "risk_coverage": 0.9948,
@@ -226447,6 +227039,10 @@
     "n_cameras": 26
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9876,
     "WDR": 0.9274,
     "risk_coverage": 0.9949,
@@ -226456,6 +227052,10 @@
     "n_cameras": 27
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9886,
     "WDR": 0.9321,
     "risk_coverage": 0.9957,
@@ -226465,6 +227065,10 @@
     "n_cameras": 28
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9887,
     "WDR": 0.9361,
     "risk_coverage": 0.9957,
@@ -226474,6 +227078,10 @@
     "n_cameras": 29
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9889,
     "WDR": 0.9397,
     "risk_coverage": 0.9958,
@@ -226483,6 +227091,10 @@
     "n_cameras": 30
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9889,
     "WDR": 0.9426,
     "risk_coverage": 0.9958,
@@ -226492,6 +227104,10 @@
     "n_cameras": 31
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9889,
     "WDR": 0.9455,
     "risk_coverage": 0.9958,
@@ -226501,6 +227117,10 @@
     "n_cameras": 32
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9895,
     "WDR": 0.9467,
     "risk_coverage": 0.996,
@@ -226510,6 +227130,10 @@
     "n_cameras": 33
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9901,
     "WDR": 0.9478,
     "risk_coverage": 0.9962,
@@ -226519,6 +227143,10 @@
     "n_cameras": 34
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9905,
     "WDR": 0.9487,
     "risk_coverage": 0.9963,
@@ -226528,6 +227156,10 @@
     "n_cameras": 35
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9905,
     "WDR": 0.9495,
     "risk_coverage": 0.9963,
@@ -226537,6 +227169,10 @@
     "n_cameras": 36
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9912,
     "WDR": 0.9504,
     "risk_coverage": 0.9967,
@@ -226546,6 +227182,10 @@
     "n_cameras": 37
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9915,
     "WDR": 0.9512,
     "risk_coverage": 0.9967,
@@ -226555,6 +227195,10 @@
     "n_cameras": 38
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9915,
     "WDR": 0.9519,
     "risk_coverage": 0.9967,
@@ -226564,6 +227208,10 @@
     "n_cameras": 39
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9919,
     "WDR": 0.9526,
     "risk_coverage": 0.9969,
@@ -226573,6 +227221,10 @@
     "n_cameras": 40
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9925,
     "WDR": 0.9532,
     "risk_coverage": 0.9971,
@@ -226582,6 +227234,10 @@
     "n_cameras": 41
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9931,
     "WDR": 0.9537,
     "risk_coverage": 0.9973,
@@ -226591,6 +227247,10 @@
     "n_cameras": 42
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9543,
     "risk_coverage": 0.9974,
@@ -226600,6 +227260,10 @@
     "n_cameras": 43
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9548,
     "risk_coverage": 0.9974,
@@ -226609,6 +227273,10 @@
     "n_cameras": 44
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9553,
     "risk_coverage": 0.9974,
@@ -226618,6 +227286,10 @@
     "n_cameras": 45
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9557,
     "risk_coverage": 0.9974,
@@ -226627,6 +227299,10 @@
     "n_cameras": 46
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9561,
     "risk_coverage": 0.9974,
@@ -226636,6 +227312,10 @@
     "n_cameras": 47
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9937,
     "WDR": 0.9564,
     "risk_coverage": 0.9975,
@@ -226645,6 +227325,10 @@
     "n_cameras": 48
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9937,
     "WDR": 0.9568,
     "risk_coverage": 0.9975,
@@ -226654,6 +227338,10 @@
     "n_cameras": 49
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9937,
     "WDR": 0.9571,
     "risk_coverage": 0.9975,
@@ -226663,6 +227351,10 @@
     "n_cameras": 50
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9949,
     "WDR": 0.9574,
     "risk_coverage": 0.9979,
@@ -226672,6 +227364,10 @@
     "n_cameras": 51
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9577,
     "risk_coverage": 0.9987,
@@ -226681,6 +227377,10 @@
     "n_cameras": 52
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.958,
     "risk_coverage": 0.9987,
@@ -226690,6 +227390,10 @@
     "n_cameras": 53
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9583,
     "risk_coverage": 0.9987,
@@ -226699,6 +227403,10 @@
     "n_cameras": 54
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9586,
     "risk_coverage": 0.9987,
@@ -226708,6 +227416,10 @@
     "n_cameras": 55
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9588,
     "risk_coverage": 0.9987,
@@ -226717,6 +227429,10 @@
     "n_cameras": 56
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9591,
     "risk_coverage": 0.9987,
@@ -226726,6 +227442,10 @@
     "n_cameras": 57
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9593,
     "risk_coverage": 0.9989,
@@ -226735,6 +227455,10 @@
     "n_cameras": 58
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9595,
     "risk_coverage": 0.9989,
@@ -226744,6 +227468,10 @@
     "n_cameras": 59
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9597,
     "risk_coverage": 0.9989,
@@ -226753,6 +227481,10 @@
     "n_cameras": 60
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9599,
     "risk_coverage": 0.9989,
@@ -226762,6 +227494,10 @@
     "n_cameras": 61
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9601,
     "risk_coverage": 0.9989,
@@ -226771,6 +227507,10 @@
     "n_cameras": 62
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9603,
     "risk_coverage": 0.9989,
@@ -226780,6 +227520,10 @@
     "n_cameras": 63
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9604,
     "risk_coverage": 0.9989,
@@ -226789,6 +227533,10 @@
     "n_cameras": 64
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9605,
     "risk_coverage": 0.9989,
@@ -226798,6 +227546,10 @@
     "n_cameras": 65
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9607,
     "risk_coverage": 0.9989,
@@ -226807,6 +227559,10 @@
     "n_cameras": 66
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9608,
     "risk_coverage": 0.9989,
@@ -226816,6 +227572,10 @@
     "n_cameras": 67
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9609,
     "risk_coverage": 0.9989,
@@ -226825,6 +227585,10 @@
     "n_cameras": 68
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.961,
     "risk_coverage": 0.9989,
@@ -226834,6 +227598,10 @@
     "n_cameras": 69
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9611,
     "risk_coverage": 0.9989,
@@ -226843,6 +227611,10 @@
     "n_cameras": 70
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9612,
     "risk_coverage": 0.9989,
@@ -226852,6 +227624,10 @@
     "n_cameras": 71
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9613,
     "risk_coverage": 0.9989,
@@ -226861,6 +227637,10 @@
     "n_cameras": 72
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9614,
     "risk_coverage": 0.9989,
@@ -226870,6 +227650,10 @@
     "n_cameras": 73
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9615,
     "risk_coverage": 0.9989,
@@ -226879,6 +227663,10 @@
     "n_cameras": 74
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9616,
     "risk_coverage": 0.9989,
@@ -226888,6 +227676,10 @@
     "n_cameras": 75
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9616,
     "risk_coverage": 0.9989,
@@ -226897,6 +227689,10 @@
     "n_cameras": 76
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9617,
     "risk_coverage": 0.9989,
@@ -226906,6 +227702,10 @@
     "n_cameras": 77
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9617,
     "risk_coverage": 0.9989,
@@ -226915,6 +227715,10 @@
     "n_cameras": 78
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9617,
     "risk_coverage": 0.9989,
@@ -226924,6 +227728,10 @@
     "n_cameras": 79
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -226933,6 +227741,10 @@
     "n_cameras": 80
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -226942,6 +227754,10 @@
     "n_cameras": 81
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -226951,6 +227767,10 @@
     "n_cameras": 82
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -226960,6 +227780,10 @@
     "n_cameras": 83
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -226969,6 +227793,10 @@
     "n_cameras": 84
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -226978,6 +227806,10 @@
     "n_cameras": 85
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -226987,6 +227819,10 @@
     "n_cameras": 86
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -226996,6 +227832,10 @@
     "n_cameras": 87
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227005,6 +227845,10 @@
     "n_cameras": 88
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227014,6 +227858,10 @@
     "n_cameras": 89
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227023,6 +227871,10 @@
     "n_cameras": 90
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227032,6 +227884,10 @@
     "n_cameras": 91
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227041,6 +227897,10 @@
     "n_cameras": 92
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227050,6 +227910,10 @@
     "n_cameras": 93
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227059,6 +227923,10 @@
     "n_cameras": 94
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227068,6 +227936,10 @@
     "n_cameras": 95
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227077,6 +227949,10 @@
     "n_cameras": 96
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227086,6 +227962,10 @@
     "n_cameras": 97
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227097,6 +227977,15 @@
   ],
   "full_curve": [
    {
+    "score": 0.0653,
+    "score_100": 6.53,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.1706,
     "WDR": 0.1638,
     "risk_coverage": 0.0837,
@@ -227106,6 +227995,15 @@
     "n_cameras": 1
    },
    {
+    "score": 0.1048,
+    "score_100": 10.48,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.3333,
     "WDR": 0.31,
     "risk_coverage": 0.1599,
@@ -227115,6 +228013,15 @@
     "n_cameras": 2
    },
    {
+    "score": 0.1048,
+    "score_100": 10.48,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.3339,
     "WDR": 0.3919,
     "risk_coverage": 0.1601,
@@ -227124,6 +228031,15 @@
     "n_cameras": 3
    },
    {
+    "score": 0.1049,
+    "score_100": 10.49,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.3344,
     "WDR": 0.4665,
     "risk_coverage": 0.1603,
@@ -227133,6 +228049,15 @@
     "n_cameras": 4
    },
    {
+    "score": 0.5485,
+    "score_100": 54.85,
+    "grade": "E",
+    "critical_failures": [
+     "gangform_workface",
+     "lift_landing",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.5615,
     "WDR": 0.524,
     "risk_coverage": 0.4766,
@@ -227142,6 +228067,14 @@
     "n_cameras": 5
    },
    {
+    "score": 0.7577,
+    "score_100": 75.77,
+    "grade": "C",
+    "critical_failures": [
+     "gangform_workface",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.7409,
     "WDR": 0.577,
     "risk_coverage": 0.7121,
@@ -227151,6 +228084,14 @@
     "n_cameras": 6
    },
    {
+    "score": 0.8743,
+    "score_100": 87.43,
+    "grade": "C",
+    "critical_failures": [
+     "gangform_workface",
+     "opening_perimeter",
+     "slab_edge"
+    ],
     "spatial_coverage": 0.8396,
     "WDR": 0.62,
     "risk_coverage": 0.8324,
@@ -227160,6 +228101,12 @@
     "n_cameras": 7
    },
    {
+    "score": 0.9558,
+    "score_100": 95.58,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.917,
     "WDR": 0.6609,
     "risk_coverage": 0.9278,
@@ -227169,6 +228116,12 @@
     "n_cameras": 8
    },
    {
+    "score": 0.9558,
+    "score_100": 95.58,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9227,
     "WDR": 0.6934,
     "risk_coverage": 0.9298,
@@ -227178,6 +228131,12 @@
     "n_cameras": 9
    },
    {
+    "score": 0.9558,
+    "score_100": 95.58,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9281,
     "WDR": 0.7235,
     "risk_coverage": 0.9315,
@@ -227187,6 +228146,12 @@
     "n_cameras": 10
    },
    {
+    "score": 0.9687,
+    "score_100": 96.87,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9461,
     "WDR": 0.7482,
     "risk_coverage": 0.9547,
@@ -227196,6 +228161,12 @@
     "n_cameras": 11
    },
    {
+    "score": 0.9693,
+    "score_100": 96.93,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9471,
     "WDR": 0.771,
     "risk_coverage": 0.9557,
@@ -227205,6 +228176,12 @@
     "n_cameras": 12
    },
    {
+    "score": 0.9815,
+    "score_100": 98.15,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9533,
     "WDR": 0.791,
     "risk_coverage": 0.9664,
@@ -227214,6 +228191,12 @@
     "n_cameras": 13
    },
    {
+    "score": 0.9936,
+    "score_100": 99.36,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9617,
     "WDR": 0.8096,
     "risk_coverage": 0.9777,
@@ -227223,6 +228206,12 @@
     "n_cameras": 14
    },
    {
+    "score": 0.9944,
+    "score_100": 99.44,
+    "grade": "C",
+    "critical_failures": [
+     "opening_perimeter"
+    ],
     "spatial_coverage": 0.9639,
     "WDR": 0.8264,
     "risk_coverage": 0.9796,
@@ -227232,6 +228221,10 @@
     "n_cameras": 15
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9671,
     "WDR": 0.8415,
     "risk_coverage": 0.9856,
@@ -227241,6 +228234,10 @@
     "n_cameras": 16
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9687,
     "WDR": 0.8545,
     "risk_coverage": 0.9871,
@@ -227250,6 +228247,10 @@
     "n_cameras": 17
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9688,
     "WDR": 0.866,
     "risk_coverage": 0.9872,
@@ -227259,6 +228260,10 @@
     "n_cameras": 18
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9689,
     "WDR": 0.8764,
     "risk_coverage": 0.9873,
@@ -227268,6 +228273,10 @@
     "n_cameras": 19
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.969,
     "WDR": 0.8857,
     "risk_coverage": 0.9873,
@@ -227277,6 +228286,10 @@
     "n_cameras": 20
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9715,
     "WDR": 0.8932,
     "risk_coverage": 0.9881,
@@ -227286,6 +228299,10 @@
     "n_cameras": 21
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9733,
     "WDR": 0.8999,
     "risk_coverage": 0.9893,
@@ -227295,6 +228312,10 @@
     "n_cameras": 22
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9791,
     "WDR": 0.9063,
     "risk_coverage": 0.9912,
@@ -227304,6 +228325,10 @@
     "n_cameras": 23
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9845,
     "WDR": 0.9124,
     "risk_coverage": 0.994,
@@ -227313,6 +228338,10 @@
     "n_cameras": 24
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9846,
     "WDR": 0.918,
     "risk_coverage": 0.994,
@@ -227322,6 +228351,10 @@
     "n_cameras": 25
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9872,
     "WDR": 0.9232,
     "risk_coverage": 0.9951,
@@ -227331,6 +228364,10 @@
     "n_cameras": 26
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9873,
     "WDR": 0.9279,
     "risk_coverage": 0.9951,
@@ -227340,6 +228377,10 @@
     "n_cameras": 27
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9886,
     "WDR": 0.9326,
     "risk_coverage": 0.9956,
@@ -227349,6 +228390,10 @@
     "n_cameras": 28
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9887,
     "WDR": 0.9362,
     "risk_coverage": 0.9957,
@@ -227358,6 +228403,10 @@
     "n_cameras": 29
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9889,
     "WDR": 0.9398,
     "risk_coverage": 0.9958,
@@ -227367,6 +228416,10 @@
     "n_cameras": 30
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9889,
     "WDR": 0.9426,
     "risk_coverage": 0.9958,
@@ -227376,6 +228429,10 @@
     "n_cameras": 31
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9889,
     "WDR": 0.9455,
     "risk_coverage": 0.9958,
@@ -227385,6 +228442,10 @@
     "n_cameras": 32
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9895,
     "WDR": 0.9467,
     "risk_coverage": 0.996,
@@ -227394,6 +228455,10 @@
     "n_cameras": 33
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9901,
     "WDR": 0.9478,
     "risk_coverage": 0.9962,
@@ -227403,6 +228468,10 @@
     "n_cameras": 34
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9905,
     "WDR": 0.9487,
     "risk_coverage": 0.9963,
@@ -227412,6 +228481,10 @@
     "n_cameras": 35
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9905,
     "WDR": 0.9495,
     "risk_coverage": 0.9963,
@@ -227421,6 +228494,10 @@
     "n_cameras": 36
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9912,
     "WDR": 0.9504,
     "risk_coverage": 0.9967,
@@ -227430,6 +228507,10 @@
     "n_cameras": 37
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9915,
     "WDR": 0.9512,
     "risk_coverage": 0.9967,
@@ -227439,6 +228520,10 @@
     "n_cameras": 38
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9915,
     "WDR": 0.9519,
     "risk_coverage": 0.9967,
@@ -227448,6 +228533,10 @@
     "n_cameras": 39
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9919,
     "WDR": 0.9526,
     "risk_coverage": 0.9969,
@@ -227457,6 +228546,10 @@
     "n_cameras": 40
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9925,
     "WDR": 0.9532,
     "risk_coverage": 0.9971,
@@ -227466,6 +228559,10 @@
     "n_cameras": 41
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9931,
     "WDR": 0.9537,
     "risk_coverage": 0.9973,
@@ -227475,6 +228572,10 @@
     "n_cameras": 42
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9543,
     "risk_coverage": 0.9974,
@@ -227484,6 +228585,10 @@
     "n_cameras": 43
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9548,
     "risk_coverage": 0.9974,
@@ -227493,6 +228598,10 @@
     "n_cameras": 44
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9553,
     "risk_coverage": 0.9974,
@@ -227502,6 +228611,10 @@
     "n_cameras": 45
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9557,
     "risk_coverage": 0.9974,
@@ -227511,6 +228624,10 @@
     "n_cameras": 46
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9936,
     "WDR": 0.9561,
     "risk_coverage": 0.9974,
@@ -227520,6 +228637,10 @@
     "n_cameras": 47
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9937,
     "WDR": 0.9564,
     "risk_coverage": 0.9975,
@@ -227529,6 +228650,10 @@
     "n_cameras": 48
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9937,
     "WDR": 0.9568,
     "risk_coverage": 0.9975,
@@ -227538,6 +228663,10 @@
     "n_cameras": 49
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9937,
     "WDR": 0.9571,
     "risk_coverage": 0.9975,
@@ -227547,6 +228676,10 @@
     "n_cameras": 50
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9949,
     "WDR": 0.9574,
     "risk_coverage": 0.9979,
@@ -227556,6 +228689,10 @@
     "n_cameras": 51
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9577,
     "risk_coverage": 0.9987,
@@ -227565,6 +228702,10 @@
     "n_cameras": 52
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.958,
     "risk_coverage": 0.9987,
@@ -227574,6 +228715,10 @@
     "n_cameras": 53
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9583,
     "risk_coverage": 0.9987,
@@ -227583,6 +228728,10 @@
     "n_cameras": 54
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9586,
     "risk_coverage": 0.9987,
@@ -227592,6 +228741,10 @@
     "n_cameras": 55
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9588,
     "risk_coverage": 0.9987,
@@ -227601,6 +228754,10 @@
     "n_cameras": 56
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.9973,
     "WDR": 0.9591,
     "risk_coverage": 0.9987,
@@ -227610,6 +228767,10 @@
     "n_cameras": 57
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9593,
     "risk_coverage": 0.9989,
@@ -227619,6 +228780,10 @@
     "n_cameras": 58
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9595,
     "risk_coverage": 0.9989,
@@ -227628,6 +228793,10 @@
     "n_cameras": 59
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9597,
     "risk_coverage": 0.9989,
@@ -227637,6 +228806,10 @@
     "n_cameras": 60
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9599,
     "risk_coverage": 0.9989,
@@ -227646,6 +228819,10 @@
     "n_cameras": 61
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9601,
     "risk_coverage": 0.9989,
@@ -227655,6 +228832,10 @@
     "n_cameras": 62
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9603,
     "risk_coverage": 0.9989,
@@ -227664,6 +228845,10 @@
     "n_cameras": 63
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9604,
     "risk_coverage": 0.9989,
@@ -227673,6 +228858,10 @@
     "n_cameras": 64
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9605,
     "risk_coverage": 0.9989,
@@ -227682,6 +228871,10 @@
     "n_cameras": 65
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9607,
     "risk_coverage": 0.9989,
@@ -227691,6 +228884,10 @@
     "n_cameras": 66
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9608,
     "risk_coverage": 0.9989,
@@ -227700,6 +228897,10 @@
     "n_cameras": 67
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9609,
     "risk_coverage": 0.9989,
@@ -227709,6 +228910,10 @@
     "n_cameras": 68
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.961,
     "risk_coverage": 0.9989,
@@ -227718,6 +228923,10 @@
     "n_cameras": 69
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9611,
     "risk_coverage": 0.9989,
@@ -227727,6 +228936,10 @@
     "n_cameras": 70
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9612,
     "risk_coverage": 0.9989,
@@ -227736,6 +228949,10 @@
     "n_cameras": 71
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9613,
     "risk_coverage": 0.9989,
@@ -227745,6 +228962,10 @@
     "n_cameras": 72
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9614,
     "risk_coverage": 0.9989,
@@ -227754,6 +228975,10 @@
     "n_cameras": 73
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9615,
     "risk_coverage": 0.9989,
@@ -227763,6 +228988,10 @@
     "n_cameras": 74
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9616,
     "risk_coverage": 0.9989,
@@ -227772,6 +229001,10 @@
     "n_cameras": 75
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9616,
     "risk_coverage": 0.9989,
@@ -227781,6 +229014,10 @@
     "n_cameras": 76
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9617,
     "risk_coverage": 0.9989,
@@ -227790,6 +229027,10 @@
     "n_cameras": 77
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9617,
     "risk_coverage": 0.9989,
@@ -227799,6 +229040,10 @@
     "n_cameras": 78
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9617,
     "risk_coverage": 0.9989,
@@ -227808,6 +229053,10 @@
     "n_cameras": 79
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -227817,6 +229066,10 @@
     "n_cameras": 80
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -227826,6 +229079,10 @@
     "n_cameras": 81
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -227835,6 +229092,10 @@
     "n_cameras": 82
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -227844,6 +229105,10 @@
     "n_cameras": 83
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -227853,6 +229118,10 @@
     "n_cameras": 84
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9618,
     "risk_coverage": 0.9989,
@@ -227862,6 +229131,10 @@
     "n_cameras": 85
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227871,6 +229144,10 @@
     "n_cameras": 86
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227880,6 +229157,10 @@
     "n_cameras": 87
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227889,6 +229170,10 @@
     "n_cameras": 88
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227898,6 +229183,10 @@
     "n_cameras": 89
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227907,6 +229196,10 @@
     "n_cameras": 90
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227916,6 +229209,10 @@
     "n_cameras": 91
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227925,6 +229222,10 @@
     "n_cameras": 92
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227934,6 +229235,10 @@
     "n_cameras": 93
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227943,6 +229248,10 @@
     "n_cameras": 94
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227952,6 +229261,10 @@
     "n_cameras": 95
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227961,6 +229274,10 @@
     "n_cameras": 96
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
@@ -227970,6 +229287,10 @@
     "n_cameras": 97
    },
    {
+    "score": 1.0,
+    "score_100": 100.0,
+    "grade": "A",
+    "critical_failures": [],
     "spatial_coverage": 0.998,
     "WDR": 0.9619,
     "risk_coverage": 0.9989,
