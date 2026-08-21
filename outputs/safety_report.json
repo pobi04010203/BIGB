@@ -227982,7 +227982,7 @@
  },
  "basis": {
   "detector": "yolov8n",
-  "detector_weights": null,
+  "detector_weights": "runs/detect/shwd_yolov8n/weights/best.pt",
   "curve": "outputs\\curve_params.json",
   "r2_full_grid": 0.8308,
   "rho_measured_px": [
