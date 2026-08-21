@@ -4,471 +4,388 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI CCTV 배치 적정성 평가</title>
-<!-- 인라인 파비콘. 없으면 브라우저가 /favicon.ico 를 찾다 404 를 콘솔에 남긴다.
-     **SVG data URI 를 쓰면 안 된다** - file:// 로 열었을 때 크롬이 SVG 문서를
-     고유 출처로 보고 "Unsafe attempt to load URL ..." 오류를 남긴다. PNG 는 그렇지 않다. -->
 <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAIklEQVR42mPg9u8iCTEMTw3/kQBhDf8xwNDTQLKnR0TSAACXXScw+G9yggAAAABJRU5ErkJggg==">
 <link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="fonts.css">
 <style>
-/* Hallmark · genre: modern-minimal · macrostructure: Map / Diagram
- * theme: Cobalt-adapted (instrument panel) · anchor hue: 248 · designed-as-app
- * tone: utilitarian · 장식 최소 · 수치 가독성 우선 (CLAUDE.md §7 Phase 4)
- * pre-emit critique: P5 H5 E4 S5 R5 V4
- * 토큰은 tokens.css 가 정본이다. 이 파일에서 색·폰트를 새로 만들지 않는다.
+/* 한 화면 · 무스크롤 · 탭 전환 · 소프트 엘리베이션 (2026-08-21 채택)
+ *
+ * 종전 화면은 세로로 길어 스크롤해야 다 보였다. 심사 PT 에서 스크롤은 손해다.
+ * 100dvh 안에 다 넣고 세부는 탭으로 가른다.
+ *
+ * 세 가지가 종전과 다르다.
+ *   ① 레이아웃 — 100dvh 안에 다 넣고 페이지는 스크롤하지 않는다. 세부는 탭으로.
+ *   ② 그림자 — A-3 강도. 아래 「대비」 주석 참조.
+ *   ③ 폰트 — Pretendard 서브셋 임베드 (fonts.css). 외부 요청은 여전히 0 이다.
+ *
+ * ── 대비에 대하여 ────────────────────────────────────────────────────────
+ * A-3 은 그림자를 세게 준다. 그래도 **경계선을 지우지 않는다.** 뉴모피즘 정석은
+ * 요소와 배경을 같은 색으로 두고 그림자로만 구분하는데, 그러면 UI 경계 대비가
+ * 정의상 1.0:1 이 되어 기준(3:1)을 못 지킨다. 이 화면은 적록색약 문제를 잡느라
+ * 색 스케일을 갈아엎은 직후라 그 방향으로 되돌릴 수 없다.
+ * 그림자는 잉크 색의 알파일 뿐 새 색상을 만들지 않는다 — "색은 데이터에만".
  */
+
 *{box-sizing:border-box}
-html,body{overflow-x:clip}
-body{margin:0;background:var(--color-paper);color:var(--color-ink);
-     font:var(--text-base)/var(--lh-body) var(--font-body);
-     -webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden}          /* 페이지는 스크롤하지 않는다 */
+body{
+  margin:0;background:var(--color-paper);color:var(--color-ink);
+  font:var(--text-base)/1.5 "Pretendard",var(--font-body);
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+}
 
-/* 수치는 전부 mono 로 간다 - 폰트 페어링의 두 번째 면이자
-   "수치 가독성 우선" 요구에 대한 직접적인 답이다. */
-.card .v,td.num,.figure{font-family:var(--font-outlier);
-     font-variant-numeric:tabular-nums}
+:root{
+  /* A-3 — 종전(A안)보다 오프셋·블러·알파를 키웠다 */
+  --sd:  oklch(21.2% 0.009 256 / 0.16);
+  --sd2: oklch(21.2% 0.009 256 / 0.10);
+  --sl:  oklch(100% 0 0 / 0.95);
+  --raise:    10px 10px 24px -10px var(--sd), -9px -9px 20px -10px var(--sl);
+  --raise-sm:  5px  5px 13px -6px var(--sd2), -5px -5px 12px -6px var(--sl);
+  --inset:    inset 5px 5px 11px -6px var(--sd2), inset -4px -4px 10px -6px var(--sl);
+  --pad: clamp(10px, 1.1vw, 18px);
+}
 
-/* -- 머리말: 도면의 표제란처럼 -------------------------------------- */
-header{border-bottom:var(--rule-hair) solid var(--color-ink);
-       padding:var(--space-md) var(--space-md) var(--space-sm)}
-h1{margin:0;font-size:var(--text-xl);font-weight:650;
-   letter-spacing:var(--track-tight);line-height:var(--lh-tight);
-   overflow-wrap:anywhere;min-width:0}
-header .sub{color:var(--color-muted);font-size:var(--text-sm);
-            letter-spacing:var(--track-snug);margin-top:var(--space-3xs)}
+/* ── 골격 ─────────────────────────────────────────────────────────── */
+.app{
+  height:100dvh;display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  gap:var(--pad);padding:var(--pad);
+}
 
-.wrap{max-width:1320px;margin:0 auto;
-      padding:var(--space-lg) var(--space-md) var(--space-2xl)}
+/* ── 머리 — 제목 + KPI 한 줄 ─────────────────────────────────────── */
+.top{display:grid;grid-template-columns:minmax(200px,1fr) auto;
+     gap:var(--pad);align-items:center}
+.brand h1{margin:0;font-size:clamp(15px,1.35vw,20px);font-weight:700;
+          letter-spacing:-.025em;line-height:1.15}
+.brand p{margin:2px 0 0;font-size:var(--text-2xs);color:var(--color-muted)}
 
-/* -- 요약 수치: 카드 액자를 벗기고 종이 위에 직접 앉힌다 --------------
-   넷을 똑같은 카드로 세우면 무엇이 결론인지 안 정해진다.
-   1,2 는 비교 대상이라 물러서고 3 과 미달구역이 앞으로 나온다. */
-.cards{display:grid;gap:0;margin:0 0 var(--space-xl);
-       grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.35fr);
-       border-top:var(--rule-hair) solid var(--color-ink)}
-.card{padding:var(--space-sm) var(--space-md) var(--space-md) 0;
-      border-right:var(--rule-hair) solid var(--color-rule);min-width:0}
-.card:last-child{border-right:0;padding-left:var(--space-md);padding-right:0}
-.card .k{color:var(--color-muted);font-size:var(--text-xs);
-         letter-spacing:var(--track-wide);margin-bottom:var(--space-2xs)}
-.card .v{font-size:var(--text-xl);font-weight:600;
-         letter-spacing:var(--track-tight);line-height:1.05;
-         color:var(--color-ink-2);overflow-wrap:anywhere}
-.card .n{color:var(--color-muted);font-size:var(--text-2xs);
-         margin-top:var(--space-3xs);line-height:1.45}
-.card.hi .v,.card.lead .v{font-size:var(--text-display);color:var(--color-ink)}
-.card.hi{border-right-color:var(--color-ink)}
-.card.lead .k{color:var(--color-ink)}
+.kpis{display:flex;gap:var(--pad);flex-wrap:wrap}
+.kpi{
+  background:var(--color-paper-2);border:var(--rule-hair) solid var(--color-rule);
+  border-radius:14px;padding:8px 14px;min-width:118px;
+  box-shadow:var(--raise-sm);
+}
+.kpi.hi{border-color:var(--color-ink-2);box-shadow:var(--raise)}
+.kpi .k{font-size:var(--text-2xs);color:var(--color-muted);letter-spacing:.04em}
+.kpi .v{font-size:clamp(17px,1.7vw,26px);font-weight:700;letter-spacing:-.03em;
+        line-height:1.1;margin-top:1px}
+.kpi.hi .v{color:var(--color-ink)}
+.kpi:not(.hi) .v{color:var(--color-ink-2)}
 
-/* -- 구역: 섹션마다 리듬이 다르다 ------------------------------------ */
-section{background:var(--color-paper-2);
-        border:var(--rule-hair) solid var(--color-rule);
-        border-radius:var(--radius-panel);margin-bottom:var(--space-md)}
-section.map{padding:var(--space-md) var(--space-md) var(--space-sm)}
-section.list{padding:var(--space-sm) var(--space-md) var(--space-md)}
-h2{margin:0 0 var(--space-3xs);font-size:var(--text-md);font-weight:600;
-   letter-spacing:var(--track-snug);overflow-wrap:anywhere;min-width:0}
-.hint{color:var(--color-muted);font-size:var(--text-xs);
-      margin:0 0 var(--space-sm);max-width:72ch;line-height:1.55}
+/* ── 본문 — 지도 + 탭 패널 ───────────────────────────────────────── */
+.main{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(340px,1fr);
+      gap:var(--pad);min-height:0}
+.panel{
+  background:var(--color-paper-2);border:var(--rule-hair) solid var(--color-rule);
+  border-radius:18px;box-shadow:var(--raise);
+  display:flex;flex-direction:column;min-height:0;overflow:hidden;
+}
+.panel > .head{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px var(--pad) 8px;border-bottom:var(--rule-hair) solid var(--color-rule-2)}
+.panel > .head h2{margin:0;font-size:var(--text-sm);font-weight:600;letter-spacing:-.01em}
+.panel > .body{flex:1;min-height:0;padding:var(--pad);overflow:auto}
+.panel > .body.flush{padding:8px}
 
-/* -- 컨트롤 ---------------------------------------------------------- */
-.toolbar{display:flex;gap:var(--space-sm);align-items:center;flex-wrap:wrap;
-         margin-bottom:var(--space-xs)}
-label{font-size:var(--text-xs);color:var(--color-ink-2);display:flex;
-      gap:var(--space-3xs);align-items:center;cursor:pointer}
-label:hover{color:var(--color-ink)}
+canvas{display:block;width:100%;height:100%;
+       background:var(--color-paper);border-radius:12px;
+       border:var(--rule-hair) solid var(--color-rule-2)}
+.canvaswrap{flex:1;min-height:0;padding:8px}
+
+/* ── 컨트롤 ───────────────────────────────────────────────────────── */
+.seg{display:inline-flex;border:var(--rule-hair) solid var(--color-muted);
+     border-radius:11px;overflow:hidden;box-shadow:var(--raise-sm)}
+.seg button{border:0;background:var(--color-paper-2);cursor:pointer;
+  font:inherit;font-size:var(--text-2xs);color:var(--color-muted);
+  padding:5px 11px;border-right:var(--rule-hair) solid var(--color-rule);
+  transition:background var(--dur-short) var(--ease-out),color var(--dur-short) var(--ease-out)}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:var(--color-paper-3);color:var(--color-ink)}
+.seg button[aria-pressed="true"]{background:var(--color-chrome);color:var(--color-paper-2);
+  box-shadow:var(--inset)}
+label{font-size:var(--text-2xs);color:var(--color-ink-2);display:inline-flex;
+      gap:5px;align-items:center;cursor:pointer}
 input[type=radio],input[type=checkbox]{accent-color:var(--color-chrome);margin:0}
 :focus-visible{outline:2px solid var(--color-focus);outline-offset:2px}
 
-.modes{display:inline-flex;border:var(--rule-hair) solid var(--color-muted);
-       border-radius:var(--radius-control);overflow:hidden}
-.mode{border:0;background:var(--color-paper-2);
-      padding:var(--space-3xs) var(--space-xs);
-      font:inherit;font-size:var(--text-xs);color:var(--color-muted);cursor:pointer;
-      border-right:var(--rule-hair) solid var(--color-rule);
-      transition:background var(--dur-short) var(--ease-out),
-                 color var(--dur-short) var(--ease-out)}
-.mode:last-child{border-right:0}
-.mode:hover{background:var(--color-paper-3);color:var(--color-ink)}
-.mode:active{background:var(--color-paper-3);transform:translateY(1px)}
-.mode.on{background:var(--color-chrome);color:var(--color-paper-2)}
-.mode:disabled,label:has(input:disabled){opacity:.45;cursor:not-allowed}
-label:has(input:disabled):hover{color:var(--color-ink-2)}
+/* ── 탭 — 세부는 여기서 갈아 끼운다 ──────────────────────────────── */
+.tabs{display:flex;gap:6px;padding:8px var(--pad) 0;flex-wrap:wrap}
+.tab{
+  border:var(--rule-hair) solid var(--color-rule);background:var(--color-paper-3);
+  border-radius:11px 11px 0 0;border-bottom:0;padding:6px 13px;cursor:pointer;
+  font:inherit;font-size:var(--text-2xs);color:var(--color-muted);
+  box-shadow:var(--inset);
+}
+.tab[aria-selected="true"]{
+  background:var(--color-paper-2);color:var(--color-ink);font-weight:600;
+  box-shadow:var(--raise-sm);border-color:var(--color-ink-2);
+}
+.tabpanel{display:none}
+.tabpanel.on{display:block}
 
-canvas{display:block;width:100%;background:var(--color-paper);
-       border:var(--rule-hair) solid var(--color-rule);
-       border-radius:var(--radius-chip)}
-
-/* -- 범례: 임계선을 눈에 보이게 -------------------------------------- */
-.legend{display:flex;gap:var(--space-2xs);align-items:center;
-        font-size:var(--text-2xs);color:var(--color-muted);
-        margin-top:var(--space-xs);flex-wrap:wrap}
-.ramp{display:inline-flex;align-items:stretch;height:12px;
-      border:var(--rule-hair) solid var(--color-rule);
-      border-radius:2px;overflow:hidden}
-.ramp i{display:block;width:24px}
-.sw{width:16px;height:11px;border:var(--rule-hair) solid var(--color-rule);
-    border-radius:2px}
-.legend .chip{display:inline-block;width:11px;height:11px;border-radius:2px;
-              vertical-align:-1px;margin-right:3px}
-.legend .fail{background:var(--scale-0);outline:1.5px solid var(--color-ink);
-              outline-offset:-1.5px}
-.legend .mid{background:var(--scale-75);opacity:.30}
-.legend .clear{background:transparent;border:1px solid var(--color-rule)}
-
-/* -- 표 -------------------------------------------------------------- */
-table{width:100%;border-collapse:collapse;font-size:var(--text-xs)}
-th,td{text-align:left;padding:var(--space-3xs) var(--space-2xs);
-      border-bottom:var(--rule-hair) solid var(--color-rule-2)}
-th{color:var(--color-muted);font-weight:600;background:var(--color-paper-3);
-   position:sticky;top:0;letter-spacing:var(--track-wide);
-   font-size:var(--text-2xs)}
+/* ── 표 ───────────────────────────────────────────────────────────── */
+table{width:100%;border-collapse:collapse;font-size:var(--text-2xs)}
+th,td{text-align:left;padding:5px 7px;border-bottom:var(--rule-hair) solid var(--color-rule-2)}
+th{position:sticky;top:0;background:var(--color-paper-3);color:var(--color-muted);
+   font-weight:600;letter-spacing:.04em}
 td.num{text-align:right}
 tbody tr:hover{background:var(--color-paper-3)}
-.scroll{max-height:340px;overflow:auto;
-        border:var(--rule-hair) solid var(--color-rule);
-        border-radius:var(--radius-chip)}
+.pill{display:inline-block;padding:0 7px;border-radius:8px;font-size:var(--text-2xs);
+      background:var(--color-paper-3);color:var(--color-muted);box-shadow:var(--raise-sm)}
+.pill.w5{background:var(--color-w5-bg);color:var(--color-w5);box-shadow:none}
+.pill.w4{background:var(--color-w4-bg);color:var(--color-w4);box-shadow:none}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:var(--text-2xs)}
+.kv dt{color:var(--color-muted)}
+.kv dd{margin:0;text-align:right}
 
-.pill{display:inline-block;padding:1px var(--space-2xs);
-      border-radius:var(--radius-chip);font-size:var(--text-2xs);
-      background:var(--color-paper-3);color:var(--color-muted)}
-.pill.w5{background:var(--color-w5-bg);color:var(--color-w5)}
-.pill.w4{background:var(--color-w4-bg);color:var(--color-w4)}
-.err{color:var(--color-w5);padding:var(--space-sm);
-     border:var(--rule-hair) solid var(--color-w5);
-     border-radius:var(--radius-panel);background:var(--color-w5-bg)}
-footer{color:var(--color-muted);font-size:var(--text-2xs);
-       margin-top:var(--space-lg);line-height:1.75;max-width:92ch;
-       border-top:var(--rule-hair) solid var(--color-rule);
-       padding-top:var(--space-sm)}
+/* ── 발 — 범례 ────────────────────────────────────────────────────── */
+.foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+      font-size:var(--text-2xs);color:var(--color-muted);padding:0 4px}
+.ramp{display:inline-flex;height:11px;border:var(--rule-hair) solid var(--color-rule);
+      border-radius:3px;overflow:hidden}
+.ramp i{display:block;width:20px}
+.chip{display:inline-block;width:10px;height:10px;border-radius:3px;
+      vertical-align:-1px;margin-right:3px}
+.chip.fail{background:var(--scale-0);outline:1.5px solid var(--color-ink);outline-offset:-1.5px}
+.chip.mid{background:var(--scale-75);opacity:.30}
+.chip.clear{background:transparent;border:1px solid var(--color-rule)}
+.err{margin:auto;max-width:520px;color:var(--color-w5);background:var(--color-w5-bg);
+     border:var(--rule-hair) solid var(--color-w5);border-radius:14px;padding:16px}
 
-@media (max-width:900px){
-  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .card{border-bottom:var(--rule-hair) solid var(--color-rule)}
-  .card:nth-child(2n){border-right:0}
-  .card:last-child{padding-left:0}
-  .card.hi .v,.card.lead .v{font-size:var(--text-2xl)}
-}
-@media (max-width:560px){
-  .cards{grid-template-columns:minmax(0,1fr)}
-  .card{border-right:0}
-  .wrap{padding-left:var(--space-sm);padding-right:var(--space-sm)}
-  header{padding-left:var(--space-sm);padding-right:var(--space-sm)}
+@media (max-width:1000px){
+  .main{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(0,1fr)}
 }
 @media (prefers-reduced-motion:reduce){*{transition-duration:1ms !important}}
 </style>
 </head>
 <body>
-<header>
-  <h1>AI CCTV 배치 적정성 평가</h1>
-  <div class="sub">위험가중 안전모 검출률(WDR) 기준 · 기하 커버리지 배치 대비</div>
-</header>
+<div class="app" id="app"><p class="err">데이터를 읽는 중…</p></div>
 
-<div class="wrap" id="root">
-  <p class="hint">데이터를 읽는 중…</p>
-</div>
-
-<!-- data.js 는 data.json 과 같은 내용을 window.SITE_DATA 에 담은 사본이다.
-     file:// 로 직접 열면 브라우저가 fetch 를 막으므로 그때 쓰는 폴백이다.
-     데이터는 여전히 report.py 가 만든다 - HTML 에 하드코딩하지 않는다. -->
 <script src="data.js"></script>
 <script src="theme.js"></script>
 <script src="viewer.js"></script>
 <script src="plan.js"></script>
 <script>
-const fmtPct = v => (v * 100).toFixed(1) + '%';
-let DATA = null, VIEW = 'empirical';
+const pct = v => (v*100).toFixed(1) + '%';
+let D = null, VIEW = 'empirical', MODE = '2d', VIEWER = null;
 
-/* 색은 theme.js 한 곳에서만 나온다 - 종전에는 이 함수가 viewer.js 에도
-   복제돼 있어 한쪽만 고치면 조용히 어긋났다. */
-const heat = p => Theme.css(Theme.heat(p));
-
-/* 범례 램프. 임계(threshold)에 세로선을 실제 비율 위치에 그어
-   "어디부터 미달인가" 를 색이 아니라 위치로도 말한다. */
-function rampHTML(thr){
-  const N = 24, out = [];
-  for (let i = 0; i < N; i++) {
-    const p = i / (N - 1);
-    const mark = (thr != null && p < thr && (i + 1) / (N - 1) >= thr)
-      ? ';box-shadow:inset -2px 0 0 0 var(--color-ink)' : '';
-    out.push(`<i style="background:${heat(p)}${mark}"></i>`);
-  }
+function rampHTML(){
+  const N = 20, out = [];
+  for (let i=0;i<N;i++) out.push(`<i style="background:${Theme.css(Theme.heat(i/(N-1)))}"></i>`);
   return out.join('');
 }
 
-
-function render(d){
-  const root = document.getElementById('root');
-  const P = d.placements, geo = P.geometric, asm = P.assumed, emp = P.empirical;
-  const S = d.site, vox = d.voxels;
-  // 히트맵이 보여줄 배치. 세 배치를 같은 자로 재고 토글로 바꿔 보는 것이
-  // 이 자료의 요점이라, 실측 배치만 그리지 않는다.
+function render(){
+  const d = D, P = d.placements;
   const view = P[VIEW] ? VIEW : Object.keys(P)[0];
-  const shown = P[view];
-  const key = 'P_total_' + view;
-  const dW = emp && geo ? emp.WDR - geo.WDR : null;
-  const base = d.geometric_baseline || null;
-
-  const scale = 1000 / S.width_m;        // 1000px 폭에 맞춘다
-  const H = S.depth_m * scale, W = S.width_m * scale, vs = S.voxel_m * scale;
-  const chosen = new Set(shown.camera_ids);
-
-  // 히트맵은 viewer.js 가 캔버스에 그린다. SVG 노드로 두면 복셀 2천 개를
-  // 회전시킬 때 버벅인다.
-  const fails = ((shown && shown.fail_zones) || d.fail_zones || [])
+  const shown = P[view], key = 'P_total_' + view;
+  const geo = P.geometric, asm = P.assumed, emp = P.empirical;
+  const fails = (shown.fail_zones || d.fail_zones || [])
     .slice().sort((a,b)=> b.w-a.w || a.P_total-b.P_total);
+  const rc = {}; fails.forEach(f=>rc[f.reason]=(rc[f.reason]||0)+1);
+  const base = d.geometric_baseline, ps = d.dori_pair_stats;
 
-  // 미달 원인 분포 — "그래서 뭘 고치라는 건가"에 대한 답이 화면에 있어야 한다
-  const rc = {};
-  fails.forEach(f => { rc[f.reason] = (rc[f.reason]||0) + 1; });
-  const rcTxt = Object.entries(rc).sort((a,b)=>b[1]-a[1])
-    .map(([k,v])=>`${k} ${v}`).join(' · ') || '—';
-
-  root.innerHTML = `
-  <div class="cards">
-    <div class="card"><div class="k">① 기하 커버리지 배치</div>
-      <div class="v">${geo ? fmtPct(geo.WDR) : '—'}</div>
-      <div class="n">${base ? 'IEC 62676-4 DORI '+base.level+' 준수' : '기존 방식'}</div></div>
-    <div class="card"><div class="k">② 문헌의 가정 곡선 배치</div>
-      <div class="v">${asm ? fmtPct(asm.WDR) : '—'}</div>
-      <div class="n">${asm && asm.curve_source ? asm.curve_source : '해석적 가정'} · 측정값 아님</div></div>
-    <div class="card hi"><div class="k">③ 실측 곡선 배치 — 제안</div>
-      <div class="v">${emp ? fmtPct(emp.WDR) : '—'}</div>
-      <div class="n">제안 방식</div></div>
-    <div class="card lead"><div class="k">미달구역 — 줄어든 양</div>
-      <div class="v">${geo&&emp ? geo.fail_voxel_count+' → '+emp.fail_voxel_count
-                                 : (shown ? shown.fail_voxel_count : '—')}</div>
-      <div class="n">P_total &lt; ${d.threshold} · 전체 ${vox.length}개 중
-        ${asm ? '(가정 '+asm.fail_voxel_count+')' : ''}</div></div>
+  document.getElementById('app').innerHTML = `
+  <div class="top">
+    <div class="brand">
+      <h1>AI CCTV 배치 적정성 평가</h1>
+      <p>위험가중 안전모 검출률(WDR) · 같은 ${d.camera_budget}대를 같은 자로 측정</p>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="k">① 기하 커버리지</div><div class="v">${geo?pct(geo.WDR):'—'}</div></div>
+      <div class="kpi"><div class="k">② 가정 곡선</div><div class="v">${asm?pct(asm.WDR):'—'}</div></div>
+      <div class="kpi hi"><div class="k">③ 실측 곡선 — 제안</div><div class="v">${emp?pct(emp.WDR):'—'}</div></div>
+      <div class="kpi hi"><div class="k">미달구역</div>
+        <div class="v">${geo&&emp?geo.fail_voxel_count.toLocaleString()+' → '+emp.fail_voxel_count.toLocaleString():'—'}</div></div>
+    </div>
   </div>
 
-  <section class="map">
-    <h2>현장 평면도 — 무엇을 평가했는가</h2>
-    <p class="hint"><b>가상 현장이다. 실제 LH 현장 도면이 아니다.</b>
-      LH 아파트 건설현장 1개 공구(${S.width_m}×${S.depth_m} m)를 모사해
-      <code>site_model.py</code> 가 직육면체 조합으로 생성한다(CLAUDE.md §5.1).
-      아래 화면은 그 입력을 평면으로 옮긴 것이며, 새로 만든 수치는 없다.</p>
-    <div class="toolbar">
-      <label><input type="checkbox" id="planZones" checked> 위험구역</label>
-      <label><input type="checkbox" id="planCams" checked> 카메라</label>
-      <span class="pill">선정 ${shown.camera_ids.length}대 —
-        ${({geometric:'기하 커버리지 배치',assumed:'가정 곡선 배치',empirical:'실측 곡선 배치'})[view]||view}</span>
+  <div class="main">
+    <div class="panel">
+      <div class="head">
+        <h2>현장 검출확률</h2>
+        <span class="seg" id="segview">
+          <button data-v="geometric" aria-pressed="${view==='geometric'}">기하</button>
+          <button data-v="assumed" aria-pressed="${view==='assumed'}">가정</button>
+          <button data-v="empirical" aria-pressed="${view==='empirical'}">실측</button>
+        </span>
+        <span class="seg" id="segmode">
+          <button data-m="2d" aria-pressed="${MODE==='2d'}">2D</button>
+          <button data-m="2.5d" aria-pressed="${MODE==='2.5d'}">2.5D</button>
+          <button data-m="3d" aria-pressed="${MODE==='3d'}">3D</button>
+        </span>
+        <label><input type="checkbox" id="solids" checked> 골조</label>
+      </div>
+      <div class="canvaswrap"><canvas id="map" role="img"
+        aria-label="복셀별 검출확률 히트맵. 수치는 오른쪽 미달구역 탭에 있다"></canvas></div>
     </div>
-    <canvas id="plan" style="height:420px" role="img"
-      aria-label="가상 현장 평면도. 골조·위험구역·카메라 배치. 수치는 아래 표와 범례에 있다"></canvas>
-    <div class="legend" id="planlegend"></div>
-  </section>
 
-  <section class="map">
-    <h2>현장 검출확률 — 2D / 2.5D / 3D</h2>
-    <p class="hint"><b>잉크를 못 보는 곳에 몰아준다.</b> 9,876개를 같은 세기로 칠하면
-      서로 겹쳐 아무것도 안 읽힌다. 검출확률이 높은 구역(${Theme.CLEAR_AT} 이상, 전체의
-      ${Math.round(vox.filter(v=>v.occupiable!==false&&v[key]>=Theme.CLEAR_AT).length
-        /vox.filter(v=>v.occupiable!==false).length*100)}%)은 칠하지 않고 윤곽만 남겨
-      현장 형상만 유지하고, 임계 미만에 색과 테두리를 준다. 색 스케일은 그대로이고
-      달라지는 것은 진하기다.</p>
-    <div class="toolbar">
-      <label><input type="radio" name="view" value="geometric"
-        ${view==='geometric'?'checked':''} ${geo?'':'disabled'}> 기하 커버리지 배치 (기존)</label>
-      <label><input type="radio" name="view" value="assumed"
-        ${view==='assumed'?'checked':''} ${asm?'':'disabled'}> 가정 곡선 배치 (문헌)</label>
-      <label><input type="radio" name="view" value="empirical"
-        ${view==='empirical'?'checked':''} ${emp?'':'disabled'}> 실측 곡선 배치 (제안)</label>
-      <span class="pill">같은 ${d.camera_budget}대 · 같은 자로 측정</span>
+    <div class="panel">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-t="sum" aria-selected="true">개요</button>
+        <button class="tab" role="tab" data-t="plan" aria-selected="false">평면도</button>
+        <button class="tab" role="tab" data-t="fail" aria-selected="false">미달구역 ${fails.length.toLocaleString()}</button>
+        <button class="tab" role="tab" data-t="cmp" aria-selected="false">배치 비교</button>
+        <button class="tab" role="tab" data-t="dori" aria-selected="false">기준선</button>
+      </div>
+      <div class="body" id="tabbody">
+        <section class="tabpanel on" data-p="sum">
+          <dl class="kv">
+            <dt>현장</dt><dd>${d.site.width_m}×${d.site.depth_m} m</dd>
+            <dt>복셀</dt><dd>${d.site.voxel_m} m · ${d.voxels.length.toLocaleString()}개</dd>
+            <dt>카메라</dt><dd>후보 ${d.cameras.length} · 선정 ${d.camera_budget}</dd>
+            <dt>판정 임계</dt><dd>P_total &lt; ${d.threshold}</dd>
+            <dt>곡선 R²</dt><dd>${d.curve.r2_full_grid}</dd>
+            <dt>ρ 실측 범위</dt><dd>${d.curve.rho_measured_px[0]}–${d.curve.rho_measured_px[1]} px</dd>
+          </dl>
+          <p style="margin:12px 0 0;font-size:var(--text-2xs);color:var(--color-muted);line-height:1.6">
+            <b>미달 원인</b> — ${Object.entries(rc).sort((a,b)=>b[1]-a[1])
+              .map(([k,v])=>`${k} ${v.toLocaleString()}`).join(' · ')||'—'}</p>
+          <p style="margin:8px 0 0;font-size:var(--text-2xs);color:var(--color-muted);line-height:1.6">
+            검출기는 SHWD 파인튜닝본이며 실제 운용 모델이 아니다. 절대 수치가 아니라
+            설치 조건에 따라 검출률이 변한다는 관계를 보이는 자료다.</p>
+        </section>
+
+        <section class="tabpanel" data-p="plan">
+          <p style="margin:0 0 8px;font-size:var(--text-2xs);color:var(--color-muted);line-height:1.6">
+            <b>가상 현장이다. 실제 LH 현장 도면이 아니다.</b> LH 아파트 건설현장
+            1개 공구(${d.site.width_m}×${d.site.depth_m} m)를 모사해
+            <code>site_model.py</code> 가 직육면체 조합으로 생성한다(CLAUDE.md §5.1).
+            골조는 <code>data/building.json</code>, 위험구역은
+            <code>data/zones.json</code> 입력과 <code>zone_derive</code> 규칙 도출에서 온다.</p>
+          <canvas id="plan" role="img" style="height:300px"
+            aria-label="가상 현장 평면도. 골조·위험구역·카메라 배치"></canvas>
+          <div class="foot" id="planlegend" style="padding:6px 0 0"></div>
+        </section>
+
+        <section class="tabpanel" data-p="fail">
+          <table><thead><tr><th>복셀</th><th>위치</th><th>구역</th>
+            <th class="num">w</th><th class="num">P</th><th>원인</th></tr></thead>
+            <tbody>${fails.slice(0,400).map(f=>`<tr>
+              <td>${f.voxel_id}</td><td class="num">${f.x.toFixed(0)},${f.y.toFixed(0)}</td>
+              <td>${(f.zones||[]).join(', ')||'—'}</td>
+              <td class="num"><span class="pill ${f.w>=5?'w5':f.w>=4?'w4':''}">${f.w}</span></td>
+              <td class="num">${f.P_total.toFixed(3)}</td><td>${f.reason}</td></tr>`).join('')}</tbody>
+          </table>
+          ${fails.length>400?`<p style="font-size:var(--text-2xs);color:var(--color-muted);margin-top:8px">
+            위험가중치 순 상위 400개만 표시 · 전체 ${fails.length.toLocaleString()}개</p>`:''}
+        </section>
+
+        <section class="tabpanel" data-p="cmp">
+          <table><thead><tr><th>기준</th><th class="num">WDR</th><th class="num">미달</th></tr></thead>
+            <tbody>
+              ${['geometric','assumed','empirical'].filter(k=>P[k]).map(k=>`<tr>
+                <td>${({geometric:'① 기하 커버리지',assumed:'② 가정 곡선',empirical:'③ 실측 곡선'})[k]}</td>
+                <td class="num">${pct(P[k].WDR)}</td>
+                <td class="num">${P[k].fail_voxel_count.toLocaleString()}</td></tr>`).join('')}
+            </tbody></table>
+          <p style="margin-top:10px;font-size:var(--text-2xs);color:var(--color-muted);line-height:1.6">
+            세 배치를 <b>같은 자(실측 검출확률)</b>로 쟀다. 가정 곡선은 DORI recognition 을
+            곡선처럼 쓴 문헌식 배치이며 측정값이 아니다.</p>
+        </section>
+
+        <section class="tabpanel" data-p="dori">
+          ${base&&base.sweep?`<table><thead><tr><th>기하 기준선</th><th class="num">ρ임계</th>
+            <th class="num">WDR</th><th class="num">ΔWDR</th></tr></thead><tbody>
+            ${base.sweep.map(r=>`<tr${r.is_default?' style="background:var(--color-paper-3)"':''}>
+              <td>${r.dori_level==='none'?'임계 없음':'DORI '+r.dori_level}</td>
+              <td class="num">${r.min_rho_px}</td><td class="num">${pct(r.WDR)}</td>
+              <td class="num">${(r.delta_WDR>=0?'+':'')+pct(r.delta_WDR)}</td></tr>`).join('')}
+            </tbody></table>`:''}
+          ${ps&&ps.levels?`<p style="margin-top:10px;font-size:var(--text-2xs);color:var(--color-muted);line-height:1.6">
+            가시 쌍 ${ps.n_visible.toLocaleString()}개 · ρ 중앙값 ${ps.rho_px_median}px.
+            등급별 만족 — ${Object.entries(ps.levels).map(([k,v])=>`${k} ${pct(v.ratio)}`).join(' · ')}.
+            <b>안전모 판별에 필요한 Recognition 은 ${pct(ps.levels.recognition.ratio)}뿐이다.</b></p>`:''}
+        </section>
+      </div>
     </div>
-    <div class="toolbar">
-      <span class="modes">
-        <button type="button" class="mode" data-mode="2d">2D 평면</button>
-        <button type="button" class="mode" data-mode="2.5d">2.5D 적층</button>
-        <button type="button" class="mode" data-mode="3d">3D 회전</button>
-      </span>
-      <span id="lvwrap">층
-        <select id="level">${(d.levels||[0]).map(l=>
-          `<option value="${l}">${l===0?'지상층':l+'층'}</option>`).join('')}</select>
-      </span>
-      <label><input type="checkbox" id="showSolids" checked> 골조</label>
-      <label><input type="checkbox" id="onlyOcc" checked> 사람이 있을 수 있는 자리만</label>
-      <span class="pill" id="modehint"></span>
-    </div>
-    <canvas id="view3d" style="height:520px;touch-action:none" role="img"
-      aria-label="복셀별 검출확률 히트맵. 임계 미만 구역의 목록과 수치는 아래 미달구역 표에 있다"></canvas>
-    <div class="legend">
-      <span>미달</span>
-      <span class="ramp">${rampHTML(d.threshold)}</span>
-      <span>통과</span>
-      <span style="margin-left:10px"><span class="chip fail"></span>P &lt; ${d.threshold}
-        진하게 + 테두리</span>
-      <span><span class="chip mid"></span>${d.threshold} ~ ${Theme.CLEAR_AT} 옅게</span>
-      <span><span class="chip clear"></span>${Theme.CLEAR_AT} 이상 윤곽만</span>
-      <span style="margin-left:10px">기준 임계 ${d.threshold} ·
-        복셀 ${S.voxel_m}m · ${(d.levels||[0]).length}개 층 ${vox.length}개</span>
-    </div>
-  </section>
+  </div>
 
-  <section class="list">
-    <h2>미달구역 — ${fails.length}개 <span class="pill">${({geometric:'기하 배치',assumed:'가정 곡선 배치',empirical:'실측 배치'})[view]||view}</span></h2>
-    <p class="hint">위험가중치가 높은 순. 사유는 세 축 중 가장 크게 깎은 것이다.<br>
-      <b>원인 분포 — ${rcTxt}</b></p>
-    <div class="scroll"><table>
-      <thead><tr><th>복셀</th><th>위치 (m)</th><th>위험구역</th>
-        <th class="num">가중치</th><th class="num">P_total</th><th>원인</th></tr></thead>
-      <tbody>${fails.map(f=>`<tr>
-        <td>${f.voxel_id}</td>
-        <td class="num">${f.x.toFixed(0)}, ${f.y.toFixed(0)}</td>
-        <td>${f.zones.length ? f.zones.join(', ') : '—'}</td>
-        <td class="num"><span class="pill ${f.w>=5?'w5':f.w>=4?'w4':''}">${f.w}</span></td>
-        <td class="num">${f.P_total.toFixed(3)}</td>
-        <td>${f.reason}</td></tr>`).join('')}</tbody>
-    </table></div>
-  </section>
+  <div class="foot">
+    <span>미달</span><span class="ramp">${rampHTML()}</span><span>통과</span>
+    <span><span class="chip fail"></span>P&lt;${d.threshold}</span>
+    <span><span class="chip mid"></span>${d.threshold}~${Theme.CLEAR_AT}</span>
+    <span><span class="chip clear"></span>${Theme.CLEAR_AT} 이상 윤곽만</span>
+    <span style="margin-left:auto">기하 기준선 ${base?base.level:'—'} ·
+      복셀 ${d.site.voxel_m}m · ${d.voxels.length.toLocaleString()}개</span>
+  </div>`;
 
-  <section class="list">
-    <h2>배치 비교</h2>
-    <p class="hint">세 배치를 <b>같은 자(실측 검출확률)</b>로 쟀다. 가정 곡선은
-      설계에만 쓰고 채점에는 쓰지 않는다 — 그래야 “가정으로 설계하면 실제로 어디까지
-      가는가”가 같은 눈금 위에서 읽힌다.</p>
-    <table>
-      <thead><tr><th>설계 기준</th><th class="num">실측 WDR</th><th class="num">미달구역</th><th>선정 카메라</th></tr></thead>
-      <tbody>
-        ${geo?`<tr><td>① 기하 커버리지 (기존)</td><td class="num">${fmtPct(geo.WDR)}</td>
-          <td class="num">${geo.fail_voxel_count}</td><td>${geo.camera_ids.join(', ')}</td></tr>`:''}
-        ${asm?`<tr><td>② 문헌의 가정 곡선</td><td class="num">${fmtPct(asm.WDR)}</td>
-          <td class="num">${asm.fail_voxel_count}</td><td>${asm.camera_ids.join(', ')}</td></tr>`:''}
-        ${emp?`<tr><td><b>③ 실측 곡선 (제안)</b></td><td class="num"><b>${fmtPct(emp.WDR)}</b></td>
-          <td class="num">${emp.fail_voxel_count}</td><td>${emp.camera_ids.join(', ')}</td></tr>`:''}
-      </tbody>
-    </table>
-    ${asm&&d.assumed_curve?`<p class="hint" style="margin-top:10px">
-      가정 곡선은 <b>${d.assumed_curve.f_rho.derived_from}</b> 에서 유도했고,
-      가림은 ${d.assumed_curve.h_occ.form==='binary_los'?'이진 가시선(부분 가림 무시)':'—'} 이다.
-      <b>${d.assumed_curve.warning}</b></p>`:''}
-  </section>
-
-  ${base&&base.sweep?`  <section class="list">
-    <h2>기하 기준선을 어디에 세워도 결과가 유지되는가</h2>
-    <p class="hint">기존 방식의 커버리지 판정에 IEC 62676-4(DORI)의 최소 픽셀밀도를 등급별로
-      걸어 다시 최적화했다. 임계 없이 "보이기만 하면 커버"로 세면 기존 방식을 실무보다
-      못하게 모델링하게 되므로, <b>기존 방식에 가장 유리한 등급(${base.level})을 기본값</b>으로 쓴다.</p>
-    <table>
-      <thead><tr><th>기하 기준선</th><th class="num">최소 PPM</th><th class="num">ρ 임계</th>
-        <th class="num">WDR</th><th class="num">미달구역</th><th class="num">ΔWDR</th></tr></thead>
-      <tbody>${base.sweep.map(r=>`<tr${r.is_default?' style="background:#f7fafc"':''}>
-        <td>${r.dori_level==='none'?'임계 없음':'DORI '+r.dori_level}${r.is_default?' <span class="pill">기본</span>':''}</td>
-        <td class="num">${r.ppm ?? '—'}</td><td class="num">${r.min_rho_px}</td>
-        <td class="num">${fmtPct(r.WDR)}</td><td class="num">${r.fail_voxel_count}</td>
-        <td class="num">${(r.delta_WDR>=0?'+':'')+fmtPct(r.delta_WDR)}</td></tr>`).join('')}</tbody>
-    </table>
-    ${d.dori_pair_stats && d.dori_pair_stats.levels ? `
-    <p class="hint" style="margin-top:12px">가시 복셀-카메라 쌍 ${d.dori_pair_stats.n_visible}개의
-      ρ 중앙값은 ${d.dori_pair_stats.rho_px_median}px(=${(d.dori_pair_stats.rho_px_median*4).toFixed(0)} PPM)다.
-      등급별 만족 비율 —
-      ${Object.entries(d.dori_pair_stats.levels).map(([k,v])=>`${k} ${fmtPct(v.ratio)}`).join(' · ')}.
-      <b>안전모 착용 판별에 필요한 Recognition(125 PPM)을 만족하는 쌍은
-      ${fmtPct(d.dori_pair_stats.levels.recognition.ratio)}에 그친다.</b></p>` : ''}
-  </section>` : ''}
-
-  <footer>
-    ρ 곡선 실측 범위 ${d.curve.rho_measured_px[0]}–${d.curve.rho_measured_px[1]}px ·
-    전체 격자 R² ${d.curve.r2_full_grid} · 임계 ${d.threshold} (잠정값)<br>
-    ${base ? '기하 기준선: '+base.standard+' '+base.level+' (ρ≥'+base.min_rho_px+'px). DORI 는 인간 관찰자 기준이며 AI 검출기에 대해 검증된 바 없다.<br>' : ''}
-    ${d.aim.note}<br>
-    검출기는 SHWD 파인튜닝본이며 실제 운용 모델이 아니다. 절대 수치가 아니라
-    설치 조건에 따라 검출률이 변한다는 관계를 보이는 자료다.
-  </footer>`;
-
-  mountViewer(d, view);
-  mountPlan(d, shown.camera_ids);
-  root.querySelectorAll('input[name=view]').forEach(el => {
-    el.addEventListener('change', () => { VIEW = el.value; render(DATA); });
-  });
+  mountMap(view, key);
+  wire();
 }
 
-/* 평면도. 히트맵과 같은 배치를 보여준다 — 위 라디오로 배치를 바꾸면
- * render() 가 다시 돌아 여기도 새 camera_ids 로 다시 그려진다. */
+function mountMap(view){
+  const cv = document.getElementById('map');
+  const box = cv.parentElement.getBoundingClientRect();
+  cv.style.height = Math.max(180, box.height - 16) + 'px';
+  VIEWER = new CoverageViewer.Viewer(cv, D, {
+    mode: MODE, level: 0, key: 'P_total_' + view,
+    cameraIds: (D.placements[view]||{}).camera_ids || [],
+  });
+  VIEWER.setMode(MODE);
+}
+
+/* 평면도. 탭을 처음 열 때 한 번만 그린다 — 숨어 있을 때 그리면 캔버스
+   크기가 0 이라 아무것도 안 나온다. */
 let PLAN = null;
-function mountPlan(d, chosen) {
+function mountPlan(view){
   const cv = document.getElementById('plan');
   if (!cv || !window.SitePlan) return;
-  PLAN = new SitePlan.SitePlan(cv, d, { chosen });
+  PLAN = new SitePlan.SitePlan(cv, D, {
+    chosen: (D.placements[view] || {}).camera_ids || [] });
   const leg = document.getElementById('planlegend');
   if (leg) leg.innerHTML = PLAN.legendHTML();
-  const bind = (id, key) => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', () => PLAN.set(key, el.checked));
-  };
-  bind('planZones', 'showZones');
-  bind('planCams', 'showCams');
-}
-addEventListener('resize', () => PLAN && PLAN.resize(), { passive: true });
-
-function show(d){
-  if (!d) throw new Error('데이터가 비어 있다');
-  if (d.status !== 'ok') throw new Error('status 가 ok 가 아니다: ' + d.status);
-  DATA = d;
-  render(d);
 }
 
+function wire(){
+  document.querySelectorAll('#segview button').forEach(b=>b.onclick=()=>{
+    VIEW = b.dataset.v; render(); });
+  document.querySelectorAll('#segmode button').forEach(b=>b.onclick=()=>{
+    MODE = b.dataset.m;
+    document.querySelectorAll('#segmode button').forEach(x=>
+      x.setAttribute('aria-pressed', String(x===b)));
+    VIEWER.setMode(MODE);
+  });
+  const so = document.getElementById('solids');
+  if (so) so.onchange = () => VIEWER.set('showSolids', so.checked);
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected', String(x===t)));
+    document.querySelectorAll('.tabpanel').forEach(p=>
+      p.classList.toggle('on', p.dataset.p === t.dataset.t));
+    document.getElementById('tabbody').scrollTop = 0;
+    if (t.dataset.t === 'plan') {
+      const view = D.placements[VIEW] ? VIEW : Object.keys(D.placements)[0];
+      if (!PLAN) mountPlan(view); else PLAN.resize();
+    }
+  });
+}
+
+addEventListener('resize', () => { if (VIEWER) { const cv=document.getElementById('map');
+  cv.style.height = Math.max(180, cv.parentElement.getBoundingClientRect().height-16)+'px';
+  VIEWER.resize(); } }, {passive:true});
+
+function boot(d){
+  if (!d || d.status !== 'ok') throw new Error('데이터를 읽지 못했다');
+  D = d; render();
+}
 function fail(msg){
-  document.getElementById('root').innerHTML =
+  document.getElementById('app').innerHTML =
     '<div class="err"><b>표시할 수 없습니다.</b><br>' + msg +
-    '<br><br><code>python -m http.server</code> 로 띄운 뒤 접속하거나, ' +
-    'report.py 를 다시 돌려 data.json / data.js 를 만드십시오.</div>';
+    '<br><br><code>start.bat</code> 을 실행하거나 report.py 를 다시 돌려 ' +
+    'data.json / data.js 를 만드십시오.</div>';
 }
 
-// ── 뷰어 배선 ─────────────────────────────────────────────────────────────
-let VIEWER = null;
-const MODE_HINT = {
-  '2d':   '수직 내려보기 · 선택한 층만',
-  '2.5d': '아이소메트릭 · 층을 쌓아 본다',
-  '3d':   '드래그로 회전 · 휠로 확대',
-};
-
-function mountViewer(d, view) {
-  const cv = document.getElementById('view3d');
-  if (!cv) return;
-  const mode = (VIEWER && VIEWER.opts.mode) || '2.5d';
-  const level = (VIEWER && VIEWER.opts.level) || 0;
-  VIEWER = new CoverageViewer.Viewer(cv, d, {
-    mode, level, key: 'P_total_' + view,
-    cameraIds: (d.placements[view] || {}).camera_ids || [],
-  });
-  applyMode(mode);
-
-  document.querySelectorAll('.mode').forEach(b => {
-    b.onclick = () => applyMode(b.dataset.mode);
-  });
-  const sel = document.getElementById('level');
-  if (sel) { sel.value = String(level); sel.onchange = () => VIEWER.set('level', +sel.value); }
-  const sol = document.getElementById('showSolids');
-  if (sol) sol.onchange = () => VIEWER.set('showSolids', sol.checked);
-  const occ = document.getElementById('onlyOcc');
-  if (occ) occ.onchange = () => VIEWER.set('onlyOccupiable', occ.checked);
-  addEventListener('resize', () => VIEWER && VIEWER.resize(), { passive: true });
-}
-
-function applyMode(mode) {
-  VIEWER.setMode(mode);
-  document.querySelectorAll('.mode').forEach(b =>
-    b.classList.toggle('on', b.dataset.mode === mode));
-  const w = document.getElementById('lvwrap');
-  if (w) w.style.display = (mode === '2d') ? '' : 'none';
-  const h = document.getElementById('modehint');
-  if (h) h.textContent = MODE_HINT[mode] || '';
-}
-
-// file:// 로 열면 브라우저가 fetch 를 막고 콘솔에 오류를 남긴다. 프로토콜을 먼저
-// 보고 그때는 fetch 를 아예 시도하지 않는다 - 실패한 요청을 콘솔에 남기지 않기
-// 위해서다. data.js 는 report.py 가 data.json 과 함께 쓰는 사본이다.
+/* 정본은 data.json 을 fetch 하는 쪽이다(CLAUDE.md §7). data.js 는 같은 내용의
+   사본이며 file:// 로 열었을 때만 쓴다 — 브라우저가 file:// 에서 fetch 를 막고
+   실패한 요청을 콘솔에 남기므로, 프로토콜을 먼저 보고 아예 시도하지 않는다. */
 if (location.protocol === 'file:') {
-  try { show(window.SITE_DATA); }
-  catch (e) { fail(e.message + ' (data.js 폴백)'); }
+  try { boot(window.SITE_DATA); } catch(e){ fail(e.message + ' (data.js 폴백)'); }
 } else {
   fetch('data.json')
-    .then(r => { if(!r.ok) throw new Error('data.json 을 읽지 못했다 (HTTP '+r.status+')'); return r.json(); })
-    .then(show)
-    .catch(e => {
-      try { show(window.SITE_DATA); }
-      catch (_) { fail(e.message); }
-    });
+    .then(r => { if(!r.ok) throw new Error('data.json HTTP '+r.status); return r.json(); })
+    .then(boot)
+    .catch(e => { try { boot(window.SITE_DATA); } catch(_) { fail(e.message); } });
 }
 </script>
 </body>
