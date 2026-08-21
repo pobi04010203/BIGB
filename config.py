@@ -52,7 +52,9 @@ R2_ACCEPTANCE = 0.80
 # run_grid → occ_box → fit_curve → report 를 다시 돌리면 된다(격자 재측정 필요).
 # 지금 되돌리는 것은 **설정과 데이터를 일치시키기 위해서**다.
 DETECTOR_ARCH = "yolov8n"                       # 실측 곡선의 출처. 전환은 위 주석 참조
-DETECTOR_WEIGHTS = f"{DETECTOR_ARCH}.pt"        # 출발점 (사전학습)
+MODELS = ROOT / "models"                        # 사전학습 가중치 보관
+DETECTOR_WEIGHTS = str(MODELS / f"{DETECTOR_ARCH}.pt")   # 출발점 (사전학습)
+# 경로로 주면 ultralytics 가 여기에 내려받는다. 루트에 .pt 가 흩어지지 않는다
 DETECTOR_RUN_NAME = f"shwd_{DETECTOR_ARCH}"     # runs/detect/<이 이름>/
 DETECTOR_BEST = (ROOT / "runs" / "detect" / DETECTOR_RUN_NAME / "weights" / "best.pt")
 

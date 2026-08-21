@@ -6,9 +6,10 @@ data/raw/*
 data/filtered/*
 !data/filtered/.gitkeep
 
-# 모델 가중치 — 루트에 떨어지는 사전학습본은 전부 제외한다.
-# ultralytics 가 필요할 때 다시 내려받는다
-/*.pt
+# 사전학습 가중치 — models/ 에 모은다. ultralytics 가 필요할 때 다시 내려받는다.
+# 폴더 자체는 남긴다 — 없으면 내려받기가 실패한다
+/models/*
+!/models/.gitkeep
 
 # Python
 __pycache__/
@@ -41,23 +42,17 @@ runs/detect/shwd_yolov8n/weights/*
 !runs/detect/shwd_yolov8n/results.csv
 !runs/detect/shwd_yolov8n/args.yaml
 
-# 학습 로그
-runs_train.log
-
-smoke_full.log
-grid_full.log
-
 # 검증 산출물 (커밋하지 않는다)
 .playwright-mcp/
-mockup-*.png
-grid_ext.log
-sensitivity.log
 
 # 발표자료 생성물 — tools/ 가 outputs/*.json 에서 재생성한다.
 # .pptx 는 배포 단위라 커밋하고, 그림·PDF·PNG 는 제외한다
 outputs/figures/
 outputs/*_전달용/
 
-# 검증용 스크린샷·로그 (루트에 떨어지는 것들). 재생성되므로 추적하지 않는다
+# 실행 로그와 검증 스크린샷 — 재생성되므로 추적하지 않는다
+/logs/*
+!/logs/.gitkeep
+/docs/screenshots/
 /*.png
 /*.log
