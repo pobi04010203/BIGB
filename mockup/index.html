@@ -16,7 +16,8 @@
  * 세 가지가 종전과 다르다.
  *   ① 레이아웃 — 100dvh 안에 다 넣고 페이지는 스크롤하지 않는다. 세부는 탭으로.
  *   ② 그림자 — A-3 강도. 아래 「대비」 주석 참조.
- *   ③ 폰트 — Pretendard 서브셋 임베드 (fonts.css). 외부 요청은 여전히 0 이다.
+ *   ③ 폰트 — Wanted Sans(본문) + IBM Plex Mono(숫자) 서브셋 임베드
+ *          (fonts.css · tools/make_webfont.py 가 만든다). 외부 요청은 여전히 0 이다.
  *
  * ── 대비에 대하여 ────────────────────────────────────────────────────────
  * A-3 은 그림자를 세게 준다. 그래도 **경계선을 지우지 않는다.** 뉴모피즘 정석은
@@ -30,9 +31,30 @@
 html,body{height:100%;overflow:clip}            /* 페이지는 스크롤하지 않는다 */
 body{
   margin:0;background:var(--color-paper);color:var(--color-ink);
-  font:var(--text-base)/1.5 "Pretendard",var(--font-body);
+  font:var(--text-base)/1.55 var(--font-ui);
   font-variant-numeric:tabular-nums;
   -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* 고정폭은 **주인공 수치와 코드에만** 쓴다.
+ *
+ * 한때 표·정의목록 값까지 걸었다가 물렸다 — "78,816개" 처럼 단위가 한글이면
+ * 숫자는 고정폭, 단위는 본문으로 렌더돼 한 낱말 안에서 서체가 바뀐다. 자릿수
+ * 맞추기는 tabular-nums 로 충분하고 그건 본문 벌에도 있다.
+ * 남는 자리는 KPI(순수 숫자·기호)와 코드·식별자다. */
+.mono,.kpi .v,code{
+  font-family:var(--font-num);
+  font-variant-numeric:tabular-nums;
+}
+code{font-size:.94em}
+
+/* **작은 글씨 규칙.** 11~12px 한글은 400 으로 두면 회색 배경에서 획이
+ * 끊긴다. 굵기를 500 으로 올리고 자간을 좁히는 대신 벌린다. 크기를 키우면
+ * 한 화면에 안 들어가므로 크기 말고 이 둘로 읽히게 만든다. */
+.sm-text,.brand p,.kpi .k,label,.seg button,.tab,table,.kv,.foot,.pill{
+  font-weight:500;
+  letter-spacing:var(--track-small);
 }
 
 :root{
@@ -60,7 +82,8 @@ body{
 .brand{min-width:0}
 .brand h1{margin:0;font-size:clamp(15px,1.35vw,20px);font-weight:700;
           letter-spacing:-.025em;line-height:1.15;overflow-wrap:anywhere}
-.brand p{margin:2px 0 0;font-size:var(--text-2xs);color:var(--color-muted)}
+.brand p{margin:3px 0 0;font-size:var(--text-2xs);color:var(--color-muted);
+         line-height:1.45}
 
 .kpis{display:flex;gap:var(--pad);flex-wrap:wrap;min-width:0}
 .kpi{
@@ -69,9 +92,11 @@ body{
   box-shadow:var(--raise-sm);
 }
 .kpi.hi{border-color:var(--color-ink-2);box-shadow:var(--raise)}
-.kpi .k{font-size:var(--text-2xs);color:var(--color-muted);letter-spacing:.04em}
-.kpi .v{font-size:clamp(17px,1.7vw,26px);font-weight:700;letter-spacing:-.03em;
-        line-height:1.1;margin-top:1px}
+.kpi .k{font-size:var(--text-2xs);color:var(--color-muted);letter-spacing:.05em}
+/* 고정폭은 이미 글자마다 폭이 같다. 여기에 큰 음수 자간까지 걸면 숫자가
+ * 서로 붙어 붙임체처럼 보인다. 살짝만 조인다. */
+.kpi .v{font-size:clamp(16px,1.6vw,25px);font-weight:600;letter-spacing:-.012em;
+        line-height:1.12;margin-top:2px}
 .kpi.hi .v{color:var(--color-ink)}
 .kpi:not(.hi) .v{color:var(--color-ink-2)}
 
@@ -129,9 +154,9 @@ input[type=radio],input[type=checkbox]{accent-color:var(--color-chrome);margin:0
 /* ── 표 ───────────────────────────────────────────────────────────── */
 table{width:100%;border-collapse:collapse;font-size:var(--text-2xs)}
 th,td{text-align:left;padding:5px 7px;border-bottom:var(--rule-hair) solid var(--color-rule-2)}
-th{position:sticky;top:0;background:var(--color-paper-3);color:var(--color-muted);
-   font-weight:600;letter-spacing:.04em}
-td.num{text-align:right}
+th{position:sticky;top:0;background:var(--color-paper-3);color:var(--color-ink-2);
+   font-weight:600;letter-spacing:.05em}
+td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
 tbody tr:hover{background:var(--color-paper-3)}
 .pill{display:inline-block;padding:0 7px;border-radius:8px;font-size:var(--text-2xs);
       background:var(--color-paper-3);color:var(--color-muted);box-shadow:var(--raise-sm)}
@@ -139,11 +164,13 @@ tbody tr:hover{background:var(--color-paper-3)}
 .pill.w4{background:var(--color-w4-bg);color:var(--color-w4);box-shadow:none}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:var(--text-2xs)}
 .kv dt{color:var(--color-muted)}
-.kv dd{margin:0;text-align:right}
+.kv dd{margin:0;text-align:right;font-weight:500;color:var(--color-ink-2);
+       font-variant-numeric:tabular-nums}
 
 /* ── 발 — 범례 ────────────────────────────────────────────────────── */
 .foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-      font-size:var(--text-2xs);color:var(--color-muted);padding:0 4px}
+      font-size:var(--text-2xs);color:var(--color-muted);padding:0 4px;
+      line-height:1.5}
 .ramp{display:inline-flex;height:11px;border:var(--rule-hair) solid var(--color-rule);
       border-radius:3px;overflow:hidden}
 .ramp i{display:block;width:20px}

@@ -56,3 +56,4 @@ outputs/*_전달용/
 /docs/screenshots/
 /*.png
 /*.log
+build/
