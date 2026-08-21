@@ -11,6 +11,16 @@ LH 아파트 건설현장 1개 공구를 100×60m 로 모사한다. BIM 을 쓰�
 from pathlib import Path
 import json
 import sys
+# 콘솔 인코딩이 cp949 인 환경에서 출력을 파일로 리디렉션하면, 문자열에 cp949 로
+# 표현 못 하는 문자(U+2212 마이너스, U+2014 em dash 등)가 하나만 있어도
+# UnicodeEncodeError 로 죽는다. **계산을 다 끝내고 마지막 print 에서 죽는다** —
+# 실제로 두 번 겪었다. 문자를 하나씩 쫓는 대신 출력단에서 막는다.
+# encoding 은 그대로 두어 한글 콘솔 표시를 유지하고 errors 만 바꾼다.
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except (AttributeError, ValueError):
+    pass
 from dataclasses import dataclass, field
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -33,6 +43,12 @@ class Box:
     x2: float; y2: float; z2: float
     kind: str = "solid"
     coverage: float = 1.0
+    # 슬래브 관통부(엘리베이터·계단실·설비 샤프트)의 평면 사각형 목록.
+    # **위험구역 도출에만 쓴다.** 광선투사는 이 구멍을 통과시키지 않는다 —
+    # 슬래브를 여전히 속 찬 판으로 본다. 아래층이 위층 구멍으로 보이는 효과는
+    # 모델에 없으며, 이는 가림을 실제보다 크게 잡는 쪽이라 안전 판정에서
+    # 보수적인 방향이다. 한계로 명시한다.
+    openings: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -142,7 +158,8 @@ def _solids(scaffold_coverage: float = None) -> list:
             cov = scaffold_coverage         # 명시적 null = 스윕 대상
         else:
             cov = float(item["coverage"])
-        s.append(Box(*[float(v) for v in b], item.get("kind", "solid"), cov))
+        ops = tuple(tuple(float(v) for v in o) for o in item.get("openings", ()))
+        s.append(Box(*[float(v) for v in b], item.get("kind", "solid"), cov, ops))
     return s
 
 
@@ -220,7 +237,7 @@ def _cameras(spacing_m: float = None) -> list:
     세울 수 있는 자리가 딱 24곳일 리 없으니 실무적으로 약했다.
 
     연속 최적화(좌표를 실수 변수로 두고 경사하강) 대신 **후보를 촘촘히 까는**
-    쪽을 골랐다. 구조를 바꾸지 않고, 탐욕의 (1−1/e) 보장이 그대로 유지되며,
+    쪽을 골랐다. 구조를 바꾸지 않고, 탐욕의 (1-1/e) 보장이 그대로 유지되며,
     "후보 안에서 불가능" 판정이 실제 물리적 한계에 가까워진다.
 
     설치 가능 영역 넷:

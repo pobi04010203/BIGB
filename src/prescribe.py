@@ -19,6 +19,16 @@
 """
 from pathlib import Path
 import sys
+# 콘솔 인코딩이 cp949 인 환경에서 출력을 파일로 리디렉션하면, 문자열에 cp949 로
+# 표현 못 하는 문자(U+2212 마이너스, U+2014 em dash 등)가 하나만 있어도
+# UnicodeEncodeError 로 죽는다. **계산을 다 끝내고 마지막 print 에서 죽는다** —
+# 실제로 두 번 겪었다. 문자를 하나씩 쫓는 대신 출력단에서 막는다.
+# encoding 은 그대로 두어 한글 콘솔 표시를 유지하고 errors 만 바꾼다.
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except (AttributeError, ValueError):
+    pass
 
 import numpy as np
 
@@ -72,7 +82,7 @@ def greedy_order(P: np.ndarray, w: np.ndarray, budget: int = None,
 
     **목적함수와 판정 잣대는 다르다.** 여기서 올리는 것은 기대값(WDR)이고
     판정은 임계를 넘는 복셀 비율(risk_coverage)로 한다. 기대값 목적함수는
-    submodular 라 탐욕해가 최적해의 (1−1/e) 이상을 보장하지만, 임계 지표는
+    submodular 라 탐욕해가 최적해의 (1-1/e) 이상을 보장하지만, 임계 지표는
     그 보장이 없다. 임계를 직접 목적함수로 쓰면 보장을 잃으므로 이대로 둔다.
 
     `fixed` 가 주어지면 그 카메라들을 이미 설치된 것으로 두고 **추가분만** 고른다.

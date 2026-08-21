@@ -178,7 +178,7 @@ def build():
     table(doc, ["구분", "값", "등급"], [
         ["현장", f"{site['site']['width_m']:.0f} × {site['site']['depth_m']:.0f} m (가상)", "[잠정]"],
         ["복셀", f"{config.VOXEL_M} m 큐브 · 전체 {n_all:,} · 지표용 {n_occ:,}", "[유도]"],
-        ["카메라", f"후보 {config.CAMERA_CANDIDATE_COUNT} · 예산 {config.CAMERA_BUDGET}대", "[잠정]"],
+        ["카메라", f"후보 {len(site['cameras'])} · 예산 {config.CAMERA_BUDGET}대", "[잠정]"],
         ["카메라 사양", f"{config.IMG_WIDTH_PX}×{config.IMG_HEIGHT_PX} · HFOV {config.HFOV_DEG:.0f}°", "[규격]"],
         ["검출기", f"{cp.get('detector')} (SHWD 파인튜닝)", "[실측]"],
         ["실험 격자", f"{cp.get('n_conditions')}조건 · 이미지 {cp.get('n_images')}장", "[실측]"],
@@ -285,15 +285,31 @@ def build():
               f"지표는 이 판정을 통과한 것만으로 낸다.", size=9, color=MUTED)
 
     h(doc, "4.1 위험구역과 가중치", 2)
-    table(doc, ["구역", "가중치", "등급"],
-          [[k, v, "[잠정]"] for k, v in config.RISK_WEIGHTS.items()] +
-          [["그 외", config.RISK_WEIGHT_DEFAULT, "[잠정]"]],
-          widths=[6.0, 3.0, 2.0])
-    rich(doc, [("가중치 1~5 는 상대 순위를 표현한 값이며 원자료에서 확인된 수치가 아니다. ",
-                False, WARN),
-               (f"config.RISK_WEIGHT_SOURCE = \"{config.RISK_WEIGHT_SOURCE}\"", True, WARN),
-               (". LH·국토안전관리원 위험도 지수를 확보하면 이 표만 교체한다.", False, WARN)],
+    # 가중치 표는 config 가 아니라 **site 가 실제로 만든 구역**에서 읽는다.
+    # 2026-08-20 에 zones.json 입력 계약으로 옮겨갔고, 일부는 골조에서 도출된다.
+    import site_model as _sm
+    _site = _sm.build()
+    seen, rows = set(), []
+    for z in sorted(_site.zones, key=lambda z: (-z.weight, z.name)):
+        if z.name in seen:
+            continue
+        seen.add(z.name)
+        tier = "[실측]" if z.source.startswith("derived:") else "[잠정]"
+        rows.append([z.label.split(" (")[0], z.weight, z.hazard or "-", z.source, tier])
+    rows.append(["그 외", config.RISK_WEIGHT_DEFAULT, "-", "기본값", "[잠정]"])
+    table(doc, ["구역", "가중치", "재해유형", "출처", "등급"], rows,
+          widths=[3.4, 1.6, 2.4, 5.0, 1.6], size=8)
+    rich(doc, [("가중치 1~10 은 ", False, INK),
+               ("고용노동부 「2025년 3분기 재해조사 대상 사망사고 발생 현황」에서 유도했다",
+                True, INK),
+               (" — 산식은 docs/reference/위험가중치_근거.md 다. 구역 위치는 "
+                "`data/zones.json` 입력이거나 `zone_derive` 규칙 도출이며, "
+                "**모든 구역이 source 를 갖도록 강제**된다(없으면 raise).", False, INK)],
          size=9)
+    rich(doc, [("우리는 위험을 판단하지 않는다. ", True, WARN),
+               ("어디가 위험한지는 현장이 정하고(안전관리계획서·유해위험방지계획서) "
+                "우리는 그것을 받는다. 도출 규칙도 우리 판단이 아니라 「산업안전보건"
+                "기준에 관한 규칙」 조문을 옮긴 것이다.", False, WARN)], size=9)
 
     h(doc, "4.2 카메라 후보와 예산", 2)
     mounts = {}

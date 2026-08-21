@@ -25,6 +25,16 @@ Zhang·Teizer·Pradhananga·Eastman, *Automation in Construction* 29 (2013) 이
 """
 from pathlib import Path
 import sys
+# 콘솔 인코딩이 cp949 인 환경에서 출력을 파일로 리디렉션하면, 문자열에 cp949 로
+# 표현 못 하는 문자(U+2212 마이너스, U+2014 em dash 등)가 하나만 있어도
+# UnicodeEncodeError 로 죽는다. **계산을 다 끝내고 마지막 print 에서 죽는다** —
+# 실제로 두 번 겪었다. 문자를 하나씩 쫓는 대신 출력단에서 막는다.
+# encoding 은 그대로 두어 한글 콘솔 표시를 유지하고 errors 만 바꾼다.
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except (AttributeError, ValueError):
+    pass
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -49,6 +59,15 @@ def _ring(x1, y1, x2, y2, t):
     """사각형 안쪽 두께 t 의 띠를 사각형 4개로 낸다."""
     return [[x1, y1, x2, y1 + t], [x1, y2 - t, x2, y2],
             [x1, y1, x1 + t, y2], [x2 - t, y1, x2, y2]]
+
+
+def _outward_ring(x1, y1, x2, y2, t):
+    """사각형 **바깥쪽** 두께 t 의 띠. 개구부 주변이 위험구역이다.
+
+    `_ring` 은 안쪽 띠를 낸다(슬래브 단부용). 구멍은 반대다 — 사람은 구멍
+    안이 아니라 구멍 가장자리에 선다.
+    """
+    return _ring(x1 - t, y1 - t, x2 + t, y2 + t, t)
 
 
 def _slabs(solids):
@@ -120,6 +139,28 @@ def derive(solids: list, top_slab_only: bool = True) -> list:
                         "산업안전보건기준에 관한 규칙 제334조",
             })
 
+    # ── R4 슬래브 개구부(관통부) 주변 ────────────────────────────────
+    # 슬래브를 뚫는 구멍 가장자리에서 EDGE_BAND_M 바깥까지. 떨어짐.
+    # 근거: R1 과 같은 조문이다 — 산업안전보건기준에 관한 규칙 제43조가
+    #       "작업발판 끝·**개구부**" 를 한 조문에서 같이 방호 대상으로 든다.
+    #       R1 이 판의 바깥 테두리를, R4 가 구멍의 테두리를 맡는다.
+    # **구멍 좌표는 도출이 아니라 입력이다**(T2). building.json 이 주지 않으면
+    #       이 규칙은 아무것도 내지 않는다 — 없는 구멍을 지어내지 않는다.
+    for b in slabs:
+        for k, op in enumerate(getattr(b, "openings", ()) or ()):
+            ox1, oy1, ox2, oy2 = op
+            out.append({
+                "name": "opening_perimeter",
+                "label": f"개구부 주변 (EL {b.z2:g}m)",
+                "hazard": "떨어짐", "kind": "rect",
+                "areas": _outward_ring(ox1, oy1, ox2, oy2, EDGE_BAND_M),
+                "z_min": round(b.z2, 3), "z_max": round(b.z2 + WORK_BAND_M, 3),
+                "source": "derived:R4_opening",
+                "rule": f"슬래브 관통부 바깥 {EDGE_BAND_M}m 밴드. "
+                        "산업안전보건기준에 관한 규칙 제43조 방호 대상. "
+                        "구멍 좌표는 building.json 의 도면 입력",
+            })
+
     for z in out:
         st, sv = HAZARD_WEIGHT[z["hazard"]]
         z["weight"], z["weight_severity_adj"] = st, sv
@@ -127,10 +168,12 @@ def derive(solids: list, top_slab_only: bool = True) -> list:
 
 
 # 골조 기하로는 낼 수 없는 것들. 왜 못 내는지 적어둔다 — 심사 답변이 된다.
+#
+# `opening_perimeter` 는 2026-08-21 여기서 빠졌다. 구멍 좌표가 building.json
+# 으로 들어오면서 R4 가 도출한다. **구멍 자체는 여전히 도출이 아니라 입력이다**
+# — 도면이나 IFC(IfcRelVoidsElement)가 준다. 규칙이 하는 일은 그 구멍에서
+# 위험 밴드를 만드는 것뿐이다.
 NOT_DERIVABLE = {
-    "opening_perimeter": ("T2 도면 필요", "슬래브 관통부(엘리베이터·계단실·설비 샤프트)는 "
-                          "골조 모델이 슬래브를 판 하나로 두는 한 존재하지 않는다. "
-                          "도면의 개구부 위치가 building.json 에 구멍으로 들어와야 도출된다"),
     "excavation_face": ("T3 가설계획 필요", "굴착 범위·심도는 골조가 아니라 흙막이 계획에서 온다"),
     "lift_landing":    ("T3 가설계획 필요", "건설용 리프트 설치 위치는 가설계획서 소관이다"),
     "tower_crane_radius": ("T3 가설계획 필요", "마스트 위치와 지브 길이가 있어야 반경이 정해진다"),

@@ -4,7 +4,7 @@
 각 (복셀, 카메라) 쌍에 대해 ρ · θ · o 를 낸다.
 
   ρ = f_px · H_head / d
-  θ = degrees(asin((z_cam − z_voxel) / d))
+  θ = degrees(asin((z_cam - z_voxel) / d))
   o = 복셀에 세운 높이 1.7m 수직 막대의 11개 샘플점 중 골조에 막히는 비율
 
 전부 막히면 visible=False, P=0 이다.
@@ -25,6 +25,16 @@
 from pathlib import Path
 import math
 import sys
+# 콘솔 인코딩이 cp949 인 환경에서 출력을 파일로 리디렉션하면, 문자열에 cp949 로
+# 표현 못 하는 문자(U+2212 마이너스, U+2014 em dash 등)가 하나만 있어도
+# UnicodeEncodeError 로 죽는다. **계산을 다 끝내고 마지막 print 에서 죽는다** —
+# 실제로 두 번 겪었다. 문자를 하나씩 쫓는 대신 출력단에서 막는다.
+# encoding 은 그대로 두어 한글 콘솔 표시를 유지하고 errors 만 바꾼다.
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except (AttributeError, ValueError):
+    pass
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
