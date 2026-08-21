@@ -245,13 +245,18 @@ def main() -> dict:
         "detector_weights": primary["detector_weights"],
         "detector_note": primary["detector_note"],
         "r2_full_grid": worst,          # 가장 나쁜 항목으로 대표한다
+        "r2_primary": primary["r2_full_grid"],   # 주 지표(미착용) 단독
         "r2_acceptance": config.R2_ACCEPTANCE,
         "acceptance_passed": bool(worst >= config.R2_ACCEPTANCE),
         "n_conditions": primary["n_conditions"],
         "n_images": None,
         "iou_thr": config.IOU_THR,
         "conf_thr": config.CONF_THR,
-        "status": "ok",
+        # **게이트를 status 에 반영한다.** 종전에는 acceptance_passed 를 계산해
+        # 놓고 status 는 "ok" 로 박아, 소비 측(detect_model)이 검사해도 늘
+        # 통과했다. 미달 곡선이 조용히 파이프라인에 흘러들 수 있었다.
+        # CLAUDE.md §7 의 D+7 분기는 이 값으로 발동한다.
+        "status": "ok" if worst >= config.R2_ACCEPTANCE else "acceptance_failed",
         "generated_at": None,
     }
 
