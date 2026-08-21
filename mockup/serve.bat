@@ -1,7 +1,7 @@
 @echo off
-REM ëª©ì—…ì„ ë¡œì»¬ ì„œë²„ë¡œ ë„ìš´ë‹¤.
-REM index.html ì€ file:// ë¡œ ì—´ì–´ë„ data.js í´ë°±ìœ¼ë¡œ ë™ìž‘í•˜ì§€ë§Œ,
-REM ì •ë³¸ ê²½ë¡œëŠ” data.json ì„ fetch í•˜ëŠ” ìª½ì´ë‹¤.
+REM ¸ñ¾÷À» ·ÎÄÃ ¼­¹ö·Î ¶ç¿î´Ù.
+REM index.html Àº file:// ·Î ¿­¾îµµ data.js Æú¹éÀ¸·Î µ¿ÀÛÇÏÁö¸¸,
+REM Á¤º» °æ·Î´Â data.json À» fetch ÇÏ´Â ÂÊÀÌ´Ù.
 cd /d "%~dp0"
-echo http://localhost:8000/ ì„ ë¸Œë¼ìš°ì €ì—ì„œ ì—´ ê²ƒ. ì¢…ë£ŒëŠ” Ctrl+C.
+echo http://localhost:8000/ À» ºê¶ó¿ìÀú¿¡¼­ ¿­ °Í. Á¾·á´Â Ctrl+C.
 python -m http.server 8000
