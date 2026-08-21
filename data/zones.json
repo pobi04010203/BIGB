@@ -1,36 +1,13 @@
 {
-  "_about": "위험구역 정의 — 사용자 입력",
-  "_why": "**우리는 위험을 판단하지 않는다.** 어디가 위험한지는 현장이 정한다. 안전관리계획서·유해위험방지계획서에 위험공종과 그 위치가 이미 적혀 있으므로, 새로 만들라는 것이 아니라 이미 쓰고 있는 것을 옮겨 적는 것이다. 자동 도출은 4D BIM 안전계획 연구(Zhang·Teizer·Pradhananga·Eastman, Automation in Construction 29, 2013)가 확립했고 그 출력을 이 형식으로 받으면 된다.",
+  "_about": "위험구역 — **골조에서 도출되지 않는 것만** 여기 적는다",
+  "_why": "골조 기하로 낼 수 있는 구역(슬래브 단부·갱폼 작업면·타설면)은 src/zone_derive.py 가 규칙으로 도출한다. 여기 남는 것은 골조 모델에 정보가 없어 못 내는 것들이다. **우리는 위험을 판단하지 않는다** — 어디가 위험한지는 도면과 가설계획서가 정하고, 이 파일은 그것을 옮겨 적는 칸이다.",
   "_weights": "가중치 1~10. **재해통계에서 유도했다** — 산식과 한계는 docs/reference/위험가중치_근거.md 참조. 출처는 고용노동부 「2025년 3분기 재해조사 대상 사망사고 발생 현황」이다. 탐욕의 이득식 Σ w·miss·P 에 그대로 곱해진다.",
   "_shape": "kind 는 rect(x1,y1,x2,y2) 또는 poly(points). z_min/z_max 는 선택 — 없으면 전 높이에 적용된다. 타설처럼 특정 층에서만 일어나는 작업은 z 를 잘라 쓴다.",
   "_units": "미터. 현장 좌표계 원점은 좌하단",
   "zones": [
     {
-      "name": "gangform_workface",
-      "label": "갱폼 작업면",
-      "weight": 10,
-      "hazard": "떨어짐",
-      "kind": "rect",
-      "areas": [
-        [
-          16.0,
-          12.0,
-          84.0,
-          16.0
-        ],
-        [
-          16.0,
-          44.0,
-          84.0,
-          48.0
-        ]
-      ],
-      "weight_severity_adj": 10,
-      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
-    },
-    {
       "name": "opening_perimeter",
-      "label": "개구부·단부",
+      "label": "슬래브 개구부(관통부)",
       "weight": 10,
       "hazard": "떨어짐",
       "kind": "rect",
@@ -49,27 +26,10 @@
         ]
       ],
       "weight_severity_adj": 10,
-      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
-    },
-    {
-      "name": "concrete_pour",
-      "label": "콘크리트 타설",
-      "weight": 2,
-      "hazard": "무너짐",
-      "kind": "rect",
-      "areas": [
-        [
-          20.0,
-          18.0,
-          50.0,
-          42.0
-        ]
-      ],
-      "z_min": 4.3,
-      "z_max": 9.3,
-      "note": "슬래브 위에서만 일어난다. 지상층에는 적용하지 않는다",
-      "weight_severity_adj": 9,
-      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도",
+      "tier": "T2 도면 필요",
+      "source": "구조도면의 슬래브 관통부(엘리베이터·계단실·설비 샤프트) 위치",
+      "note": "단부는 zone_derive R1 이 따로 도출한다. 이 구역은 슬래브를 관통하는 구멍 — 엘리베이터·계단실·설비 샤프트다"
     },
     {
       "name": "excavation_face",
@@ -88,7 +48,9 @@
       "z_max": 4.0,
       "note": "굴착 저면과 그 가장자리. 상부층에는 적용하지 않는다",
       "weight_severity_adj": 8,
-      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도",
+      "tier": "T3 가설계획 필요",
+      "source": "흙막이·굴착 계획도의 굴착 범위선"
     },
     {
       "name": "lift_landing",
@@ -105,7 +67,9 @@
         ]
       ],
       "weight_severity_adj": 9,
-      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도",
+      "tier": "T3 가설계획 필요",
+      "source": "가설계획서의 건설용 리프트 설치 위치"
     },
     {
       "name": "tower_crane_radius",
@@ -122,7 +86,9 @@
         ]
       ],
       "weight_severity_adj": 5,
-      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도",
+      "tier": "T3 가설계획 필요",
+      "source": "가설계획서의 타워크레인 마스트 위치와 지브 길이"
     },
     {
       "name": "material_yard",
@@ -145,8 +111,12 @@
         ]
       ],
       "weight_severity_adj": 3,
-      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도"
+      "weight_basis": "고용노동부 2025.3분기 사망사고 통계 유도",
+      "tier": "T3 가설계획 필요",
+      "source": "현장 가설배치도의 자재 야적 구획"
     }
   ],
-  "_profiles": "weight = statistical(통계 유도, 기본). weight_severity_adj = 붕괴 계열을 올린 판단값. 전국 통계가 구역별 노출면적을 보정하지 못하고 무너짐 건수가 비공개라 두 프로파일로 민감도를 본다."
+  "_profiles": "weight = statistical(통계 유도, 기본). weight_severity_adj = 붕괴 계열을 올린 판단값. 전국 통계가 구역별 노출면적을 보정하지 못하고 무너짐 건수가 비공개라 두 프로파일로 민감도를 본다.",
+  "_source": "**모든 구역에 source 가 있어야 한다.** 어느 서류의 어느 항목에서 왔는지 적는다. 비어 있으면 build() 가 raise 한다 — 근거 없는 사각형은 심사에서 '그 좌표는 어디서 나왔냐' 한 마디로 무너진다.",
+  "_tier": "T1 골조에서 도출 (여기 없음) · T2 도면 필요 · T3 가설계획 필요"
 }

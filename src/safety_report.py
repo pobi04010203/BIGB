@@ -82,14 +82,23 @@ def build(plan_path: Path) -> dict:
                 sum(site.voxels[i]["w"] for i in ok) / wsum, 4) if wsum else None,
         }
 
-    # 위험구역별 분해
+    # 위험구역별 분해. **출처를 함께 싣는다** — 어느 사각형이 어디서 왔는지
+    # 보고서만 보고 추적할 수 있어야 한다. 근거 없는 구역은 애초에 들어오지
+    # 못하지만(site_model._zones 가 raise), 들어온 것의 출처는 보여야 한다.
+    meta = {}
+    for z in site.zones:
+        e = meta.setdefault(z.name, {"label": z.label, "hazard": z.hazard,
+                                     "tier": z.tier, "source": z.source,
+                                     "rule": z.rule, "parts": 0})
+        e["parts"] += 1
     zones = {}
     for zname in sorted({z for v in site.voxels for z in v["zones"]}):
         sel = [i for i, v in enumerate(site.voxels) if zname in v["zones"]]
         ok = [i for i in sel if pt[i] >= d["threshold"]]
         zones[zname] = {"voxels": len(sel),
                         "coverage": round(len(ok) / len(sel), 4),
-                        "weight": site.voxels[sel[0]]["w"]}
+                        "weight": site.voxels[sel[0]]["w"],
+                        **meta.get(zname, {})}
 
     blind = sorted(
         [{"voxel_id": site.voxels[i]["id"], "x": site.voxels[i]["x"],

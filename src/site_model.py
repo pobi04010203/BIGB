@@ -54,6 +54,11 @@ class Zone:
     areas: tuple                   # rect: (x1,y1,x2,y2) / poly: ((x,y), ...)
     z_min: float = float("-inf")
     z_max: float = float("inf")
+    # 출처. 도출이면 "derived:R1_slab_edge", 입력이면 서류의 어느 항목인지다.
+    # 근거 없는 사각형을 못 만들게 _zones() 가 강제한다.
+    source: str = ""
+    rule: str = ""
+    tier: str = ""
 
     def contains(self, x: float, y: float, z: float = None) -> bool:
         if z is not None and not (self.z_min <= z <= self.z_max):
@@ -149,30 +154,55 @@ ZONES_JSON = config.ROOT / "data" / "zones.json"
 WEIGHT_PROFILE = "weight"        # "weight"(통계) | "weight_severity_adj"(심각도 보정)
 
 
-def _zones(path: Path = None, profile: str = None) -> list:
-    """`data/zones.json` 에서 읽는다. 코드에 좌표를 박지 않는다.
+def _zones(path: Path = None, profile: str = None, solids: list = None) -> list:
+    """위험구역. **두 곳에서 온다.**
 
-    파일이 없으면 위험구역 없이(전부 가중치 1) 진행한다 — 멈추지 않는다.
-    위험구역은 있으면 좋은 정보지 필수 입력이 아니다.
+      T1  `zone_derive.derive(solids)` — 골조 기하에서 규칙으로 도출한다.
+          슬래브 단부·갱폼 작업면·타설면. 근거 조문이 규칙마다 붙는다.
+      T2/T3  `data/zones.json` — 골조 모델에 정보가 없어 못 내는 것.
+          개구부(도면 필요), 굴착면·리프트·크레인·야적장(가설계획 필요).
+
+    **모든 구역은 `source` 를 가져야 한다.** 도출이면 규칙 이름, 입력이면 서류의
+    어느 항목인지다. 없으면 raise 한다 — 근거 없는 사각형은 "그 좌표는 어디서
+    나왔냐"는 질문 하나로 무너진다.
+
+    `solids` 를 주지 않으면 T1 을 건너뛴다(단위 시험용).
     """
-    path = Path(path or ZONES_JSON)
-    if not path.exists():
-        return []
-    doc = json.loads(path.read_text(encoding="utf-8"))
-    out = []
+    import zone_derive
+
     prof = profile or WEIGHT_PROFILE
-    for z in doc["zones"]:
+    items = []
+    if solids is not None:
+        items += zone_derive.derive(solids)
+
+    path = Path(path or ZONES_JSON)
+    if path.exists():
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        derived_names = {z["name"] for z in items}
+        for z in doc["zones"]:
+            if z["name"] in derived_names:
+                raise ValueError(
+                    f"{path.name} 의 '{z['name']}' 은 골조에서 도출되는 구역이다"
+                    " (zone_derive). 손으로 찍은 좌표가 도출값을 가려 어느 쪽이"
+                    " 쓰였는지 알 수 없게 되므로 둘 중 하나만 남겨라.")
+            items.append(z)
+
+    zones = []
+    for z in items:
+        if not z.get("source"):
+            raise ValueError(
+                f"위험구역 '{z['name']}' 에 source 가 없다. 어느 서류의 어느"
+                " 항목에서 왔는지 적어라. data/zones.json 의 _source 참고.")
         kind = z.get("kind", "rect")
-        areas = tuple(tuple(a) if kind == "rect" else tuple(map(tuple, a))
-                      for a in z["areas"])
-        out.append(Zone(
+        zones.append(Zone(
             name=z["name"], label=z.get("label", z["name"]),
             weight=int(z.get(prof, z["weight"])), hazard=z.get("hazard", ""),
-            kind=kind, areas=areas,
-            z_min=float(z.get("z_min", float("-inf"))),
-            z_max=float(z.get("z_max", float("inf"))),
+            kind=kind, areas=[list(a) for a in z["areas"]],
+            z_min=float(z.get("z_min", -1e9)), z_max=float(z.get("z_max", 1e9)),
+            source=z["source"], rule=z.get("rule", ""),
+            tier=z.get("tier", "T1 골조에서 도출"),
         ))
-    return out
+    return zones
 
 
 def zone_weights(zones: list = None) -> dict:
@@ -358,7 +388,7 @@ def _voxels(solids: list, zones: list) -> list:
 
 def build(scaffold_coverage: float = None, weight_profile: str = None) -> Site:
     solids = _solids(scaffold_coverage)
-    zones = _zones(profile=weight_profile)
+    zones = _zones(profile=weight_profile, solids=solids)
     return Site(
         width=config.SITE_WIDTH_M,
         depth=config.SITE_DEPTH_M,

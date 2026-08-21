@@ -13,7 +13,8 @@
         "material_yard",
         "lift_landing",
         "tower_crane_radius",
-        "excavation_face"
+        "excavation_face",
+        "slab_edge"
       ],
       "weight_override": {
         "tower_crane_radius": 8
@@ -28,7 +29,8 @@
       "active_zones": [
         "gangform_workface",
         "opening_perimeter",
-        "tower_crane_radius"
+        "tower_crane_radius",
+        "slab_edge"
       ],
       "note": "갱폼 작업면과 개구부가 동시에 열린다. 둘 다 '떨어짐'으로 이미 최댓값 10 이라 올릴 여지가 없다. override 를 두지 않는다"
     },
@@ -39,7 +41,8 @@
       "to": "13:00",
       "active_zones": [
         "opening_perimeter",
-        "excavation_face"
+        "excavation_face",
+        "slab_edge"
       ],
       "note": "작업이 멈춰도 개구부와 굴착면은 남는다. 상시 위험이다"
     },
@@ -52,7 +55,8 @@
         "concrete_pour",
         "gangform_workface",
         "opening_perimeter",
-        "lift_landing"
+        "lift_landing",
+        "slab_edge"
       ],
       "note": "타설 중에는 거푸집·동바리 붕괴가 최대 위험이다. 기본 2(전국 무너짐 통계) 에서 9 로 올린다. **이 상향은 통계가 아니라 판단이다** — docs/reference/위험가중치_근거.md §4 ② 의 노출면적 미보정 한계를 시간축에서 메운다. severity_adj 프로파일의 타설 가중치와 같은 값이다",
       "weight_override": {
@@ -67,10 +71,12 @@
       "active_zones": [
         "material_yard",
         "lift_landing",
-        "excavation_face"
+        "excavation_face",
+        "slab_edge"
       ],
       "note": "조도가 떨어지는 시간대이나 조도는 모델에 없다 — 한계로 명시할 것"
     }
   ],
-  "_zones_source": "구역 이름과 기본 가중치는 data/zones.json 이 출처다. weight_override 는 그 시간대에만 덮어쓴다"
+  "_zones_source": "구역 이름과 기본 가중치는 data/zones.json 이 출처다. weight_override 는 그 시간대에만 덮어쓴다",
+  "_slab_edge": "슬래브 단부는 전 시간대에 켠다. 작업이 멈춰도 단부는 남는다. 이 구역은 골조에서 도출된다(zone_derive R1) — zones.json 에 없다."
 }
