@@ -120,6 +120,14 @@ def coverage_curve(P: np.ndarray, w: np.ndarray, order: list,
     return out
 
 
+def first_meeting_at(curve: list, metric: str, target: float):
+    """이 곡선에서 목표를 처음 넘는 지점. 못 넘으면 None."""
+    for row in curve:
+        if row[metric] >= target:
+            return row
+    return None
+
+
 def diagnose(site, pairs, curve, plan_idx: list, cams: list, P, w,
              target: float = None, metric: str = None,
              threshold: float = None) -> dict:
@@ -149,18 +157,35 @@ def diagnose(site, pairs, curve, plan_idx: list, cams: list, P, w,
     full_curve = coverage_curve(P, w, full_order, threshold)
     ceiling = full_curve[-1]
 
-    def first_meeting(curve):
-        for row in curve:
-            if row[metric] >= target:
-                return row
-        return None
+    add_hit = first_meeting_at(add_curve, metric, target)
+    re_hit = first_meeting_at(full_curve, metric, target)
 
-    add_hit = first_meeting(add_curve)
-    re_hit = first_meeting(full_curve)
+    # ── 임계 스윕 ────────────────────────────────────────────────────
+    # **커버리지 비율 기준은 어디에도 없다** (docs/reference/커버리지_기준_조사.md).
+    # 0.90 은 우리가 제안한 값이므로 확정값처럼 쓰지 않는다. 네 임계 전부에서
+    # 무엇이 필요한지 함께 실어, 판정이 어느 임계에서 뒤집히는지 보이게 한다.
+    sweep = []
+    for tgt in config.LH_COVERAGE_TARGET_SWEEP:
+        a = first_meeting_at(add_curve, metric, tgt)
+        r = first_meeting_at(full_curve, metric, tgt)
+        sweep.append({
+            "target": tgt,
+            "passes_current": bool(current[metric] >= tgt),
+            "passes_realloc": bool(realloc[metric] >= tgt),
+            "add_cameras_needed": (a["n_cameras"] - len(plan_idx)) if a else None,
+            "realloc_cameras_needed": r["n_cameras"] if r else None,
+            "reachable": bool(ceiling[metric] >= tgt),
+            "is_default": tgt == target,
+        })
 
     return {
         "target": target,
         "target_metric": metric,
+        "target_source": config.LH_COVERAGE_TARGET_SOURCE,
+        "target_sweep": sweep,
+        "target_note": "커버리지 비율 기준은 어느 법령·고시·지침에도 없다. "
+                       "0.90 은 우리가 제안한 값이며 확정값이 아니다. "
+                       "docs/reference/커버리지_기준_조사.md",
         "threshold": config.P_DETECT_THRESHOLD if threshold is None else threshold,
         "current": current,
         "passes": bool(current[metric] >= target),
