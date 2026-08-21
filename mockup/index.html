@@ -27,7 +27,7 @@
  */
 
 *{box-sizing:border-box}
-html,body{height:100%;overflow:hidden}          /* 페이지는 스크롤하지 않는다 */
+html,body{height:100%;overflow:clip}            /* 페이지는 스크롤하지 않는다 */
 body{
   margin:0;background:var(--color-paper);color:var(--color-ink);
   font:var(--text-base)/1.5 "Pretendard",var(--font-body);
@@ -49,18 +49,20 @@ body{
 /* ── 골격 ─────────────────────────────────────────────────────────── */
 .app{
   height:100dvh;display:grid;
+  grid-template-columns:minmax(0,1fr);
   grid-template-rows:auto minmax(0,1fr) auto;
   gap:var(--pad);padding:var(--pad);
 }
 
 /* ── 머리 — 제목 + KPI 한 줄 ─────────────────────────────────────── */
-.top{display:grid;grid-template-columns:minmax(200px,1fr) auto;
+.top{display:grid;grid-template-columns:minmax(0,1fr) auto;
      gap:var(--pad);align-items:center}
+.brand{min-width:0}
 .brand h1{margin:0;font-size:clamp(15px,1.35vw,20px);font-weight:700;
-          letter-spacing:-.025em;line-height:1.15}
+          letter-spacing:-.025em;line-height:1.15;overflow-wrap:anywhere}
 .brand p{margin:2px 0 0;font-size:var(--text-2xs);color:var(--color-muted)}
 
-.kpis{display:flex;gap:var(--pad);flex-wrap:wrap}
+.kpis{display:flex;gap:var(--pad);flex-wrap:wrap;min-width:0}
 .kpi{
   background:var(--color-paper-2);border:var(--rule-hair) solid var(--color-rule);
   border-radius:14px;padding:8px 14px;min-width:118px;
@@ -155,6 +157,13 @@ tbody tr:hover{background:var(--color-paper-3)}
 
 @media (max-width:1000px){
   .main{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(0,1fr)}
+}
+/* 태블릿 세로 이하 — 제목과 KPI 를 위아래로 가른다. 나란히 두면 KPI 가
+   제 최소폭을 지키려다 화면 밖으로 나간다. */
+@media (max-width:640px){
+  .top{grid-template-columns:minmax(0,1fr)}
+  .kpis{gap:8px}
+  .kpi{flex:1 1 132px;min-width:0;padding:7px 11px}
 }
 @media (prefers-reduced-motion:reduce){*{transition-duration:1ms !important}}
 </style>
