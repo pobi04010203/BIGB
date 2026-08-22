@@ -16,7 +16,45 @@
   "metric": "score",
   "source": "proposed_provisional",
   "threshold": 0.5,
-  "note": "LH 가 게시한 커버리지 기준은 아직 없다. 이 값은 우리가 제안하는 잠정 임계이며 고시값이 아니다"
+  "note": "커버리지 비율 기준은 어느 법령·고시·지침에도 없다(2026-08-21 조사 종결). 이 값은 우리가 제안하는 값이며 고시값이 아니다. 네 임계 전부의 결과를 target_sweep 에 함께 싣는다. docs/reference/커버리지_기준_조사.md",
+  "sweep": [
+   {
+    "target": 0.8,
+    "passes_current": false,
+    "passes_realloc": false,
+    "add_cameras_needed": 9,
+    "realloc_cameras_needed": 16,
+    "reachable": true,
+    "is_default": false
+   },
+   {
+    "target": 0.85,
+    "passes_current": false,
+    "passes_realloc": false,
+    "add_cameras_needed": 9,
+    "realloc_cameras_needed": 16,
+    "reachable": true,
+    "is_default": false
+   },
+   {
+    "target": 0.9,
+    "passes_current": false,
+    "passes_realloc": false,
+    "add_cameras_needed": 9,
+    "realloc_cameras_needed": 16,
+    "reachable": true,
+    "is_default": true
+   },
+   {
+    "target": 0.95,
+    "passes_current": false,
+    "passes_realloc": false,
+    "add_cameras_needed": 9,
+    "realloc_cameras_needed": 16,
+    "reachable": true,
+    "is_default": false
+   }
+  ]
  },
  "verdict": {
   "passes": false,

@@ -134,8 +134,12 @@ def build(plan_path: Path) -> dict:
         "standard": {"target": d["target"], "metric": m,
                      "source": config.LH_COVERAGE_TARGET_SOURCE,
                      "threshold": d["threshold"],
-                     "note": "LH 가 게시한 커버리지 기준은 아직 없다. 이 값은 "
-                             "우리가 제안하는 잠정 임계이며 고시값이 아니다"},
+                     "note": "커버리지 비율 기준은 어느 법령·고시·지침에도 없다"
+                             "(2026-08-21 조사 종결). 이 값은 우리가 제안하는 "
+                             "값이며 고시값이 아니다. 네 임계 전부의 결과를 "
+                             "target_sweep 에 함께 싣는다. "
+                             "docs/reference/커버리지_기준_조사.md",
+                     "sweep": d.get("target_sweep")},
         "verdict": {"passes": d["passes"],
                     "value": d["current"][m],
                     "gap": round(d["target"] - d["current"][m], 4)},
