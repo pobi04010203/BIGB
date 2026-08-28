@@ -29,8 +29,8 @@ REM ---------------------------------------------------------------------
 set "PORT=8765"
 set "ALTPORT=8766"
 
-if not exist "place.html" (
-  echo [오류] place.html 이 없습니다. start.bat 을 mockup 폴더 안에서 실행하세요.
+if not exist "index.html" (
+  echo [오류] index.html 이 없습니다. start.bat 을 mockup 폴더 안에서 실행하세요.
   echo        현재 위치: %CD%
   pause
   exit /b 1
@@ -79,7 +79,7 @@ if errorlevel 1 (
 )
 
 :openbrowser
-start "" "http://localhost:%PORT%/place.html"
+start "" "http://localhost:%PORT%/index.html"
 echo.
 echo  브라우저를 열었습니다.
 echo  종료하려면 최소화된 "AI CCTV 뷰어 서버" 창을 닫으세요.
@@ -89,7 +89,7 @@ exit /b 0
 
 :openfile
 echo 파이썬이 없어 index.html 을 파일로 엽니다 ^(site.js 사용^).
-start "" "place.html"
+start "" "index.html"
 powershell -NoProfile -Command "Start-Sleep -Seconds 3" >nul 2>&1
 exit /b 0
 

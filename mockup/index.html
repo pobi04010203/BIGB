@@ -287,12 +287,6 @@ function render(){
       <h1>AI CCTV 배치 적정성 평가</h1>
       <p>안전모 미착용 검출확률 기준 · 카메라 ${d.camera_budget}대
         · 작업자 활동공간 ${nOcc.toLocaleString()}칸</p>
-      <!-- **이 화면은 읽는 자리다.** 카메라를 놓는 것은 place.html 이며,
-           그 길을 화면 안에 둔다 - 파일 목록에서 찾게 하지 않는다. -->
-      <p style="margin-top:6px">
-        <a href="place.html" style="font-size:var(--text-2xs);color:var(--color-ink-2)"
-           title="도면에서 카메라를 직접 놓고 그 자리에서 검출확률을 잰다"
-          >← 카메라를 직접 놓으려면 <b>배치 도구</b>로</a></p>
     </div>
     <div class="kpis">
       <!-- 자동 배치를 범위에서 뺀 뒤로 "현재/제안 배치·개선폭" 은 잴 대상이
