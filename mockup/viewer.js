@@ -179,7 +179,12 @@
       const S = this.d.site;
       const cx = S.width_m / 2, cy = S.depth_m / 2;
       const yaw = this.cam.yaw * DEG, pit = this.cam.pitch * DEG;
-      const dx = x - cx, dy = y - cy;
+      // **북쪽이 위로 가게 y 를 뒤집는다.** 캔버스 y 는 아래로 자라므로
+      // 세계 y 를 그대로 쓰면 남쪽이 위에 온다 - 도면과 상하가 뒤집혀 보였다.
+      // (0,0) 이 화면 위, (0,125) 가 아래에 찍히고 있었다. place.html 의
+      // 평면도는 depth_m - y 로 같은 일을 한다. 여기서만 빠져 있었다.
+      // 부호를 여기서 한 번 뒤집으면 회전·원근·깊이정렬이 모두 따라온다.
+      const dx = x - cx, dy = -(y - cy);
       const dz = (z - (this._pivotZ || 0)) * (this.cam.zx || 1);
 
       const rx = dx * Math.cos(yaw) - dy * Math.sin(yaw);
@@ -224,7 +229,9 @@
       // (rx,ry) 는 yaw 로 돈 좌표다. 반대로 돌린다.
       const dx = rx * c + ry * s_;
       const dy = -rx * s_ + ry * c;
-      return { x: dx + S.width_m / 2, y: dy + S.depth_m / 2 };
+      // _raw 가 dy = -(y - cy) 로 뒤집어 두었다. 되돌릴 때도 같이 뒤집는다.
+      // 이걸 빠뜨려 왕복 오차가 100m 넘게 났다.
+      return { x: dx + S.width_m / 2, y: S.depth_m / 2 - dy };
     }
 
     _project(x, y, z) {
